@@ -1,0 +1,31 @@
+{
+    "population_settings":{
+        "population_size": 1000,
+        "top_percent_allowed_to_reproduce": 60,
+        "generations_allowed_without_improvement": 10
+    },
+    "node_settings":{
+        "node_addition_rate": 0.03
+    },
+    "link_settings":{
+        "link_addition_rate": 0.3,
+        "link_recurrent_rate": 0.1,
+        "link_addition_attempts": 3,
+        "link_loopback_attempts": 3
+    },
+    "weight_settings":{
+        "weight_mutation_rate": 0.2,
+        "weight_replacement_rate": 0.1,
+        "weight_max_perturbation": 0.5
+    },
+    "reproduction_settings":{
+        "crossover_rate": 0.7
+    },
+    "species_settings":{
+        "compatibility_threshold": 0.26,
+        "old_age_threshold": 50,
+        "old_age_penalty": 0.7,
+        "youth_threshold": 10,
+        "youth_bonus": 1.3
+    }
+}
