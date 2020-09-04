@@ -1,1 +1,0 @@
-import neat.network as network
