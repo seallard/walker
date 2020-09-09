@@ -2,7 +2,7 @@
     "population_settings":{
         "population_size": 1000,
         "top_percent_allowed_to_reproduce": 60,
-        "generations_allowed_without_improvement": 10
+        "generations_allowed_without_improvement": 20
     },
     "node_settings":{
         "node_addition_rate": 0.03
@@ -23,9 +23,8 @@
     },
     "species_settings":{
         "compatibility_threshold": 0.26,
-        "old_age_threshold": 50,
-        "old_age_penalty": 0.7,
-        "youth_threshold": 10,
-        "youth_bonus": 1.3
+        "excess_coefficient": 0.5,
+        "disjoint_coefficient": 0.1,
+        "weight_coefficient": 0.1
     }
 }
