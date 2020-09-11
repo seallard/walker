@@ -17,3 +17,5 @@ Applying NEAT with novelty search to bidpedal walking.
 - NEAT: [The NEAT Users Page](http://www.cs.ucf.edu/~kstanley/neat.html)
 - Novelty search: [The Novelty Search Users Page](http://eplex.cs.ucf.edu/noveltysearch/userspage/)
 
+## Blogs
+- [otoro](https://otoro.net/ml/)

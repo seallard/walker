@@ -11,7 +11,8 @@
         "link_addition_rate": 0.3,
         "link_recurrent_rate": 0.1,
         "link_addition_attempts": 3,
-        "link_loopback_attempts": 3
+        "link_loopback_attempts": 3,
+        "link_reactivation_rate": 0.1
     },
     "weight_settings":{
         "weight_mutation_rate": 0.2,
