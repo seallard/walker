@@ -1,11 +1,11 @@
-from enums.node_types import NodeType
+from neat.enums.node_types import NodeType
 
 class NodeGene:
 
-    def __init__(self, node_type, recurrent, node_id):
+    def __init__(self, node_type, node_id, recurrent=False):
         self.node_type = node_type
-        self.recurrent = recurrent
         self.id = node_id
+        self.recurrent = recurrent
 
 
     def can_have_loop(self):
