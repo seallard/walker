@@ -1,7 +1,7 @@
 
 class ConnectionGene:
 
-    def __init__(self, from_node, to_node, weight, enabled=True, recurrent=False, innovation_number):
+    def __init__(self, from_node, to_node, weight, enabled, recurrent, innovation_number):
         self.from_node = from_node
         self.to_node = to_node
         self.weight = weight
