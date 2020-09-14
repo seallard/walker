@@ -48,7 +48,7 @@ class Genome:
                       sets recurrent attribute of node to True.
         """
 
-        while loop_tries:
+        while tries:
             node = choice(self.nodes)
 
             if node.can_have_loop():
@@ -57,7 +57,7 @@ class Genome:
                 self.links.append(new_gene)
                 return new_gene
 
-            loop_tries -= 1
+            tries -= 1
 
     def add_non_recurrent_link(self):
         pass

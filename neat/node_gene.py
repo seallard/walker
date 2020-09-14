@@ -16,7 +16,7 @@ class NodeGene:
             self.node_type != NodeType.INPUT
         )
 
-    def can_be_out_node():
+    def can_be_out_node(self):
         """Check if node can be used as out in link. """
         return (
             self.node_type != NodeType.BIAS and
