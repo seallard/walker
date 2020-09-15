@@ -24,21 +24,8 @@ class Genome:
         if random() < loop_probability:
             return self.add_loop(loop_tries)
 
-        else:
+        return self.add_non_recurrent_link(add_tries)
 
-            while add_tries:
-                from_node = choice(self.nodes)
-                to_node = choice(self.nodes[self.num_inputs:]) # Non-input node.
-
-                if not to_node.can_be_out_node():
-                    add_tries -= 1
-                    continue
-
-                link_exists = self.link_exists(from_node.id, to_node.id)
-
-                if not link_exists and from_node.id != to_node.id:
-                    # TODO: create gene and add to genome.
-                    return (from_node, to_node)
 
     def add_loop(self, tries):
         """
@@ -59,8 +46,24 @@ class Genome:
 
             tries -= 1
 
-    def add_non_recurrent_link(self):
-        pass
+    def add_non_recurrent_link(self, tries):
+        """
+        Add non-recurrent link to genome.
+        Returns None if failed. Otherwise a connection gene.
+        Side effects: adds connection gene to this genome.
+        """
+        while tries:
+            from_node = choice(self.nodes)
+            to_node = choice(self.nodes[self.num_inputs:])
+            link_exists = self.link_exists(from_node.id, to_node.id)
+
+            if link_exists or from_node.id == to_node.id or not to_node.valid_out_node():
+                tries -= 1
+                continue
+
+            new_gene = ConnectionGene(from_node, to_node)
+            self.links.append(new_gene)
+            return new_gene
 
     def mutate_add_node(self):
         """Random insertion of a node between two previously connected nodes. """
