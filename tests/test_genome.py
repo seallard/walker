@@ -19,6 +19,13 @@ def loopable_genome(genome):
     return genome
 
 @pytest.fixture
+def unloopable_genome(genome):
+    """Unrealistic genome in which no node is loopable. """
+    for node in genome.nodes:
+        node.node_type = NodeType.BIAS
+    return genome
+
+@pytest.fixture
 def connectable_genome():
     pass
 
@@ -53,3 +60,10 @@ def test_possible_loop(loopable_genome):
     assert loop_gene.from_node.recurrent == True, "the node has been marked as recurrent"
     assert loop_gene.recurrent == True, "the link has been marked as recurrent"
     assert loop_gene.from_node == loop_gene.to_node, "link is a loop"
+
+def test_impossible_loop(unloopable_genome):
+    original_number_of_links = len(unloopable_genome.links)
+    result = unloopable_genome.add_loop(tries=10)
+    new_number_of_links = len(unloopable_genome.links)
+    assert result is None, "no link gene is returned"
+    assert original_number_of_links == new_number_of_links, "no link gene has been added"
