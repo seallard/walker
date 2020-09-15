@@ -12,12 +12,11 @@ def initialised_genome():
     return genome
 
 @pytest.fixture
-def loopable_genome():
-    pass
-
-@pytest.fixture
-def unloopable_genome():
-    pass
+def loopable_genome(genome):
+    """Unrealistic genome in which each node is loopable. """
+    for node in genome.nodes:
+        node.node_type = NodeType.HIDDEN
+    return genome
 
 @pytest.fixture
 def connectable_genome():
@@ -44,3 +43,13 @@ def test_link_initialisation(genome):
 
     assert True not in [x.recurrent for x in genome.links], "no initial link is recurrent"
     assert False not in [x.enabled for x in genome.links], "all initial links are enabled"
+
+
+def test_possible_loop(loopable_genome):
+    original_number_of_links = len(loopable_genome.links)
+    loop_gene = loopable_genome.add_loop(tries=1)
+
+    assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
+    assert loop_gene.from_node.recurrent == True, "the node has been marked as recurrent"
+    assert loop_gene.recurrent == True, "the link has been marked as recurrent"
+    assert loop_gene.from_node == loop_gene.to_node, "link is a loop"
