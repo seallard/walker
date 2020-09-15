@@ -101,10 +101,17 @@ class Genome:
             node = NodeGene(NodeType.INPUT, node_id)
             self.nodes.append(node)
 
-
         for node_id in range(self.num_inputs, self.num_inputs + self.num_outputs):
             node = NodeGene(NodeType.OUTPUT, node_id)
             self.nodes.append(node)
 
     def __initialise_links(self):
-        pass
+        """Connect each input node to each output node. """
+        self.links = []
+        innovation_id = self.num_inputs + self.num_outputs
+        for input_node in self.nodes[:self.num_inputs]:
+            for output_node in self.nodes[self.num_inputs:]:
+                link = ConnectionGene(input_node, output_node)
+                link.innovation_id = innovation_id
+                self.links.append(link)
+                innovation_id += 1
