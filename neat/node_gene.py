@@ -2,7 +2,7 @@ from neat.enums.node_types import NodeType
 
 class NodeGene:
 
-    def __init__(self, node_type, node_id, recurrent=False):
+    def __init__(self, node_type, node_id=None, recurrent=False):
         self.node_type = node_type
         self.id = node_id
         self.recurrent = recurrent

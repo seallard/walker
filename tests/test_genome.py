@@ -84,5 +84,18 @@ def test_impossible_add_non_recurrent(unconnectable_genome):
     original_number_of_links = len(unconnectable_genome.links)
     result = unconnectable_genome.add_non_recurrent_link(tries=10)
     new_number_of_links = len(unconnectable_genome.links)
+
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
+
+def test_add_node(genome):
+    original_number_of_nodes = len(genome.nodes)
+    original_number_of_links = len(genome.links)
+    gene_list = genome.mutate_add_node(tries=1)
+
+    assert len(gene_list) == 3, "three genes created"
+    assert len(genome.nodes) == original_number_of_nodes + 1, "one node added"
+    assert len(genome.links) == original_number_of_links + 2, "two links added"
+    assert False in [x.enabled for x in genome.links], "one link disabled"
+    # Test that the links are correct (one goes into the new node and the other out).
+    # Test that the weights are correct.

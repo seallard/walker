@@ -65,9 +65,41 @@ class Genome:
             self.links.append(new_gene)
             return new_gene
 
-    def mutate_add_node(self):
-        """Random insertion of a node between two previously connected nodes. """
-        pass
+    def mutate_add_node(self, tries):
+        """
+        Random insertion of a node between two previously connected nodes.
+
+        Side effects (if valid link is found):
+            - disables link
+            - appends one node gene and two link genes to this genome
+        """
+
+        while tries:
+            # Distribute splitting evenly using bias towards older links.
+            # TODO: Might be better to only use bias if genome is small.
+            biased_index = round(abs(random() - random())*(len(self.links)-1))
+            link = self.links[biased_index]
+
+            if not link.can_be_split():
+                tries -= 1
+                continue
+
+            link.enabled = False
+            original_weight = link.weight
+            original_from_node = link.from_node
+            original_to_node = link.to_node
+
+            new_node = NodeGene(NodeType.HIDDEN)
+            new_in_link = ConnectionGene(original_from_node, new_node)
+            new_out_link = ConnectionGene(new_node, original_to_node)
+
+            new_in_link.weight = 1
+            new_out_link.weight = original_weight
+
+            self.nodes.append(new_node)
+            self.links.extend([new_in_link, new_out_link])
+
+            return [new_node, new_in_link, new_out_link]
 
     def mutate_weights(self):
         """Perturb or replace weights. """

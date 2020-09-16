@@ -1,4 +1,5 @@
 from random import random
+from neat.enums.node_types import NodeType
 
 class ConnectionGene:
 
@@ -11,7 +12,13 @@ class ConnectionGene:
         self.weight = self.__randomise_weight()
 
 
-
     def __randomise_weight(self):
         """Sets weight to number between 0 and 1. """
         self.weight = random()
+
+    def can_be_split(self):
+        return (
+            self.enabled and
+            not self.recurrent and
+            self.from_node.node_type != NodeType.BIAS
+        )
