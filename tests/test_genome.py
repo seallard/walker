@@ -70,19 +70,19 @@ def test_impossible_loop(unconnectable_genome):
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
-def test_add_non_recurrent_link(connectable_genome):
+def test_add_non_loop_link(connectable_genome):
     original_number_of_links = len(connectable_genome.links)
     tries = 50 # Ensure that it won't fail due to picking the same node.
-    new_gene = connectable_genome.add_non_recurrent_link(tries)
+    new_gene = connectable_genome.add_non_loop_link(tries)
     new_number_of_links = len(connectable_genome.links)
 
     assert new_gene, "new gene is not None"
     assert new_number_of_links == original_number_of_links + 1, "one new link added"
     assert new_gene.from_node != new_gene.to_node, "from and to nodes are not the same"
 
-def test_impossible_add_non_recurrent(unconnectable_genome):
+def test_impossible_add_non_loop_link(unconnectable_genome):
     original_number_of_links = len(unconnectable_genome.links)
-    result = unconnectable_genome.add_non_recurrent_link(tries=10)
+    result = unconnectable_genome.add_non_loop_link(tries=10)
     new_number_of_links = len(unconnectable_genome.links)
 
     assert result is None, "no link gene is returned"
@@ -91,11 +91,11 @@ def test_impossible_add_non_recurrent(unconnectable_genome):
 def test_add_node(genome):
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    gene_list = genome.mutate_add_node(tries=1)
+    new_node, new_in, new_out = genome.mutate_add_node(tries=1)
 
-    assert len(gene_list) == 3, "three genes created"
     assert len(genome.nodes) == original_number_of_nodes + 1, "one node added"
     assert len(genome.links) == original_number_of_links + 2, "two links added"
     assert False in [x.enabled for x in genome.links], "one link disabled"
-    # Test that the links are correct (one goes into the new node and the other out).
-    # Test that the weights are correct.
+    assert new_in.to_node == new_node, "new link into new node"
+    assert new_out.from_node == new_node, "new link out of new node"
+    assert new_in.weight == 1, "weight of new in link is 1"

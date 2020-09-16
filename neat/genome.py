@@ -24,7 +24,7 @@ class Genome:
         if random() < loop_probability:
             return self.add_loop(loop_tries)
 
-        return self.add_non_recurrent_link(add_tries)
+        return self.add_non_loop_link(add_tries)
 
 
     def add_loop(self, tries):
@@ -46,9 +46,9 @@ class Genome:
 
             tries -= 1
 
-    def add_non_recurrent_link(self, tries):
+    def add_non_loop_link(self, tries):
         """
-        Add non-recurrent link to genome.
+        Add non-loop link to genome.
         Returns None if failed. Otherwise a connection gene.
         Side effects: adds connection gene to this genome.
         """
@@ -99,7 +99,7 @@ class Genome:
             self.nodes.append(new_node)
             self.links.extend([new_in_link, new_out_link])
 
-            return [new_node, new_in_link, new_out_link]
+            return (new_node, new_in_link, new_out_link)
 
     def mutate_weights(self):
         """Perturb or replace weights. """
