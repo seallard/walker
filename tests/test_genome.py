@@ -53,6 +53,9 @@ def test_link_initialisation(genome):
     assert True not in [x.recurrent for x in genome.links], "no initial link is recurrent"
     assert False not in [x.enabled for x in genome.links], "all initial links are enabled"
 
+    assert genome.nodes[0].depth == 0, "depth of input node is 0"
+    assert genome.nodes[-1].depth == 1, "depth of output node is 1"
+
 
 def test_possible_loop(loopable_genome):
     original_number_of_links = len(loopable_genome.links)
@@ -99,3 +102,4 @@ def test_add_node(genome):
     assert new_in.to_node == new_node, "new link into new node"
     assert new_out.from_node == new_node, "new link out of new node"
     assert new_in.weight == 1, "weight of new in link is 1"
+    assert new_node.depth == 0.5, "depth of new single hidden node is 0.5"

@@ -89,7 +89,8 @@ class Genome:
             original_from_node = link.from_node
             original_to_node = link.to_node
 
-            new_node = NodeGene(NodeType.HIDDEN)
+            depth = abs(original_to_node.depth - original_from_node.depth)/2
+            new_node = NodeGene(NodeType.HIDDEN, depth)
             new_in_link = ConnectionGene(original_from_node, new_node)
             new_out_link = ConnectionGene(new_node, original_to_node)
 
@@ -131,13 +132,15 @@ class Genome:
     def __initialise_nodes(self):
         """Create the input and output genes. """
         self.nodes = []
+        in_depth = 0
+        out_depth = 1
 
         for node_id in range(self.num_inputs):
-            node = NodeGene(NodeType.INPUT, node_id)
+            node = NodeGene(NodeType.INPUT, in_depth, node_id)
             self.nodes.append(node)
 
         for node_id in range(self.num_inputs, self.num_inputs + self.num_outputs):
-            node = NodeGene(NodeType.OUTPUT, node_id)
+            node = NodeGene(NodeType.OUTPUT, out_depth, node_id)
             self.nodes.append(node)
 
     def __initialise_links(self):
