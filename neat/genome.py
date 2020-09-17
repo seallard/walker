@@ -54,9 +54,8 @@ class Genome:
         while tries:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.num_inputs:])
-            link_exists = self.link_exists(from_node.id, to_node.id)
 
-            if link_exists or from_node.id == to_node.id or not to_node.valid_out_node():
+            if self.__invalid_link(from_node, to_node):
                 tries -= 1
                 continue
 
@@ -64,6 +63,18 @@ class Genome:
             new_gene = ConnectionGene(from_node, to_node, recurrent=recurrent)
             self.links.append(new_gene)
             return new_gene
+
+    def __invalid_link(self, from_node, to_node):
+        link_exists = self.link_exists(from_node.id, to_node.id)
+        both_are_outputs = from_node.is_output() and to_node.is_output()
+        same_nodes = from_node.id == to_node.id
+
+        return (
+            link_exists or
+            same_nodes or
+            both_are_outputs or
+            not to_node.valid_out()
+        )
 
     def mutate_add_node(self, tries):
         """

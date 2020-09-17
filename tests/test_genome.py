@@ -118,3 +118,13 @@ def test_add_recurrent_link():
     assert new_link.recurrent, "new link is recurrent"
     assert new_link.from_node == output_node, "link goes from output"
     assert new_link.to_node == hidden_node, "link goes to hidden"
+
+def test_connecting_two_output_nodes():
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+    genome.mutate_add_node(tries=1)
+    for node in genome.nodes:
+        node.node_type = NodeType.OUTPUT
+    link = genome.add_non_loop_link(tries=10)
+
+    assert link is None, "no link is returned"
+    assert len(genome.links) == 3, "no link was added to the genome"
