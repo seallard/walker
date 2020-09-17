@@ -103,3 +103,18 @@ def test_add_node(genome):
     assert new_out.from_node == new_node, "new link out of new node"
     assert new_in.weight == 1, "weight of new in link is 1"
     assert new_node.depth == 0.5, "depth of new single hidden node is 0.5"
+
+
+def test_add_recurrent_link():
+    # Create minimal genome which can have a recurrent link
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+    hidden_node, _, _ = genome.mutate_add_node(tries=1)
+    output_node = genome.nodes[1]
+    output_node.node_type = NodeType.BIAS # Disable forward connections
+    new_link = genome.add_non_loop_link(tries=50)
+
+    assert new_link, "link was returned"
+    assert len(genome.links) == 4, "link added to genome"
+    assert new_link.recurrent, "new link is recurrent"
+    assert new_link.from_node == output_node, "link goes from output"
+    assert new_link.to_node == hidden_node, "link goes to hidden"

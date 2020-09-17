@@ -20,7 +20,6 @@ class Genome:
         Pre: self.nodes begins with the input nodes.
         """
 
-        # TODO: add non-loop recurrent links.
         if random() < loop_probability:
             return self.add_loop(loop_tries)
 
@@ -61,7 +60,8 @@ class Genome:
                 tries -= 1
                 continue
 
-            new_gene = ConnectionGene(from_node, to_node)
+            recurrent = to_node.depth - from_node.depth <= 0
+            new_gene = ConnectionGene(from_node, to_node, recurrent=recurrent)
             self.links.append(new_gene)
             return new_gene
 
