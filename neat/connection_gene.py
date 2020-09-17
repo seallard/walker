@@ -1,6 +1,7 @@
 from random import random
 from neat.enums.node_types import NodeType
 
+
 class ConnectionGene:
 
     def __init__(self, from_node, to_node, enabled=True, recurrent=False):
@@ -10,7 +11,6 @@ class ConnectionGene:
         self.recurrent = recurrent
         self.innovation_number = None
         self.weight = self.__randomise_weight()
-
 
     def __randomise_weight(self):
         """Sets weight to number between 0 and 1. """

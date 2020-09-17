@@ -4,6 +4,7 @@ from neat.enums.node_types import NodeType
 from neat.connection_gene import ConnectionGene
 from neat.node_gene import NodeGene
 
+
 class Genome:
 
     def __init__(self, id, num_inputs, num_outputs):
@@ -24,7 +25,6 @@ class Genome:
             return self.add_loop(loop_tries)
 
         return self.add_non_loop_link(add_tries)
-
 
     def add_loop(self, tries):
         """

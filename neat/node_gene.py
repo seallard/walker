@@ -1,5 +1,6 @@
 from neat.enums.node_types import NodeType
 
+
 class NodeGene:
 
     def __init__(self, node_type, depth, node_id=None, recurrent=False):
@@ -7,7 +8,6 @@ class NodeGene:
         self.depth = depth
         self.id = node_id
         self.recurrent = recurrent
-
 
     def can_have_loop(self):
         """Check if suitable for loop connection. """

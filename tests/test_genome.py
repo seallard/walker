@@ -2,6 +2,7 @@ from neat.genome import Genome
 from neat.enums.node_types import NodeType
 import pytest
 
+
 @pytest.fixture(name='genome')
 def initialised_genome():
     """Fully connected, no hidden layers. """
@@ -11,6 +12,7 @@ def initialised_genome():
     genome = Genome(genome_id, num_inputs, num_outputs)
     return genome
 
+
 @pytest.fixture
 def loopable_genome(genome):
     """Unrealistic genome in which each node is loopable. """
@@ -18,12 +20,14 @@ def loopable_genome(genome):
         node.node_type = NodeType.HIDDEN
     return genome
 
+
 @pytest.fixture
 def unconnectable_genome(genome):
     """Unrealistic genome in which no node is loopable. """
     for node in genome.nodes:
         node.node_type = NodeType.BIAS
     return genome
+
 
 @pytest.fixture
 def connectable_genome(genome):
@@ -62,9 +66,10 @@ def test_possible_loop(loopable_genome):
     loop_gene = loopable_genome.add_loop(tries=1)
 
     assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
-    assert loop_gene.from_node.recurrent == True, "the node has been marked as recurrent"
-    assert loop_gene.recurrent == True, "the link has been marked as recurrent"
+    assert loop_gene.from_node.recurrent is True, "the node has been marked as recurrent"
+    assert loop_gene.recurrent is True, "the link has been marked as recurrent"
     assert loop_gene.from_node == loop_gene.to_node, "link is a loop"
+
 
 def test_impossible_loop(unconnectable_genome):
     original_number_of_links = len(unconnectable_genome.links)
@@ -73,15 +78,17 @@ def test_impossible_loop(unconnectable_genome):
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
+
 def test_add_non_loop_link(connectable_genome):
     original_number_of_links = len(connectable_genome.links)
-    tries = 50 # Ensure that it won't fail due to picking the same node.
+    tries = 50  # Ensure that it won't fail due to picking the same node.
     new_gene = connectable_genome.add_non_loop_link(tries)
     new_number_of_links = len(connectable_genome.links)
 
     assert new_gene, "new gene is not None"
     assert new_number_of_links == original_number_of_links + 1, "one new link added"
     assert new_gene.from_node != new_gene.to_node, "from and to nodes are not the same"
+
 
 def test_impossible_add_non_loop_link(unconnectable_genome):
     original_number_of_links = len(unconnectable_genome.links)
@@ -90,6 +97,7 @@ def test_impossible_add_non_loop_link(unconnectable_genome):
 
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
+
 
 def test_add_node(genome):
     original_number_of_nodes = len(genome.nodes)
@@ -110,7 +118,7 @@ def test_add_recurrent_link():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     hidden_node, _, _ = genome.mutate_add_node(tries=1)
     output_node = genome.nodes[1]
-    output_node.node_type = NodeType.BIAS # Disable forward connections
+    output_node.node_type = NodeType.BIAS  # Disable forward connections
     new_link = genome.add_non_loop_link(tries=50)
 
     assert new_link, "link was returned"
@@ -118,6 +126,7 @@ def test_add_recurrent_link():
     assert new_link.recurrent, "new link is recurrent"
     assert new_link.from_node == output_node, "link goes from output"
     assert new_link.to_node == hidden_node, "link goes to hidden"
+
 
 def test_connecting_two_output_nodes():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
