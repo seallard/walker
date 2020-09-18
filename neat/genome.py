@@ -65,9 +65,9 @@ class Genome:
             return new_gene
 
     def __invalid_link(self, from_node, to_node):
-        link_exists = self.link_exists(from_node.id, to_node.id)
+        link_exists = self.link_exists(from_node, to_node)
         both_are_outputs = from_node.is_output() and to_node.is_output()
-        same_nodes = from_node.id == to_node.id
+        same_nodes = from_node.innovation_number == to_node.innovation_number
 
         return (
             link_exists or
@@ -125,10 +125,12 @@ class Genome:
         """Create a child genome. """
         pass
 
-    def link_exists(self, from_id, to_id):
+    def link_exists(self, from_node, to_node):
         """Check if link is present in the genome. """
+        from_id = from_node.innovation_number
+        to_id = to_node.innovation_number
         for link in self.links:
-            if link.from_node.id == from_id and link.to_node.id == to_id:
+            if link.from_node.innovation_number == from_id and link.to_node.innovation_number == to_id:
                 return True
         return False
 
@@ -157,10 +159,10 @@ class Genome:
     def __initialise_links(self):
         """Connect each input node to each output node. """
         self.links = []
-        innovation_id = self.num_inputs + self.num_outputs
+        innovation_number = self.num_inputs + self.num_outputs
         for input_node in self.nodes[:self.num_inputs]:
             for output_node in self.nodes[self.num_inputs:]:
                 link = LinkGene(input_node, output_node)
-                link.innovation_id = innovation_id
+                link.innovation_number = innovation_number
                 self.links.append(link)
-                innovation_id += 1
+                innovation_number += 1
