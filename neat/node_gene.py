@@ -3,10 +3,10 @@ from neat.enums.node_types import NodeType
 
 class NodeGene:
 
-    def __init__(self, node_type, depth, node_id=None, recurrent=False):
+    def __init__(self, node_type, depth, innovation_number=None, recurrent=False):
         self.node_type = node_type
         self.depth = depth
-        self.id = node_id
+        self.innovation_number = innovation_number
         self.recurrent = recurrent
 
     def can_have_loop(self):

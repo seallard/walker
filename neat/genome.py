@@ -132,11 +132,11 @@ class Genome:
                 return True
         return False
 
-    def duplicate_node(self, node_id):
+    def duplicate_node(self, innovation_number):
         """Check if node is present in the genome. """
         pass
 
-    def get_index_of_node(self, node_id):
+    def get_index_of_node(self, innovation_number):
         """Find index of node in the list of nodes. """
         pass
 
@@ -146,12 +146,12 @@ class Genome:
         in_depth = 0
         out_depth = 1
 
-        for node_id in range(self.num_inputs):
-            node = NodeGene(NodeType.INPUT, in_depth, node_id)
+        for innovation_number in range(self.num_inputs):
+            node = NodeGene(NodeType.INPUT, in_depth, innovation_number)
             self.nodes.append(node)
 
-        for node_id in range(self.num_inputs, self.num_inputs + self.num_outputs):
-            node = NodeGene(NodeType.OUTPUT, out_depth, node_id)
+        for innovation_number in range(self.num_inputs, self.num_inputs + self.num_outputs):
+            node = NodeGene(NodeType.OUTPUT, out_depth, innovation_number)
             self.nodes.append(node)
 
     def __initialise_links(self):
