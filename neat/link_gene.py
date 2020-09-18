@@ -2,7 +2,7 @@ from random import random
 from neat.enums.node_types import NodeType
 
 
-class ConnectionGene:
+class LinkGene:
 
     def __init__(self, from_node, to_node, enabled=True, recurrent=False):
         self.from_node = from_node

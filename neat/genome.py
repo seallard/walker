@@ -1,7 +1,7 @@
 from random import random
 from random import choice
 from neat.enums.node_types import NodeType
-from neat.connection_gene import ConnectionGene
+from neat.link_gene import LinkGene
 from neat.node_gene import NodeGene
 
 
@@ -29,8 +29,8 @@ class Genome:
     def add_loop(self, tries):
         """
         Add recurrent loop.
-        Returns None if failed. Otherwise a connection gene.
-        Side effects: adds connection gene to this genome.
+        Returns None if failed. Otherwise a link gene.
+        Side effects: adds link gene to this genome.
                       sets recurrent attribute of node to True.
         """
 
@@ -39,7 +39,7 @@ class Genome:
 
             if node.can_have_loop():
                 node.recurrent = True
-                new_gene = ConnectionGene(node, node, True, True)
+                new_gene = LinkGene(node, node, True, True)
                 self.links.append(new_gene)
                 return new_gene
 
@@ -48,8 +48,8 @@ class Genome:
     def add_non_loop_link(self, tries):
         """
         Add non-loop link to genome.
-        Returns None if failed. Otherwise a connection gene.
-        Side effects: adds connection gene to this genome.
+        Returns None if failed. Otherwise a link gene.
+        Side effects: adds link gene to this genome.
         """
         while tries:
             from_node = choice(self.nodes)
@@ -60,7 +60,7 @@ class Genome:
                 continue
 
             recurrent = to_node.depth - from_node.depth <= 0
-            new_gene = ConnectionGene(from_node, to_node, recurrent=recurrent)
+            new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
             self.links.append(new_gene)
             return new_gene
 
@@ -102,8 +102,8 @@ class Genome:
 
             depth = abs(original_to_node.depth - original_from_node.depth)/2
             new_node = NodeGene(NodeType.HIDDEN, depth)
-            new_in_link = ConnectionGene(original_from_node, new_node)
-            new_out_link = ConnectionGene(new_node, original_to_node)
+            new_in_link = LinkGene(original_from_node, new_node)
+            new_out_link = LinkGene(new_node, original_to_node)
 
             new_in_link.weight = 1
             new_out_link.weight = original_weight
@@ -160,7 +160,7 @@ class Genome:
         innovation_id = self.num_inputs + self.num_outputs
         for input_node in self.nodes[:self.num_inputs]:
             for output_node in self.nodes[self.num_inputs:]:
-                link = ConnectionGene(input_node, output_node)
+                link = LinkGene(input_node, output_node)
                 link.innovation_id = innovation_id
                 self.links.append(link)
                 innovation_id += 1

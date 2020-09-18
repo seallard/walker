@@ -118,7 +118,7 @@ def test_add_recurrent_link():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     hidden_node, _, _ = genome.mutate_add_node(tries=1)
     output_node = genome.nodes[1]
-    output_node.node_type = NodeType.BIAS  # Disable forward connections
+    output_node.node_type = NodeType.BIAS  # Disable forward links
     new_link = genome.add_non_loop_link(tries=50)
 
     assert new_link, "link was returned"

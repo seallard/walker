@@ -1,1 +1,1 @@
-import neat.connection_gene as connection
+import neat.link_gene as link

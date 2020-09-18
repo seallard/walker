@@ -10,7 +10,7 @@ class NodeGene:
         self.recurrent = recurrent
 
     def can_have_loop(self):
-        """Check if suitable for loop connection. """
+        """Check if suitable for loop link. """
         return (
             not self.recurrent and
             self.node_type != NodeType.BIAS and
