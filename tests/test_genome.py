@@ -63,7 +63,8 @@ def test_link_initialisation(genome):
 
 def test_possible_loop(loopable_genome):
     original_number_of_links = len(loopable_genome.links)
-    loop_gene = loopable_genome.add_loop(tries=1)
+    innovation = loopable_genome.add_loop(tries=1)
+    loop_gene = innovation.gene
 
     assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
     assert loop_gene.from_node.recurrent is True, "the node has been marked as recurrent"
@@ -82,7 +83,8 @@ def test_impossible_loop(unconnectable_genome):
 def test_add_non_loop_link(connectable_genome):
     original_number_of_links = len(connectable_genome.links)
     tries = 50  # Ensure that it won't fail due to picking the same node.
-    new_gene = connectable_genome.add_non_loop_link(tries)
+    innovation = connectable_genome.add_non_loop_link(tries)
+    new_gene = innovation.gene
     new_number_of_links = len(connectable_genome.links)
 
     assert new_gene, "new gene is not None"
@@ -99,10 +101,14 @@ def test_impossible_add_non_loop_link(unconnectable_genome):
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
 
-def test_add_node(genome):
+def test_add_node():
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    new_node, new_in, new_out = genome.mutate_add_node(tries=1)
+    innovations = genome.mutate_add_node(tries=1)
+    new_node = innovations[0].gene
+    new_in = innovations[1].gene
+    new_out = innovations[2].gene
 
     assert len(genome.nodes) == original_number_of_nodes + 1, "one node added"
     assert len(genome.links) == original_number_of_links + 2, "two links added"
@@ -116,16 +122,15 @@ def test_add_node(genome):
 def test_add_recurrent_link():
     # Create minimal genome which can have a recurrent link
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    hidden_node, _, _ = genome.mutate_add_node(tries=1)
-    output_node = genome.nodes[1]
-    output_node.node_type = NodeType.BIAS  # Disable forward links
-    new_link = genome.add_non_loop_link(tries=50)
+    node_innovations = genome.mutate_add_node(tries=1)
+    genome.nodes[1].node_type = NodeType.BIAS  # Disable forward links
+    link_innovation = genome.add_non_loop_link(tries=50)
+    new_link = link_innovation.gene
 
-    assert new_link, "link was returned"
     assert len(genome.links) == 4, "link added to genome"
-    assert new_link.recurrent, "new link is recurrent"
-    assert new_link.from_node == output_node, "link goes from output"
-    assert new_link.to_node == hidden_node, "link goes to hidden"
+    assert new_link.from_node == genome.nodes[1], "link goes from output"
+    assert new_link.to_node == node_innovations[0].gene, "link goes to hidden"
+    assert new_link.recurrent, "link is recurrent"
 
 
 def test_connecting_two_output_nodes():

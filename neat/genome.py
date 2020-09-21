@@ -3,6 +3,7 @@ from random import choice
 from neat.enums.node_types import NodeType
 from neat.link_gene import LinkGene
 from neat.node_gene import NodeGene
+from neat.innovation import Innovation
 
 
 class Genome:
@@ -29,7 +30,7 @@ class Genome:
     def add_loop(self, tries):
         """
         Add recurrent loop.
-        Returns None if failed. Otherwise a link gene.
+        Returns None if failed. Otherwise an innovation.
         Side effects: adds link gene to this genome.
                       sets recurrent attribute of node to True.
         """
@@ -41,14 +42,14 @@ class Genome:
                 node.recurrent = True
                 new_gene = LinkGene(node, node, True, True)
                 self.links.append(new_gene)
-                return new_gene
+                return Innovation(new_gene, node, node)
 
             tries -= 1
 
     def add_non_loop_link(self, tries):
         """
         Add non-loop link to genome.
-        Returns None if failed. Otherwise a link gene.
+        Returns None if failed. Otherwise an innovation.
         Side effects: adds link gene to this genome.
         """
         while tries:
@@ -62,7 +63,7 @@ class Genome:
             recurrent = to_node.depth - from_node.depth <= 0
             new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
             self.links.append(new_gene)
-            return new_gene
+            return Innovation(new_gene, from_node, to_node)
 
     def __invalid_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
@@ -96,22 +97,22 @@ class Genome:
                 continue
 
             link.enabled = False
-            original_weight = link.weight
-            original_from_node = link.from_node
-            original_to_node = link.to_node
 
-            depth = abs(original_to_node.depth - original_from_node.depth)/2
+            depth = abs(link.to_node.depth - link.from_node.depth)/2
             new_node = NodeGene(NodeType.HIDDEN, depth)
-            new_in_link = LinkGene(original_from_node, new_node)
-            new_out_link = LinkGene(new_node, original_to_node)
+            new_in_link = LinkGene(link.from_node, new_node)
+            new_out_link = LinkGene(new_node, link.to_node)
 
             new_in_link.weight = 1
-            new_out_link.weight = original_weight
+            new_out_link.weight = link.weight
 
             self.nodes.append(new_node)
             self.links.extend([new_in_link, new_out_link])
 
-            return (new_node, new_in_link, new_out_link)
+            node_innovation = Innovation(new_node, link.from_node, link.to_node)
+            in_link_innovation = Innovation(new_in_link, link.from_node, new_node)
+            out_link_innovation = Innovation(new_out_link, new_node, link.to_node)
+            return [node_innovation, in_link_innovation, out_link_innovation]
 
     def mutate_weights(self):
         """Perturb or replace weights. """
