@@ -26,6 +26,8 @@ class InnovationTracker:
             self.innovation_number: incremented by 1 if the gene is new.
             gene.innovation_number: set to innovation number.
         """
+        if innovation is None:
+            return
 
         try:
             key = innovation.get_key()

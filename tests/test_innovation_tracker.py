@@ -8,6 +8,14 @@ def test_initialisation():
     assert tracker.next_innovation_number == 3
 
 
+def test_tracking_none():
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    tracker.assign_innovation_number(None)
+
+    assert tracker.innovations == {}, "no innovation tracked"
+    assert tracker.next_innovation_number == 3, "innovation number not incremented"
+
+
 def test_single_node_innovation():
     genome = Genome(1, num_inputs=1, num_outputs=1)
     tracker = InnovationTracker(num_inputs=1, num_outputs=1)
