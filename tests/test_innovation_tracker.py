@@ -35,7 +35,21 @@ def test_single_node_innovation():
 
 
 def test_multiple_node_innovations():
-    pass
+    genome = Genome(1, num_inputs=1, num_outputs=1)
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+
+    first_innovs = genome.mutate_add_node(tries=1)
+    second_innovs = genome.mutate_add_node(tries=50)
+
+    for innovation in first_innovs:
+        tracker.assign_innovation_number(innovation)
+
+    for innovation in second_innovs:
+        tracker.assign_innovation_number(innovation)
+
+
+    assert len(tracker.innovations) == 6, "six innovations added"
+    assert tracker.next_innovation_number == 9
 
 
 def test_single_link_innovation():

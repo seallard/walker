@@ -31,6 +31,8 @@ def test_add_single_node():
     assert len(genome.links) == original_number_of_links + 2, "two links added"
     disabled_links = [link for link in genome.links if not link.enabled]
     assert len(disabled_links) == 1, "one link disabled"
+    assert disabled_links[0].from_node == genome.nodes[0], "correct from node for disabled link"
+    assert disabled_links[0].to_node == genome.nodes[1], "correct to node for disabled link"
     assert new_in.to_node == new_node, "new link into new node"
     assert new_out.from_node == new_node, "new link out of new node"
     assert new_in.weight == 1, "weight of new in link is 1"
