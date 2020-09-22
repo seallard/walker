@@ -56,7 +56,7 @@ class Genome:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.num_inputs:])
 
-            if self.__invalid_link(from_node, to_node):
+            if self.__invalid_link(from_node, to_node) and self.__duplicate_link(from_node, to_node):
                 tries -= 1
                 continue
 
@@ -167,3 +167,10 @@ class Genome:
                 link.innovation_number = innovation_number
                 self.links.append(link)
                 innovation_number += 1
+
+    def __duplicate_link(self, from_node, to_node):
+        # TODO: speedup by making self.links a dict?
+        for link in self.links:
+            if link.from_node == from_node and link.to_node == to_node:
+                return True
+        return False
