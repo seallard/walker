@@ -40,8 +40,7 @@ def test_impossible_loop(unloopable_genome):
 
 def test_add_non_loop_link(connectable_genome):
     original_number_of_links = len(connectable_genome.links)
-    tries = 50  # Ensure that it won't fail due to picking the same node.
-    innovation = connectable_genome.add_non_loop_link(tries)
+    innovation = connectable_genome.add_non_loop_link(tries=50)
     new_gene = innovation.gene
     new_number_of_links = len(connectable_genome.links)
 
