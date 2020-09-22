@@ -21,12 +21,17 @@ class Innovation:
                 input or output.
         """
         self.gene = gene
-        self.node_in = node_in.innovation_number
-        self.node_out = node_out.innovation_number
+        self.node_in = node_in
+        self.node_out = node_out
         self.gene_type = type(gene)
 
 
     def get_key(self):
         """Return key representation of innovation.
+
+        Precondition:
+            The in and out nodes have been assigned a valid innovation number.
         """
-        return (self.node_in, self.node_out, self.gene_type)
+        assert self.node_in.innovation_number is not None
+        assert self.node_out.innovation_number is not None
+        return (self.node_in.innovation_number, self.node_out.innovation_number, self.gene_type)
