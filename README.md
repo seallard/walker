@@ -1,5 +1,6 @@
 # Walker
 [![codecov](https://codecov.io/gh/seallard/walker/branch/develop/graph/badge.svg)](https://codecov.io/gh/seallard/walker)
+
 Applying NEAT with novelty search to bidpedal walking.
 
 ## Papers
