@@ -56,7 +56,7 @@ class Genome:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.num_inputs:])
 
-            if self.__invalid_link(from_node, to_node) and self.__duplicate_link(from_node, to_node):
+            if self.__invalid_link(from_node, to_node) or self.__duplicate_link(from_node, to_node):
                 tries -= 1
                 continue
 
