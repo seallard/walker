@@ -113,7 +113,7 @@ def test_perturbing_multiple_links():
 def test_replacing_link():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     initial_weight = genome.links[0].weight
-    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    genome.mutate_weights(mutation_rate=1, replacement_rate=1, max_perturbation=0)
     new_weight = genome.links[0].weight
 
     assert new_weight != initial_weight, "weight perturbed"
