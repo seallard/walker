@@ -1,4 +1,4 @@
-from random import random
+from random import random, uniform
 from random import choice
 from neat.enums.node_types import NodeType
 from neat.link_gene import LinkGene
@@ -114,9 +114,20 @@ class Genome:
             out_link_innovation = Innovation(new_out_link, new_node, link.to_node)
             return [node_innovation, in_link_innovation, out_link_innovation]
 
-    def mutate_weights(self):
-        """Perturb or replace weights. """
-        pass
+    def mutate_weights(self, mutation_rate, replacement_rate, max_perturbation):
+        """Perturb or replace weights.
+        """
+        for link in self.links:
+
+            if random() > mutation_rate:
+                continue
+
+            if random() < replacement_rate:
+                link.weight = uniform(-1, 1)
+
+            else:
+                link.weight += uniform(-1, 1) * max_perturbation
+
 
     def compatibility_score(self, other):
         """Calculate compatibility score with other genome. """

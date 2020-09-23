@@ -81,3 +81,41 @@ def test_connecting_two_output_nodes():
 
     assert link is None, "no link is returned"
     assert len(genome.links) == 3, "no link was added to the genome"
+
+
+def test_perturbing_single_link():
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+    initial_weight = genome.links[0].weight
+    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    new_weight = genome.links[0].weight
+
+    assert new_weight != initial_weight, "weight perturbed"
+    assert new_weight >= initial_weight - 0.5, "weight is not below min allowed"
+    assert new_weight <= initial_weight + 0.5, "weight is not above max allowed"
+
+
+def test_perturbing_multiple_links():
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+    genome.mutate_add_node(tries=1)
+
+    initial_weights = [link.weight for link in genome.links]
+    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    perturbed_weigths = [link.weight for link in genome.links]
+
+    assert initial_weights[0] != perturbed_weigths[0]
+    assert initial_weights[1] != perturbed_weigths[1]
+
+    for i, weight in enumerate(perturbed_weigths):
+        assert weight <= initial_weights[i] + 0.5
+        assert weight >= initial_weights[i] - 0.5
+
+
+def test_replacing_link():
+    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+    initial_weight = genome.links[0].weight
+    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    new_weight = genome.links[0].weight
+
+    assert new_weight != initial_weight, "weight perturbed"
+    assert new_weight >= initial_weight - 0.5, "weight is not below min allowed"
+    assert new_weight <= initial_weight + 0.5, "weight is not above max allowed"

@@ -52,8 +52,13 @@ def test_multiple_node_innovations():
     assert tracker.next_innovation_number == 9
 
 
-def test_single_link_innovation():
-    pass
+def test_single_link_innovation(connectable_genome):
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    innov = connectable_genome.add_non_loop_link(tries=10)
+    tracker.assign_innovation_number(innov)
+
+    assert len(tracker.innovations) == 1
+    assert tracker.next_innovation_number == 4
 
 
 def test_multiple_link_innovations():

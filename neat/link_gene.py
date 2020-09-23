@@ -1,4 +1,4 @@
-from random import random
+from random import uniform
 from neat.enums.node_types import NodeType
 
 
@@ -10,11 +10,7 @@ class LinkGene:
         self.enabled = enabled
         self.recurrent = recurrent
         self.innovation_number = None
-        self.weight = self.__randomise_weight()
-
-    def __randomise_weight(self):
-        """Sets weight to number between 0 and 1. """
-        self.weight = random()
+        self.weight = uniform(-1, 1)
 
     def can_be_split(self):
         return (
