@@ -14,6 +14,7 @@ class Genome:
         self.num_outputs = num_outputs
         self.__initialise_nodes()
         self.__initialise_links()
+        self.fitness = 0
 
     def mutate_add_link(self, loop_probability, loop_tries, add_tries):
         """
@@ -185,3 +186,7 @@ class Genome:
             if link.from_node == from_node and link.to_node == to_node:
                 return True
         return False
+
+
+    def size(self):
+        return len(self.links)

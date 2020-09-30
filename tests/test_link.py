@@ -117,5 +117,5 @@ def test_replacing_link():
     new_weight = genome.links[0].weight
 
     assert new_weight != initial_weight, "weight perturbed"
-    assert new_weight >= initial_weight - 0.5, "weight is not below min allowed"
-    assert new_weight <= initial_weight + 0.5, "weight is not above max allowed"
+    assert new_weight >= -1
+    assert new_weight <= 1
