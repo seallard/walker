@@ -99,8 +99,8 @@ class Breeder:
         from_id = link.from_node.id
         to_id = link.to_node.id
 
-        if not from_id in node_list:
-            node_list.append(from_id)
+        if not from_id in node_id_list:
+            node_id_list.append(from_id)
 
-        if not to_id in node_list:
-            node_list.append(to_id)
+        if not to_id in node_id_list:
+            node_id_list.append(to_id)
