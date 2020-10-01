@@ -32,8 +32,8 @@ class Breeder:
                 better_link = better_genome[better_genome_index]
                 worse_link = worse_genome[worse_genome_index]
 
-                # If the links have the same innovation number, inherit randomly.
-                if better_link.innovation_number == worse_link.innovation_number:
+                # Inherit matching links randomly.
+                if better_link.id == worse_link.id:
 
                     if random() < 0.5:
                         selected_link = better_link
@@ -45,18 +45,20 @@ class Breeder:
                     worse_genome_index += 1
 
                 # Skip worse links that are disjoint.
-                elif better_link.innovation_number > worse_link.innovation_number:
+                elif better_link.id > worse_link.id:
                     worse_genome_index += 1
                     continue
 
                 # Inherit better links that are disjoint.
-                elif better_link.innovation_number < worse_link.innovation_number:
+                elif better_link.id < worse_link.id:
                     selected_link = better_link
                     better_genome_index += 1
 
-            offspring_nodes.append(selected_link)
-            offspring_nodes.add(selected_link.from_node)
-            offspring_nodes.add(selected_link.to_node)
+            offspring_links.append(selected_link)
+            self.add_node_ids(selected_link, offspring_nodes)
+            
+            
+
 
         return offspring_links
 
@@ -88,7 +90,17 @@ class Breeder:
 
 
         else:
-            better_genome = father
-            worse_genome = mother
+            better_genome = mother
+            worse_genome = father
 
         return better_genome, worse_genome
+
+    def add_node_ids(link, node_id_list):
+        from_id = link.from_node.id
+        to_id = link.to_node.id
+
+        if not from_id in node_list:
+            node_list.append(from_id)
+
+        if not to_id in node_list:
+            node_list.append(to_id)

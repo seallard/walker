@@ -8,36 +8,30 @@ class InnovationTracker:
     """
 
     def __init__(self, num_inputs, num_outputs):
-        self.innovations = {}
-        self.next_innovation_number = num_inputs + num_outputs + num_inputs * num_outputs
+        self.link_innovations = {}
+        self.node_innovations = {}
+        self.next_node_id = num_inputs + num_outputs
+        self.next_link_id = num_inputs * num_outputs
 
-    def assign_innovation_number(self, innovation):
-        """Assigns an innovation number to gene in innovation.
-
-        Checks whether the structure the innovation represents is new and assigns
-        an innovation number accordingly. If the structure is new, it receives a
-        new innovation number. Otherwise, the previous innovation number is
-        retrieved and assigned to the gene in the innovation.
-
-        Args:
-            innovation: An innovation.Innovation instance.
-
-        Side effects:
-            self.innovation_number: incremented by 1 if the gene is new.
-            gene.innovation_number: set to innovation number.
-        """
-        if innovation is None:
-            return
+    def assign_node_id(self, first_node_id, second_node_id, gene):
+        
+        key = (first_node_id, second_node_id, type(gene))
 
         try:
-            key = innovation.get_key()
-            innovation.gene.innovation_number = self.innovations[key]
+            gene.id = self.node_innovations[key]
 
         except:
-            innovation.gene.innovation_number = self.next_innovation_number
-            self.innovations[innovation.get_key()] = self.next_innovation_number
-            self.next_innovation_number += 1
+            gene.id = self.next_node_id
+            self.node_innovations[key] = self.next_node_id
+            self.next_node_id += 1
 
+    def assign_link_id(self, gene):
+        key = (gene.from_node.id, gene.to_node.id, type(gene))
 
-    def reset(self):
-        self.innovations = {}
+        try:
+            gene.id = self.link_innovations[key]
+
+        except:
+            gene.id = self.next_link_id
+            self.link_innovations[key] = self.next_link_id
+            self.next_link_id += 1

@@ -3,20 +3,24 @@ from random import choice
 from neat.enums.node_types import NodeType
 from neat.link_gene import LinkGene
 from neat.node_gene import NodeGene
-from neat.innovation import Innovation
 
 
 class Genome:
 
-    def __init__(self, id, num_inputs, num_outputs):
+    def __init__(self, id, num_inputs, num_outputs, node_genes=None, link_genes=None):
         self.id = id
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
-        self.__initialise_nodes()
-        self.__initialise_links()
         self.fitness = 0
 
-    def mutate_add_link(self, loop_probability, loop_tries, add_tries):
+        if link_genes is None or node_genes is None:
+            self.__initialise_nodes()
+            self.__initialise_links()
+        else:
+            self.nodes = node_genes
+            self.links = link_genes
+
+    def mutate_add_link(self, loop_probability, loop_tries, add_tries, tracker):
         """
         Mutate genome by adding a new link between two previously unconnected nodes.
         Returns None if the addition failed. Otherwise the new link gene.
@@ -24,11 +28,11 @@ class Genome:
         """
 
         if random() < loop_probability:
-            return self.add_loop(loop_tries)
+            return self.add_loop(loop_tries, tracker)
 
-        return self.add_non_loop_link(add_tries)
+        return self.add_non_loop_link(add_tries, tracker)
 
-    def add_loop(self, tries):
+    def add_loop(self, tries, tracker):
         """
         Add recurrent loop.
         Returns None if failed. Otherwise an innovation.
@@ -43,11 +47,12 @@ class Genome:
                 node.recurrent = True
                 new_gene = LinkGene(node, node, True, True)
                 self.links.append(new_gene)
-                return Innovation(new_gene, node, node)
+                tracker.assign_link_id(node.id, node.id, new_gene)
+                return
 
             tries -= 1
 
-    def add_non_loop_link(self, tries):
+    def add_non_loop_link(self, tries, tracker):
         """
         Add non-loop link to genome.
         Returns None if failed. Otherwise an innovation.
@@ -57,19 +62,20 @@ class Genome:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.num_inputs:])
 
-            if self.__invalid_link(from_node, to_node) or self.__duplicate_link(from_node, to_node):
+            if self.invalid_link(from_node, to_node) or self.duplicate_link(from_node, to_node):
                 tries -= 1
                 continue
 
             recurrent = to_node.depth - from_node.depth <= 0
             new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
             self.links.append(new_gene)
-            return Innovation(new_gene, from_node, to_node)
+            tracker.assign_link_id(new_gene)
+            return
 
-    def __invalid_link(self, from_node, to_node):
+    def invalid_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
         both_are_outputs = from_node.is_output() and to_node.is_output()
-        same_nodes = from_node.innovation_number == to_node.innovation_number
+        same_nodes = from_node.id == to_node.id
 
         return (
             link_exists or
@@ -78,7 +84,7 @@ class Genome:
             not to_node.valid_out()
         )
 
-    def mutate_add_node(self, tries):
+    def mutate_add_node(self, tries, tracker):
         """
         Random insertion of a node between two previously connected nodes.
 
@@ -88,8 +94,6 @@ class Genome:
         """
 
         while tries:
-            # Distribute splitting evenly using bias towards older links.
-            # TODO: Might be better to only use bias if genome is small.
             biased_index = round(abs(random() - random())*(len(self.links)-1))
             link = self.links[biased_index]
 
@@ -108,12 +112,14 @@ class Genome:
             new_out_link.weight = link.weight
 
             self.nodes.append(new_node)
-            self.links.extend([new_in_link, new_out_link])
+            self.links.append(new_in_link)
+            self.links.append(new_out_link)
 
-            node_innovation = Innovation(new_node, link.from_node, link.to_node)
-            in_link_innovation = Innovation(new_in_link, link.from_node, new_node)
-            out_link_innovation = Innovation(new_out_link, new_node, link.to_node)
-            return [node_innovation, in_link_innovation, out_link_innovation]
+            tracker.assign_node_id(link.from_node.id, link.to_node.id, new_node)
+            tracker.assign_link_id(new_in_link)
+            tracker.assign_link_id(new_out_link)
+            return
+
 
     def mutate_weights(self, mutation_rate, replacement_rate, max_perturbation):
         """Perturb or replace weights.
@@ -140,10 +146,9 @@ class Genome:
 
     def link_exists(self, from_node, to_node):
         """Check if link is present in the genome. """
-        from_id = from_node.innovation_number
-        to_id = to_node.innovation_number
+
         for link in self.links:
-            if link.from_node.innovation_number == from_id and link.to_node.innovation_number == to_id:
+            if link.from_node.id == from_node.id and link.to_node.id == to_node.id:
                 return True
         return False
 
@@ -176,11 +181,11 @@ class Genome:
         for input_node in self.nodes[:self.num_inputs]:
             for output_node in self.nodes[self.num_inputs:]:
                 link = LinkGene(input_node, output_node)
-                link.innovation_number = innovation_number
+                link.id = innovation_number
                 self.links.append(link)
                 innovation_number += 1
 
-    def __duplicate_link(self, from_node, to_node):
+    def duplicate_link(self, from_node, to_node):
         # TODO: speedup by making self.links a dict?
         for link in self.links:
             if link.from_node == from_node and link.to_node == to_node:

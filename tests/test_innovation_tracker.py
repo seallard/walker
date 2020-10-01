@@ -4,61 +4,49 @@ from neat.innovation_tracker import InnovationTracker
 
 def test_initialisation():
     tracker = InnovationTracker(num_inputs=1, num_outputs=1)
-    assert tracker.innovations == {}
-    assert tracker.next_innovation_number == 3
-
-
-def test_tracking_none():
-    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
-    tracker.assign_innovation_number(None)
-
-    assert tracker.innovations == {}, "no innovation tracked"
-    assert tracker.next_innovation_number == 3, "innovation number not incremented"
+    assert tracker.node_innovations == {}
+    assert tracker.link_innovations == {}
+    assert tracker.next_link_id == 1
+    assert tracker.next_node_id == 2
 
 
 def test_single_node_innovation():
     genome = Genome(1, num_inputs=1, num_outputs=1)
     tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome.mutate_add_node(tries=1, tracker=tracker)
 
-    innovations = genome.mutate_add_node(tries=1)
+    assert len(tracker.node_innovations) == 1, "one node innovation"
+    assert len(tracker.link_innovations) == 2, "two link innovations"
+    assert genome.nodes[2].id == tracker.next_node_id - 1, "correct node id assigned"
+    assert genome.links[1].id == tracker.next_link_id - 2, "correct id assigned to in link"
+    assert genome.links[2].id == tracker.next_link_id - 1, "correct id assigned to out link"
 
-    for innovation in innovations:
-        tracker.assign_innovation_number(innovation)
+    node_key = (genome.nodes[0].id, genome.nodes[1].id, type(genome.nodes[0]))
+    assert tracker.node_innovations[node_key] == tracker.next_node_id - 1, "correct node id stored"
+    
+    in_key = (genome.nodes[0].id, genome.nodes[2].id, type(genome.links[0]))
+    assert tracker.link_innovations[in_key] == tracker.next_link_id - 2, "correct in link id stored"
 
-    assert len(tracker.innovations) == 3, "three innovations added"
-    assert innovations[0].gene.innovation_number == 3, "correct number assigned to node gene"
-    assert innovations[1].gene.innovation_number == 4, "correct number assigned to in link gene"
-    assert innovations[2].gene.innovation_number == 5, "correct number assigned to out link gene"
-    assert tracker.innovations[innovations[0].get_key()] == 3, "correct number stored for node innovation"
-    assert tracker.innovations[innovations[1].get_key()] == 4, "correct number stored for in link innovation"
-    assert tracker.innovations[innovations[2].get_key()] == 5, "correct number stored for out link innovation"
+    out_key = (genome.nodes[2].id, genome.nodes[1].id, type(genome.links[0]))
+    assert tracker.link_innovations[out_key] == tracker.next_link_id - 1, "correct out link id stored"
 
 
 def test_multiple_node_innovations():
     genome = Genome(1, num_inputs=1, num_outputs=1)
     tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome.mutate_add_node(tries=1, tracker=tracker)
+    genome.mutate_add_node(tries=50, tracker=tracker)
 
-    first_innovs = genome.mutate_add_node(tries=1)
-    second_innovs = genome.mutate_add_node(tries=50)
-
-    for innovation in first_innovs:
-        tracker.assign_innovation_number(innovation)
-
-    for innovation in second_innovs:
-        tracker.assign_innovation_number(innovation)
-
-
-    assert len(tracker.innovations) == 6, "six innovations added"
-    assert tracker.next_innovation_number == 9
+    assert len(tracker.node_innovations) == 2, "two node innovations added"
+    assert len(tracker.link_innovations) == 4, "four link innovations added"
 
 
 def test_single_link_innovation(connectable_genome):
-    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
-    innov = connectable_genome.add_non_loop_link(tries=10)
-    tracker.assign_innovation_number(innov)
+    tracker = InnovationTracker(connectable_genome.num_inputs, connectable_genome.num_outputs)
+    connectable_genome.add_non_loop_link(tries=50, tracker=tracker)
 
-    assert len(tracker.innovations) == 1
-    assert tracker.next_innovation_number == 4
+    assert len(tracker.link_innovations) == 1
+    assert tracker.next_link_id == connectable_genome.num_inputs*connectable_genome.num_outputs + 1
 
 
 def test_multiple_link_innovations():

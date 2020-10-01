@@ -9,7 +9,7 @@ class LinkGene:
         self.to_node = to_node
         self.enabled = enabled
         self.recurrent = recurrent
-        self.innovation_number = None
+        self.id = None
         self.weight = uniform(-1, 1)
 
     def can_be_split(self):

@@ -6,7 +6,7 @@ class NodeGene:
     def __init__(self, node_type, depth, innovation_number=None, recurrent=False):
         self.node_type = node_type
         self.depth = depth
-        self.innovation_number = innovation_number
+        self.id = innovation_number
         self.recurrent = recurrent
 
     def can_have_loop(self):

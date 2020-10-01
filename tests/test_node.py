@@ -1,6 +1,7 @@
 from neat.genome import Genome
 from neat.enums.node_types import NodeType
 import pytest
+from unittest.mock import Mock
 
 
 def test_node_initialisation(genome):
@@ -8,7 +9,7 @@ def test_node_initialisation(genome):
     outputs = genome.num_outputs
     assert len(genome.nodes) == inputs + outputs, "correct number of nodes"
 
-    node_numbers = [x.innovation_number for x in genome.nodes]
+    node_numbers = [x.id for x in genome.nodes]
     assert node_numbers == [x for x in range(inputs + outputs)], "correct node innovation ids"
 
     node_input_types = [x.node_type for x in genome.nodes[:inputs]]
@@ -22,10 +23,10 @@ def test_add_single_node():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    innovations = genome.mutate_add_node(tries=1)
-    new_node = innovations[0].gene
-    new_in = innovations[1].gene
-    new_out = innovations[2].gene
+    genome.mutate_add_node(tries=1, tracker=Mock())
+    new_node = genome.nodes[-1]
+    new_in = genome.links[-2]
+    new_out = genome.links[-1]
 
     assert len(genome.nodes) == original_number_of_nodes + 1, "one node added"
     assert len(genome.links) == original_number_of_links + 2, "two links added"
@@ -41,8 +42,8 @@ def test_add_single_node():
 
 def test_add_multiple_nodes():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1)
-    genome.mutate_add_node(tries=50) # Avoid disabled link
+    genome.mutate_add_node(tries=1, tracker=Mock())
+    genome.mutate_add_node(tries=50, tracker=Mock()) # Avoid disabled link
 
     assert len(genome.nodes) == 4, "two nodes added"
     assert len(genome.links) == 5, "four new links added"
@@ -61,7 +62,7 @@ def test_add_multiple_nodes():
 def test_impossible_add_node():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     genome.links[0].enabled = False # Disable the only existing link
-    genome.mutate_add_node(tries=50)
+    genome.mutate_add_node(tries=50, tracker=Mock())
 
     assert len(genome.nodes) == 2, "no new node added"
     assert len(genome.links) == 1, "no new link added"
