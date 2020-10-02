@@ -1,4 +1,7 @@
 from random import random
+from neat.node_gene import NodeGene
+from neat.genome import Genome
+
 
 class Breeder:
 
@@ -14,7 +17,6 @@ class Breeder:
             Offspring genome.
         """
 
-        offspring_nodes = set()
         offspring_links = []
 
         better_genome, worse_genome = self.fitness_order(mother, father)
@@ -29,8 +31,8 @@ class Breeder:
                 better_genome_index += 1
 
             else:
-                better_link = better_genome[better_genome_index]
-                worse_link = worse_genome[worse_genome_index]
+                better_link = better_genome.links[better_genome_index]
+                worse_link = worse_genome.links[worse_genome_index]
 
                 # Inherit matching links randomly.
                 if better_link.id == worse_link.id:
@@ -55,12 +57,8 @@ class Breeder:
                     better_genome_index += 1
 
             offspring_links.append(selected_link)
-            self.add_node_ids(selected_link, offspring_nodes)
-            
-            
 
-
-        return offspring_links
+        return self.create_offspring(offspring_links, better_genome)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -95,12 +93,26 @@ class Breeder:
 
         return better_genome, worse_genome
 
-    def add_node_ids(link, node_id_list):
-        from_id = link.from_node.id
-        to_id = link.to_node.id
+    def create_offspring(self, offspring_links, genome):
+        created_nodes = {}
 
-        if not from_id in node_id_list:
-            node_id_list.append(from_id)
+        for link in offspring_links:
 
-        if not to_id in node_id_list:
-            node_id_list.append(to_id)
+            if link.from_node.id not in created_nodes.keys():
+                new_node = link.from_node.copy()
+                created_nodes[link.from_node.id] = new_node
+                link.from_node = new_node
+            
+            else:
+                link.from_node = created_nodes[link.from_node.id]
+
+            if link.to_node.id not in created_nodes.keys():
+                new_node = link.to_node.copy()
+                created_nodes[link.to_node.id] = new_node
+                link.to_node = new_node
+
+            else:
+                link.to_node = created_nodes[to_node.id]
+
+        offspring_nodes = list(created_nodes.values())
+        return Genome(genome.id, genome.num_inputs, genome.num_outputs, offspring_nodes, offspring_links)
