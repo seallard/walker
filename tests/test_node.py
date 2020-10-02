@@ -66,3 +66,14 @@ def test_impossible_add_node():
 
     assert len(genome.nodes) == 2, "no new node added"
     assert len(genome.links) == 1, "no new link added"
+
+
+def test_copy_node(genome):
+    original = genome.nodes[0]
+    copy = original.copy()
+
+    assert copy is not original, "copy is not the same object"
+    assert copy.recurrent == original.recurrent
+    assert copy.id == original.id
+    assert copy.node_type == original.node_type
+    assert copy.depth == original.depth

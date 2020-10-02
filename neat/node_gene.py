@@ -26,3 +26,6 @@ class NodeGene:
 
     def is_output(self):
         return self.node_type == NodeType.OUTPUT
+
+    def copy(self):
+        return NodeGene(self.node_type, self.depth, self.id, self.recurrent)
