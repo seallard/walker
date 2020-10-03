@@ -112,7 +112,7 @@ class Breeder:
                 link.to_node = new_node
 
             else:
-                link.to_node = created_nodes[to_node.id]
+                link.to_node = created_nodes[link.to_node.id]
 
         offspring_nodes = list(created_nodes.values())
         return Genome(genome.id, genome.num_inputs, genome.num_outputs, offspring_nodes, offspring_links)
