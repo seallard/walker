@@ -177,7 +177,7 @@ class Genome:
     def __initialise_links(self):
         """Connect each input node to each output node. """
         self.links = []
-        innovation_number = self.num_inputs + self.num_outputs
+        innovation_number = 0
         for input_node in self.nodes[:self.num_inputs]:
             for output_node in self.nodes[self.num_inputs:]:
                 link = LinkGene(input_node, output_node)

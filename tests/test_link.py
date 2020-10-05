@@ -8,7 +8,7 @@ def test_link_initialisation(genome):
     assert len(genome.links) == inputs * outputs, "correct number of links"
 
     ids = [x.id for x in genome.links]
-    expected_ids = [x for x in range(inputs + outputs, inputs * outputs + inputs + outputs)]
+    expected_ids = [x for x in range(0, inputs * outputs)]
     assert ids == expected_ids, "correct link innovation ids"
 
     assert True not in [x.recurrent for x in genome.links], "no initial link is recurrent"
@@ -61,7 +61,6 @@ def test_add_recurrent_link():
     # Create minimal genome which can have a recurrent link
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
     genome.mutate_add_node(tries=1, tracker=Mock())
-    genome.nodes[1].node_type = NodeType.BIAS  # Disable forward links
     genome.add_non_loop_link(tries=50, tracker=Mock())
     new_link = genome.links[-1]
 
@@ -76,9 +75,8 @@ def test_connecting_two_output_nodes():
     genome.mutate_add_node(tries=1, tracker=Mock())
     for node in genome.nodes:
         node.node_type = NodeType.OUTPUT
-    link = genome.add_non_loop_link(tries=10, tracker=Mock())
+    genome.add_non_loop_link(tries=10, tracker=Mock())
 
-    assert link is None, "no link is returned"
     assert len(genome.links) == 3, "no link was added to the genome"
 
 
