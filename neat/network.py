@@ -15,12 +15,7 @@ class Network:
         outputs = []
 
         for node in self.nodes[self.num_inputs:]:
-            signal = 0
-
-            for link in node.in_links:
-                signal += link.from_node.output * link.weight
-
-            node.output = node.activation(signal)
+            node.activate()
 
             if node.is_output():
                 outputs.append(node.output)
