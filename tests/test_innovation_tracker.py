@@ -1,5 +1,6 @@
 from neat.genome import Genome
 from neat.innovation_tracker import InnovationTracker
+from neat.enums.node_types import NodeType
 
 
 def test_initialisation():
@@ -32,8 +33,8 @@ def test_single_node_innovation():
 
 
 def test_multiple_node_innovations():
-    genome = Genome(1, num_inputs=1, num_outputs=1)
     tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome = Genome(1, num_inputs=1, num_outputs=1)
     genome.mutate_add_node(tries=1, tracker=tracker)
     genome.mutate_add_node(tries=50, tracker=tracker)
 
@@ -49,8 +50,42 @@ def test_single_link_innovation(connectable_genome):
     assert tracker.next_link_id == connectable_genome.num_inputs*connectable_genome.num_outputs + 1
 
 
-def test_multiple_link_innovations():
-    pass
+def test_existing_node_innovation():
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome_1 = Genome(1, num_inputs=1, num_outputs=1)
+    genome_2 = Genome(2, num_inputs=1, num_outputs=1)
 
-def test_reset():
-    pass
+    genome_1.mutate_add_node(tries=1, tracker=tracker)
+    genome_2.mutate_add_node(tries=1, tracker=tracker)
+
+    assert genome_1.nodes[-1].id == genome_2.nodes[-1].id, "node received existing innovation id"
+    assert genome_1.links[-2].id == genome_2.links[-2].id, "in link received existing innovation id"
+    assert genome_1.links[-1].id == genome_2.links[-1].id, "out link received existing innovation id"
+
+
+def test_existing_non_consecutive_node_innovation():
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome_1 = Genome(1, num_inputs=1, num_outputs=1)
+    genome_2 = Genome(2, num_inputs=1, num_outputs=1)
+
+    genome_1.mutate_add_node(tries=1, tracker=tracker)
+    genome_1.mutate_add_node(tries=50, tracker=tracker)
+    genome_2.mutate_add_node(tries=1, tracker=tracker)
+
+    assert genome_1.nodes[-2].id == genome_2.nodes[-1].id, "node received existing innovation id"
+    assert genome_1.links[-4].id == genome_2.links[-2].id, "in link received existing innovation id"
+    assert genome_1.links[-3].id == genome_2.links[-1].id, "out link received existing innovation id"
+
+
+def test_existing_link_innovation():
+    tracker = InnovationTracker(num_inputs=1, num_outputs=1)
+    genome_1 = Genome(1, num_inputs=1, num_outputs=1)
+    genome_2 = Genome(2, num_inputs=1, num_outputs=1)
+
+    genome_1.mutate_add_node(tries=1, tracker=tracker)
+    genome_2.mutate_add_node(tries=1, tracker=tracker)
+
+    genome_1.add_non_loop_link(tries=50, tracker=tracker)
+    genome_2.add_non_loop_link(tries=50, tracker=tracker)
+
+    assert genome_1.links[-1].id == genome_2.links[-1].id
