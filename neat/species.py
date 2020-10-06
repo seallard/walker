@@ -40,10 +40,12 @@ class Species:
         self.age_since_improvement += 1
         self.expected_offspring = 0
 
+    def average_adjusted_fitness(self):
+        total_fitness = 0
+        for genome in self.members:
+            total_fitness += genome.adjusted_fitness
 
-    def calculate_spawn_amount(self):
-        pass
-
+        return total_fitness/len(self.members)
 
     def should_go_extinct(self, no_improvement_threshold):
         return self.age_since_improvement > no_improvement_threshold

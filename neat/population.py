@@ -1,15 +1,17 @@
 from neat.genome import Genome
 from neat.species import Species
+import math
 
 
 class Population:
 
-    def __init__(self, c_disjoint, c_excess, c_weight):
+    def __init__(self, size, c_disjoint, c_excess, c_weight):
         self.species = []
+        self.species_id = 0
+        self.size = size
         self.c_disjoint = c_disjoint
         self.c_excess = c_excess
         self.c_weight = c_weight
-        self.species_id = 0
 
 
     def speciate(self, genome, compatibility_threshold):
@@ -24,7 +26,6 @@ class Population:
         new_species = Species(self.species_id, genome)
         self.species.append(new_species)
         self.species_id += 1
-        
 
     def compatibility(self, g1, g2):
         """Compatibility of genomes. """
@@ -77,3 +78,16 @@ class Population:
         weight = self.c_weight * weight_diff/matched
 
         return disjoint + excess + weight
+    
+    def set_spawn_amounts(self):
+        total_population_fitness = self.total_fitness()
+        for species in self.species:
+            fitness = species.average_adjusted_fitness()
+            offspring = math.floor(fitness/total_population_fitness)
+            species.expected_offpsring = offspring
+
+    def total_fitness(self):
+        total_fitness = 0
+        for species in self.species:
+            total_fitness += species.average_adjusted_fitness()
+        return total_fitness
