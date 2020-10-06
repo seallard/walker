@@ -120,7 +120,6 @@ class Genome:
             tracker.assign_link_id(new_out_link)
             return
 
-
     def mutate_weights(self, mutation_rate, replacement_rate, max_perturbation):
         """Perturb or replace weights.
         """
@@ -135,15 +134,6 @@ class Genome:
             else:
                 link.weight += uniform(-1, 1) * max_perturbation
 
-
-    def compatibility_score(self, other):
-        """Calculate compatibility score with other genome. """
-        pass
-
-    def crossover(self, other):
-        """Create a child genome. """
-        pass
-
     def link_exists(self, from_node, to_node):
         """Check if link is present in the genome. """
 
@@ -151,14 +141,6 @@ class Genome:
             if link.from_node.id == from_node.id and link.to_node.id == to_node.id:
                 return True
         return False
-
-    def duplicate_node(self, innovation_number):
-        """Check if node is present in the genome. """
-        pass
-
-    def get_index_of_node(self, innovation_number):
-        """Find index of node in the list of nodes. """
-        pass
 
     def __initialise_nodes(self):
         """Create the input and output genes. """
@@ -195,3 +177,7 @@ class Genome:
 
     def size(self):
         return len(self.links)
+
+    def network(self):
+        """Create and return network phenotype of genome. """
+        pass
