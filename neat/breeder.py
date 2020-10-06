@@ -58,7 +58,8 @@ class Breeder:
 
             offspring_links.append(selected_link)
 
-        return self.create_offspring(offspring_links, better_genome)
+        offspring_nodes = self.update_nodes(offspring_links)
+        return Genome(mother.id, mother.num_inputs, mother.num_outputs, offspring_nodes, offspring_links)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -93,7 +94,8 @@ class Breeder:
 
         return better_genome, worse_genome
 
-    def create_offspring(self, offspring_links, genome):
+    def update_nodes(self, offspring_links):
+        """Create new nodes and update references in offspring links. """
         created_nodes = {}
 
         for link in offspring_links:
@@ -115,4 +117,4 @@ class Breeder:
                 link.to_node = created_nodes[link.to_node.id]
 
         offspring_nodes = list(created_nodes.values())
-        return Genome(genome.id, genome.num_inputs, genome.num_outputs, offspring_nodes, offspring_links)
+        return offspring_nodes
