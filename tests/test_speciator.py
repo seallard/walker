@@ -18,3 +18,6 @@ def test_compat_extra_link():
 
     compatibility = speciator.compatibility(genome_1, genome_2)
     assert compatibility == 0.5
+
+    compatibility = speciator.compatibility(genome_2, genome_1)
+    assert compatibility == 0.5

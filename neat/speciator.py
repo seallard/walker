@@ -1,4 +1,5 @@
 from neat.genome import Genome
+from neat.species import Species
 
 
 class Speciator:
@@ -8,13 +9,24 @@ class Speciator:
         self.c_disjoint = c_disjoint
         self.c_excess = c_excess
         self.c_weight = c_weight
+        self.species_id = 0
 
 
-    def speciate_genome():
+    def speciate(self, genome, compatibility_threshold):
         """Place genome into a species. """
-        pass
+        for species in self.species:
+            compatibility = self.compatibility(genome, species.leader)
 
-    def compatibility(self, species, genome):
+            if compatibility < compatibility_threshold:
+                species.add_member(genome)
+                return
+        
+        new_species = Species(self.species_id, genome)
+        self.species.append(new_species)
+        self.species_id += 1
+        
+
+    def compatibility(self, g1, g2):
         """Compatibility of genomes. """
 
         weight_diff = 0
@@ -22,43 +34,43 @@ class Speciator:
         disjoint = 0
         excess = 0
 
-        species_index = 0
-        genome_index = 0
+        g1_index = 0
+        g2_index = 0
 
-        while species_index <= species.size():
+        while g1_index <= g1.size():
 
-            # Reached end of genome.
-            if genome_index == genome.size():
-                excess += len(species.links) - species_index
+            # Reached end of g2.
+            if g2_index == g2.size():
+                excess += len(g1.links) - g1_index
                 break
 
-            # Reached end of species genome.
-            if species_index == species.size():
-                excess += len(genome.links) - genome_index
+            # Reached end of g1.
+            if g1_index == g1.size():
+                excess += len(g2.links) - g2_index
                 break
 
-            species_gene = species.links[species_index]
-            genome_gene = genome.links[genome_index]
+            g1_gene = g1.links[g1_index]
+            g2_gene = g2.links[g2_index]
 
-            if genome_gene.id == species_gene.id:
+            if g2_gene.id == g1_gene.id:
                 matched += 1
-                weight_diff += abs(genome_gene.weight - species_gene.weight)
-                genome_index += 1
-                species_index += 1
+                weight_diff += abs(g2_gene.weight - g1_gene.weight)
+                g2_index += 1
+                g1_index += 1
 
-            elif genome_gene.id > species_gene.id:
+            elif g2_gene.id > g1_gene.id:
                 disjoint += 1
-                species_index += 1
+                g1_index += 1
             
             else:
                 disjoint += 1
-                genome_index += 1
+                g2_index += 1
         
-        if species.size() > genome.size():
-            n = species.size()
+        if g1.size() > g2.size():
+            n = g1.size()
 
         else:
-            n = genome.size()
+            n = g2.size()
 
         disjoint = self.c_disjoint * disjoint/n
         excess = self.c_excess * excess/n

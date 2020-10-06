@@ -14,8 +14,6 @@ class Species:
 
     def adjust_fitness(self, young_bonus, old_penalty, young_threshold, old_threshold):
 
-        total_fitness = 0
-
         for genome in self.members:
 
             fitness = genome.fitness
@@ -26,7 +24,6 @@ class Species:
             if self.age > old_threshold:
                 fitness *= old_penalty
 
-            total_fitness += fitness
             genome.adjusted_fitness = fitness/len(self.members)
 
     def add_member(self, genome):
@@ -47,3 +44,6 @@ class Species:
     def calculate_spawn_amount(self):
         pass
 
+
+    def should_go_extinct(self, no_improvement_threshold):
+        return self.age_since_improvement > no_improvement_threshold
