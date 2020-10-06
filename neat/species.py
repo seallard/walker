@@ -34,7 +34,7 @@ class Species:
             self.max_fitness = genome.fitness
             self.age_since_improvement = 0
 
-    def generation_reset(self):
+    def epoch_reset(self):
         self.members = []
         self.age += 1
         self.age_since_improvement += 1
