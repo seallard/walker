@@ -2,7 +2,7 @@ from neat.genome import Genome
 from neat.species import Species
 
 
-class Speciator:
+class Population:
 
     def __init__(self, c_disjoint, c_excess, c_weight):
         self.species = []
