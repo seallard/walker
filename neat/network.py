@@ -5,9 +5,11 @@ from neat.enums.node_types import NodeType
 
 class Network:
 
-    def __init__(self, nodes, links):
+    def __init__(self, nodes, links, num_inputs, num_outputs):
         self.nodes = nodes
         self.links = links
+        self.num_inputs = num_inputs
+        self.num_outputs = num_outputs
 
     def update(self, inputs):
         """Propagate signals one node forward in the network. """
@@ -45,5 +47,5 @@ class Network:
 
 
         positioning = nx.spring_layout(graph)
-        nx.draw(graph, pos=positioning, edge_color='black', arrowsize=5, arrowstyle='fancy', node_color=color_map)
+        nx.draw(graph, pos=positioning, edge_color='black', arrowsize=10, node_color=color_map)
         plt.show()

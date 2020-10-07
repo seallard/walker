@@ -15,10 +15,10 @@ class Node:
     def activate(self):
         signal = 0
 
-        for link in node.in_links:
+        for link in self.in_links:
             signal += link.from_node.output * link.weight
 
-        return 1 / (1 + exp(-signal))
+        self.output = 1 / (1 + exp(-signal))
 
     def is_output(self):
         return self.type == NodeType.OUTPUT

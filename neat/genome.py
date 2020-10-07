@@ -38,7 +38,6 @@ class Genome:
     def add_loop(self, tries, tracker):
         """
         Add recurrent loop.
-        Returns None if failed. Otherwise an innovation.
         Side effects: adds link gene to this genome.
                       sets recurrent attribute of node to True.
         """
@@ -50,7 +49,7 @@ class Genome:
                 node.recurrent = True
                 new_gene = LinkGene(node, node, True, True)
                 self.links.append(new_gene)
-                tracker.assign_link_id(node.id, node.id, new_gene)
+                tracker.assign_link_id(new_gene)
                 return
 
             tries -= 1
@@ -188,7 +187,7 @@ class Genome:
 
         for node_gene in self.nodes:
             nodes[node_gene.id] = Node(node_gene)
-        
+
         links = []
 
         for link_gene in self.links:
@@ -197,13 +196,13 @@ class Genome:
                 from_node = nodes[link_gene.from_node.id]
                 to_node = nodes[link_gene.to_node.id]
 
-                # Create link.'
+                # Create link.
                 link = Link(from_node, to_node, link_gene.weight)
                 links.append(link)
 
                 # Update in and out links of nodes.
                 from_node.out_links.append(link)
                 to_node.in_links.append(link)
-        
+
         nodes = list(nodes.values())
-        return Network(nodes, links)
+        return Network(nodes, links, self.num_inputs, self.num_outputs)
