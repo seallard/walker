@@ -1,4 +1,5 @@
 import networkx as nx
+import matplotlib.pyplot as plt
 from neat.enums.node_types import NodeType
 
 
@@ -31,7 +32,7 @@ class Network:
 
         color_map = []
         for node in self.nodes:
-            if node.type == Nodetype.INPUT:
+            if node.type == NodeType.INPUT:
                 color_map.append('green')
 
             elif node.type == NodeType.HIDDEN:
