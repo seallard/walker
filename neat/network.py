@@ -10,23 +10,29 @@ class Network:
         self.links = links
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
+        self.running = False
 
     def update(self, inputs):
-        """Propagate signals one node forward in the network. """
+        """Propagate input through network until each output is activated. """
 
-        # Initialise input nodes with inputs.
-        for i, node in enumerate(self.nodes[:self.num_inputs]):
-            node.output = inputs[i]
+        while self.output_inactive():
 
-        outputs = []
+            # Initialise input nodes with inputs.
+            for i, node in enumerate(self.nodes[:self.num_inputs]):
+                node.output = inputs[i]
+                node.active = True
 
-        for node in self.nodes[self.num_inputs:]:
-            node.activate()
+            #TODO: initialise bias node with 1.
 
-            if node.is_output():
-                outputs.append(node.output)
+            # Iterate over nodes and calculate their net input signals.
+            for node in self.nodes[self.num_inputs:]:
+                node.calculate_net_input_signal()
 
-        return outputs
+            # Activate each node based on their net input signal.
+            for node in self.nodes[self.num_inputs:]:
+                node.activate()
+
+        return self.get_outputs()
 
     def draw(self):
         graph = nx.DiGraph()
@@ -49,3 +55,21 @@ class Network:
         positioning = nx.spring_layout(graph)
         nx.draw(graph, pos=positioning, edge_color='black', arrowsize=10, node_color=color_map)
         plt.show()
+
+    def output_inactive(self):
+
+        if self.running:
+            return True
+
+        else:
+            output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
+            for node in output_nodes:
+                if node.activation_count == 0:
+                    return False
+
+            self.running = True
+            return True
+
+    def get_outputs(self):
+        output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
+        return [node.output for node in output_nodes]
