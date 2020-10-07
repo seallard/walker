@@ -9,19 +9,19 @@ def genome():
 @pytest.fixture
 def loopable_genome(genome):
     for node in genome.nodes:
-        node.node_type = NodeType.HIDDEN
+        node.type = NodeType.HIDDEN
     return genome
 
 
 @pytest.fixture
 def unloopable_genome(genome):
     for node in genome.nodes:
-        node.node_type = NodeType.BIAS
+        node.type = NodeType.BIAS
     return genome
 
 
 @pytest.fixture
 def connectable_genome(genome):
     for node in genome.nodes:
-        node.node_type = NodeType.HIDDEN
+        node.type = NodeType.HIDDEN
     return genome

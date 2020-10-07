@@ -16,5 +16,5 @@ class LinkGene:
         return (
             self.enabled and
             not self.recurrent and
-            self.from_node.node_type != NodeType.BIAS
+            self.from_node.type != NodeType.BIAS
         )

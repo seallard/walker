@@ -12,10 +12,10 @@ def test_node_initialisation(genome):
     node_numbers = [x.id for x in genome.nodes]
     assert node_numbers == [x for x in range(inputs + outputs)], "correct node innovation ids"
 
-    node_input_types = [x.node_type for x in genome.nodes[:inputs]]
+    node_input_types = [x.type for x in genome.nodes[:inputs]]
     assert node_input_types == inputs*[NodeType.INPUT], "correct type for inputs"
 
-    node_output_types = [x.node_type for x in genome.nodes[inputs:]]
+    node_output_types = [x.type for x in genome.nodes[inputs:]]
     assert node_output_types == outputs*[NodeType.OUTPUT], "correct type for outputs"
 
 
@@ -75,5 +75,5 @@ def test_copy_node(genome):
     assert copy is not original, "copy is not the same object"
     assert copy.recurrent == original.recurrent
     assert copy.id == original.id
-    assert copy.node_type == original.node_type
+    assert copy.type == original.type
     assert copy.depth == original.depth
