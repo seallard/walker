@@ -2,7 +2,10 @@ from random import random, uniform
 from random import choice
 from neat.enums.node_types import NodeType
 from neat.link_gene import LinkGene
+from neat.link import Link
 from neat.node_gene import NodeGene
+from neat.node import Node
+from neat.network import Network
 
 
 class Genome:
@@ -180,4 +183,27 @@ class Genome:
 
     def network(self):
         """Create and return network phenotype of genome. """
-        pass
+
+        nodes = {}
+
+        for node_gene in self.nodes:
+            nodes[node_gene.id] = Node(node_gene)
+        
+        links = []
+
+        for link_gene in self.links:
+
+            if link_gene.enabled:
+                from_node = nodes[link_gene.from_node.id]
+                to_node = nodes[link_gene.to_node.id]
+
+                # Create link.'
+                link = Link(from_node, to_node, link_gene.weight)
+                links.append(link)
+
+                # Update in and out links of nodes.
+                from_node.out_links.append(link)
+                to_node.in_links.append(link)
+        
+        nodes = list(nodes.values())
+        return Network(nodes, links)

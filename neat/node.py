@@ -4,9 +4,9 @@ import math
 
 class Node:
 
-    def __init__(self, in_links, out_links, node_gene):
-        self.in_links = in_links
-        self.out_links = out_links
+    def __init__(self, node_gene):
+        self.in_links = []
+        self.out_links = []
         self.node_type = node_gene.node_type
         self.id = node_gene.id
         self.output = 0

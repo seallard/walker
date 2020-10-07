@@ -2,8 +2,9 @@
 
 class Network:
 
-    def __init__(self):
-        pass
+    def __init__(self, nodes, links):
+        self.nodes = nodes
+        self.links = links
 
     def update(self, inputs):
         """Propagate signals one node forward in the network. """
