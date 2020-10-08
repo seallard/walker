@@ -1,10 +1,9 @@
 from random import random
-from neat.node_gene import NodeGene
 from neat.genome import Genome
 
 
 class Breeder:
-
+    """Create new genome from two parent genomes by crossover. """
 
     def crossover(self, mother, father):
         """ Create offspring genome.
@@ -23,7 +22,7 @@ class Breeder:
         better_genome_index = 0
         worse_genome_index = 0
 
-        while(better_genome_index < better_genome.size()):
+        while better_genome_index < better_genome.size():
 
             # Only inherit excess links from the better genome.
             if worse_genome_index == worse_genome.size():
@@ -58,8 +57,8 @@ class Breeder:
 
             offspring_links.append(selected_link)
 
-        offspring_nodes = self.update_nodes(offspring_links)
-        return Genome(mother.id, mother.num_inputs, mother.num_outputs, offspring_nodes, offspring_links)
+        nodes = self.update_nodes(offspring_links)
+        return Genome(mother.id, mother.num_inputs, mother.num_outputs, nodes, offspring_links)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -104,7 +103,7 @@ class Breeder:
                 new_node = link.from_node.copy()
                 created_nodes[link.from_node.id] = new_node
                 link.from_node = new_node
-            
+
             else:
                 link.from_node = created_nodes[link.from_node.id]
 

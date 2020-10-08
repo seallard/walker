@@ -11,8 +11,8 @@ class Environment:
 
     def evaluate(self, network):
 
-        for step in self.time:
-            obs, reward, done, info = self.env.step(env.action_space.sample())
+        for step in range(self.time):
+            obs, reward, done, info = self.env.step(self.env.action_space.sample())
 
     def read_config(self):
         self.name = 'BipedalWalker-v3'
