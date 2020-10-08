@@ -15,14 +15,15 @@ class Network:
     def update(self, inputs):
         """Propagate input through network until each output is activated. """
 
-        while self.output_inactive():
+        # Initialise input nodes with inputs.
+        for i, node in enumerate(self.nodes[:self.num_inputs]):
+            node.output = inputs[i]
+            node.active = True
 
-            # Initialise input nodes with inputs.
-            for i, node in enumerate(self.nodes[:self.num_inputs]):
-                node.output = inputs[i]
-                node.active = True
+        #TODO: initialise bias node with 1.
+        activated_once = False
 
-            #TODO: initialise bias node with 1.
+        while self.output_inactive() or not activated_once:
 
             # Iterate over nodes and calculate their net input signals.
             for node in self.nodes[self.num_inputs:]:
@@ -31,6 +32,8 @@ class Network:
             # Activate each node based on their net input signal.
             for node in self.nodes[self.num_inputs:]:
                 node.activate()
+
+            activated_once = True
 
         return self.get_outputs()
 
@@ -59,16 +62,16 @@ class Network:
     def output_inactive(self):
 
         if self.running:
-            return True
+            return False
 
         else:
             output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
             for node in output_nodes:
                 if node.activation_count == 0:
-                    return False
+                    return True
 
             self.running = True
-            return True
+            return False
 
     def get_outputs(self):
         output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
