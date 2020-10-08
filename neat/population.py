@@ -1,6 +1,6 @@
 from neat.genome import Genome
 from neat.species import Species
-import math
+from math import floor
 
 
 class Population:
@@ -83,7 +83,7 @@ class Population:
         total_population_fitness = self.total_fitness()
         for species in self.species:
             fitness = species.average_adjusted_fitness()
-            offspring = math.floor(fitness/total_population_fitness)
+            offspring = floor(fitness/total_population_fitness)
             species.expected_offpsring = offspring
 
     def total_fitness(self):
@@ -91,3 +91,10 @@ class Population:
         for species in self.species:
             total_fitness += species.average_adjusted_fitness()
         return total_fitness
+
+
+    def initialise():
+        pass
+
+    def read_config():
+        pass

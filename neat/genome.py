@@ -57,7 +57,6 @@ class Genome:
     def add_non_loop_link(self, tries, tracker):
         """
         Add non-loop link to genome.
-        Returns None if failed. Otherwise an innovation.
         Side effects: adds link gene to this genome.
         """
         while tries:
