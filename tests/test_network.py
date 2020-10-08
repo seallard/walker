@@ -1,5 +1,6 @@
 from neat.genome import Genome
 from neat.network import Network
+from neat.enums.node_types import NodeType
 from unittest.mock import Mock
 from math import exp
 
@@ -86,16 +87,12 @@ def test_update_with_multiple_outputs():
 
 def test_update_with_loop():
     genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
     genome.add_loop(tries=50, tracker=Mock())
     network = genome.network()
 
     output = network.update(inputs=[0])
-    assert network.links[-1].from_node == network.links[-1].to_node, "network has loop"
-    assert output == [sigmoid(0.5*network.links[-2].weight)], "correct output"
+    assert output == [sigmoid(0)], "correct output"
 
     output = network.update(inputs=[0])
-    loop_weight = network.links[-1].weight
-    first_activation = sigmoid(0.5 * loop_weight)
-    second_activation = sigmoid(first_activation*network.links[-2].weight)
-    assert output == [second_activation]
+    loop_weight = network.links[1].weight
+    assert output == [sigmoid(sigmoid(0)*loop_weight)]
