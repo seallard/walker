@@ -1,31 +1,27 @@
 {
-    "population_settings":{
-        "population_size": 1000,
-        "top_percent_allowed_to_reproduce": 60,
-        "generations_allowed_without_improvement": 20
-    },
-    "node_settings":{
-        "node_addition_rate": 0.03
-    },
-    "link_settings":{
-        "link_addition_rate": 0.3,
-        "link_recurrent_rate": 0.1,
-        "link_addition_attempts": 3,
-        "link_loopback_attempts": 3,
-        "link_reactivation_rate": 0.1
-    },
-    "weight_settings":{
-        "weight_mutation_rate": 0.2,
-        "weight_replacement_rate": 0.1,
-        "weight_max_perturbation": 0.5
-    },
-    "reproduction_settings":{
-        "crossover_rate": 0.7
-    },
-    "species_settings":{
-        "compatibility_threshold": 0.26,
-        "excess_coefficient": 0.5,
-        "disjoint_coefficient": 0.1,
-        "weight_coefficient": 0.1
-    }
+    "population_size": 50,
+
+    "weight_mutation_range": 0.5,
+    "add_node_probability": 0.03,
+    "add_link_probability": 0.05,
+
+    "node_addition_attempts": 5,
+    "link_addition_attempts": 5,
+    "link_loop_attempts": 5,
+    "link_reactivation_probability": 0.1,
+    "link_recurrent_probability": 0.2,
+
+    "mutate_only_probability": 0.25,
+    "mate_only_probability": 0.2,
+    "interspecies_mating_rate": 0.05,
+    "mate_by_choosing_probability": 0.6,
+    "mate_by_averaging_probability": 0.4,
+
+    "compatibility_threshold": 4,
+    "excess_coefficient": 1,
+    "disjoint_coefficient": 1,
+    "weight_coefficient": 0.4,
+    "survival_threshold": 1,
+    "maximum_stagnation": 100000000000000000,
+    "target_number_of_species": 4
 }
