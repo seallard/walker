@@ -1,31 +1,45 @@
 from neat.genome import Genome
 from neat.species import Species
+from neat.innovation_tracker import InnovationTracker
 from math import floor
 
 
 class Population:
 
-    def __init__(self, size, c_disjoint, c_excess, c_weight):
-        self.species = []
-        self.species_id = 0
+    def __init__(self, size, num_inputs, num_outputs, c_disjoint, c_excess, c_weight):
         self.size = size
+        self.num_inputs = num_inputs
+        self.num_outputs = num_outputs
         self.c_disjoint = c_disjoint
         self.c_excess = c_excess
         self.c_weight = c_weight
+        self.compatibility_threshold = 4
+        self.species = []
+        self.species_id = 0
+        self.genomes = []
+        self.tracker = InnovationTracker(self.num_inputs, self.num_outputs)
 
+        for i in range(self.size):
+            genome = Genome(i, self.num_inputs, self.num_outputs)
+            self.genomes.append(genome)
 
-    def speciate(self, genome, compatibility_threshold):
-        """Place genome into a species. """
-        for species in self.species:
-            compatibility = self.compatibility(genome, species.leader)
+    def speciate_genomes(self):
+        """Place each genome into a species. """
+        for genome in self.genomes:
+            species_found = False
 
-            if compatibility < compatibility_threshold:
-                species.add_member(genome)
-                return
-        
-        new_species = Species(self.species_id, genome)
-        self.species.append(new_species)
-        self.species_id += 1
+            for species in self.species:
+                compatibility = self.compatibility(genome, species.leader)
+
+                if compatibility < self.compatibility_threshold:
+                    species.add_member(genome)
+                    species_found = True
+                    break
+
+            if not species_found:
+                new_species = Species(self.species_id, genome)
+                self.species.append(new_species)
+                self.species_id += 1
 
     def compatibility(self, g1, g2):
         """Compatibility of genomes. """
@@ -62,11 +76,11 @@ class Population:
             elif g2_gene.id > g1_gene.id:
                 disjoint += 1
                 g1_index += 1
-            
+
             else:
                 disjoint += 1
                 g2_index += 1
-        
+
         if g1.size() > g2.size():
             n = g1.size()
 
@@ -78,7 +92,7 @@ class Population:
         weight = self.c_weight * weight_diff/matched
 
         return disjoint + excess + weight
-    
+
     def set_spawn_amounts(self):
         total_population_fitness = self.total_fitness()
         for species in self.species:
@@ -91,10 +105,3 @@ class Population:
         for species in self.species:
             total_fitness += species.average_adjusted_fitness()
         return total_fitness
-
-
-    def initialise():
-        pass
-
-    def read_config():
-        pass
