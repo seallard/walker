@@ -5,6 +5,9 @@ from neat.genome import Genome
 class Breeder:
     """Create new genome from two parent genomes by crossover. """
 
+    def __init__(self, config):
+        self.config = config
+
     def crossover(self, mother, father):
         """ Create offspring genome.
 
@@ -58,7 +61,7 @@ class Breeder:
             offspring_links.append(selected_link)
 
         nodes = self.update_nodes(offspring_links)
-        return Genome(mother.id, mother.num_inputs, mother.num_outputs, nodes, offspring_links)
+        return Genome(mother.id, self.config, nodes, offspring_links)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.

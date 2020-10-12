@@ -7,14 +7,14 @@ class InnovationTracker:
     two nodes. The innovation occurs between them, as a new node or link.
     """
 
-    def __init__(self, num_inputs, num_outputs):
+    def __init__(self, config):
         self.link_innovations = {}
         self.node_innovations = {}
-        self.next_node_id = num_inputs + num_outputs
-        self.next_link_id = num_inputs * num_outputs
+        self.next_node_id = config.num_inputs + config.num_outputs
+        self.next_link_id = config.num_inputs * config.num_outputs
 
     def assign_node_id(self, first_node_id, second_node_id, gene):
-        
+
         key = (first_node_id, second_node_id, type(gene))
 
         try:

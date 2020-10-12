@@ -2,7 +2,7 @@
 
 class Species:
 
-    def __init__(self, id, first_genome):
+    def __init__(self, id, first_genome, config):
         self.id = id
         self.leader = first_genome
         self.members = [first_genome]
@@ -10,25 +10,26 @@ class Species:
         self.age_since_improvement = 0
         self.age = 0
         self.expected_offspring = 0
+        self.config = config
 
 
-    def adjust_fitness(self, young_bonus, old_penalty, young_threshold, old_threshold):
+    def adjust_fitness(self):
 
         for genome in self.members:
 
             fitness = genome.fitness
 
-            if self.age < young_threshold:
-                fitness *= young_bonus
-            
-            if self.age > old_threshold:
-                fitness *= old_penalty
+            if self.age < self.config.young_boost:
+                fitness *= self.config.young_boost
+
+            if self.age > self.config.old_threshold:
+                fitness *= self.config.old_penalty
 
             genome.adjusted_fitness = fitness/len(self.members)
 
     def add_member(self, genome):
         self.members.append(genome)
-        
+
         if genome.fitness > self.leader.fitness:
             self.leader = genome
             self.max_fitness = genome.fitness
@@ -49,3 +50,14 @@ class Species:
 
     def should_go_extinct(self, no_improvement_threshold):
         return self.age_since_improvement > no_improvement_threshold
+
+
+    def reproduce(self):
+
+        offspring = [self.leader] # Always include the species leader as is.
+
+        for i in range(self.expected_offspring):
+            # TODO: crossover
+            pass
+
+        return offspring

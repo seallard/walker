@@ -10,11 +10,11 @@ from neat.network import Network
 
 class Genome:
 
-    def __init__(self, id, num_inputs, num_outputs, node_genes=None, link_genes=None):
+    def __init__(self, id, config, node_genes=None, link_genes=None):
         self.id = id
-        self.num_inputs = num_inputs
-        self.num_outputs = num_outputs
+        self.config = config
         self.fitness = 0
+        self.phenotype = None
 
         if link_genes is None or node_genes is None:
             self.__initialise_nodes()
@@ -23,17 +23,17 @@ class Genome:
             self.nodes = node_genes
             self.links = link_genes
 
-    def mutate_add_link(self, loop_probability, loop_tries, add_tries, tracker):
+    def mutate_add_link(self, tracker):
         """
         Mutate genome by adding a new link between two previously unconnected nodes.
         Returns None if the addition failed. Otherwise the new link gene.
         Pre: self.nodes begins with the input nodes.
         """
 
-        if random() < loop_probability:
-            return self.add_loop(loop_tries, tracker)
+        if random() < self.config.loop_rate:
+            return self.add_loop(self.config.loop_tries, tracker)
 
-        return self.add_non_loop_link(add_tries, tracker)
+        return self.add_non_loop_link(self.config.link_add_tries, tracker)
 
     def add_loop(self, tries, tracker):
         """
@@ -61,7 +61,7 @@ class Genome:
         """
         while tries:
             from_node = choice(self.nodes)
-            to_node = choice(self.nodes[self.num_inputs:])
+            to_node = choice(self.nodes[self.config.num_inputs:])
 
             if self.invalid_link(from_node, to_node) or self.duplicate_link(from_node, to_node):
                 tries -= 1
@@ -85,7 +85,7 @@ class Genome:
             not to_node.valid_out()
         )
 
-    def mutate_add_node(self, tries, tracker):
+    def mutate_add_node(self, tracker):
         """
         Random insertion of a node between two previously connected nodes.
 
@@ -93,7 +93,7 @@ class Genome:
             - disables link
             - appends one node gene and two link genes to this genome
         """
-
+        tries = self.config.node_add_tries
         while tries:
             biased_index = round(abs(random() - random())*(len(self.links)-1))
             link = self.links[biased_index]
@@ -121,19 +121,19 @@ class Genome:
             tracker.assign_link_id(new_out_link)
             return
 
-    def mutate_weights(self, mutation_rate, replacement_rate, max_perturbation):
+    def mutate_weights(self):
         """Perturb or replace weights.
         """
         for link in self.links:
 
-            if random() > mutation_rate:
+            if random() > self.config.weight_mutation_rate:
                 continue
 
-            if random() < replacement_rate:
+            if random() < self.config.weight_replacement_rate:
                 link.weight = uniform(-1, 1)
 
             else:
-                link.weight += uniform(-1, 1) * max_perturbation
+                link.weight += uniform(-1, 1) * self.config.weight_mutation_range
 
     def link_exists(self, from_node, to_node):
         """Check if link is present in the genome. """
@@ -149,11 +149,11 @@ class Genome:
         in_depth = 0
         out_depth = 1
 
-        for innovation_number in range(self.num_inputs):
+        for innovation_number in range(self.config.num_inputs):
             node = NodeGene(NodeType.INPUT, in_depth, innovation_number)
             self.nodes.append(node)
 
-        for innovation_number in range(self.num_inputs, self.num_inputs + self.num_outputs):
+        for innovation_number in range(self.config.num_inputs, self.config.num_inputs + self.config.num_outputs):
             node = NodeGene(NodeType.OUTPUT, out_depth, innovation_number)
             self.nodes.append(node)
 
@@ -161,8 +161,8 @@ class Genome:
         """Connect each input node to each output node. """
         self.links = []
         innovation_number = 0
-        for input_node in self.nodes[:self.num_inputs]:
-            for output_node in self.nodes[self.num_inputs:]:
+        for input_node in self.nodes[:self.config.num_inputs]:
+            for output_node in self.nodes[self.config.num_inputs:]:
                 link = LinkGene(input_node, output_node)
                 link.id = innovation_number
                 self.links.append(link)
@@ -204,4 +204,6 @@ class Genome:
                 to_node.in_links.append(link)
 
         nodes = list(nodes.values())
-        return Network(nodes, links, self.num_inputs, self.num_outputs)
+        network = Network(nodes, links, self.config.num_inputs, self.config.num_outputs)
+        self.phenotype = network
+        return network
