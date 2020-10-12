@@ -4,3 +4,4 @@ pytest-cov
 networkx
 matplotlib
 gym
+numpy
