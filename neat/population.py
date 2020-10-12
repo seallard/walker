@@ -1,26 +1,22 @@
 from neat.genome import Genome
 from neat.species import Species
 from neat.innovation_tracker import InnovationTracker
+from neat.breeder import Breeder
 from math import floor
 
 
 class Population:
 
-    def __init__(self, size, num_inputs, num_outputs, c_disjoint, c_excess, c_weight):
-        self.size = size
-        self.num_inputs = num_inputs
-        self.num_outputs = num_outputs
-        self.c_disjoint = c_disjoint
-        self.c_excess = c_excess
-        self.c_weight = c_weight
-        self.compatibility_threshold = 4
+    def __init__(self, config):
+        self.config = config
         self.species = []
         self.species_id = 0
         self.genomes = []
-        self.tracker = InnovationTracker(self.num_inputs, self.num_outputs)
+        self.tracker = InnovationTracker(config)
+        self.breeder = Breeder(config)
 
-        for i in range(self.size):
-            genome = Genome(i, self.num_inputs, self.num_outputs)
+        for i in range(config.population_size):
+            genome = Genome(i, config)
             self.genomes.append(genome)
 
     def speciate_genomes(self):
@@ -31,13 +27,13 @@ class Population:
             for species in self.species:
                 compatibility = self.compatibility(genome, species.leader)
 
-                if compatibility < self.compatibility_threshold:
+                if compatibility < self.config.compatibility_threshold:
                     species.add_member(genome)
                     species_found = True
                     break
 
             if not species_found:
-                new_species = Species(self.species_id, genome)
+                new_species = Species(self.species_id, genome, self.config)
                 self.species.append(new_species)
                 self.species_id += 1
 
@@ -87,9 +83,9 @@ class Population:
         else:
             n = g2.size()
 
-        disjoint = self.c_disjoint * disjoint/n
-        excess = self.c_excess * excess/n
-        weight = self.c_weight * weight_diff/matched
+        disjoint = self.config.c_disjoint * disjoint/n
+        excess = self.config.c_excess * excess/n
+        weight = self.config.c_weight * weight_diff/matched
 
         return disjoint + excess + weight
 
@@ -105,3 +101,26 @@ class Population:
         for species in self.species:
             total_fitness += species.average_adjusted_fitness()
         return total_fitness
+
+    def reproduce(self):
+        new_population = []
+
+        for species in self.species:
+            new_population += species.reproduce()
+
+    def mutate(self):
+        for genome in self.genomes:
+            genome.mutate_weights()
+            genome.mutate_add_link(self.tracker)
+            genome.mutate_add_node(self.tracker)
+
+    def stopping_criterion(self):
+        return False
+
+    def reset(self):
+        for species in self.species:
+            species.epoch_reset()
+
+    def adjust_fitness_scores(self):
+        for species in self.species:
+            species.adjust_fitness()
