@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 
 
 class Environment:
@@ -7,13 +8,23 @@ class Environment:
     def __init__(self):
         self.read_config()
         self.env = gym.make(self.name)
-        self.env.reset()
+        self.evaluations = 0
 
     def evaluate(self, network):
 
+        total_reward = 0
+        observation = self.env.reset()
+
         for step in range(self.time):
-            obs, reward, done, info = self.env.step(self.env.action_space.sample())
+            if self.evaluations > 10000:
+                self.env.render()
+            action = network.update(observation)
+            observation, reward, done, info = self.env.step(action=np.array(action))
+            total_reward += reward
+
+        self.evaluations += 1
+        return total_reward
 
     def read_config(self):
         self.name = 'BipedalWalker-v3'
-        self.time = 1000
+        self.time = 300

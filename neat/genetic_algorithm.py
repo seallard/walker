@@ -1,24 +1,23 @@
 from neat.environment import Environment
 from neat.population import Population
-from neat.innovation_tracker import InnovationTracker
-from neat.breeder import Breeder
+from neat.config import Config
 
 
-class GeneticAlgorithm:
+config = Config("config.json")
+environment = Environment()
+population = Population(config=config)
 
-    def __init__(self):
-        self.environment = Environment()
-        self.population = Population()
-        self.tracker = InnovationTracker()
-        self.breeder = Breeder()
 
-    def generation_step(self):
+while not population.stopping_criterion():
 
-        # Create networks
-        # Evaluate networks
-        # Select parents
-        # Crossover and mutations
-        pass
+    for genome in population.genomes:
+        phenotype = genome.network()
+        fitness = environment.evaluate(phenotype)
+        genome.fitness = fitness
 
-    def read_config(self):
-        pass
+    population.speciate_genomes()
+    population.adjust_fitness_scores()
+    population.set_spawn_amounts()
+    population.reproduce()
+    population.mutate()
+    population.reset()
