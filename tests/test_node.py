@@ -5,8 +5,8 @@ from unittest.mock import Mock
 
 
 def test_node_initialisation(genome):
-    inputs = genome.num_inputs
-    outputs = genome.num_outputs
+    inputs = genome.config.num_inputs
+    outputs = genome.config.num_outputs
     assert len(genome.nodes) == inputs + outputs, "correct number of nodes"
 
     node_numbers = [x.id for x in genome.nodes]
@@ -19,11 +19,11 @@ def test_node_initialisation(genome):
     assert node_output_types == outputs*[NodeType.OUTPUT], "correct type for outputs"
 
 
-def test_add_single_node():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_add_single_node(standard_config):
+    genome = Genome(id=1, config=standard_config)
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    genome.mutate_add_node(tries=1, tracker=Mock())
+    genome.mutate_add_node(tracker=Mock())
     new_node = genome.nodes[-1]
     new_in = genome.links[-2]
     new_out = genome.links[-1]
@@ -40,10 +40,10 @@ def test_add_single_node():
     assert new_node.depth == 0.5, "depth of new single hidden node is 0.5"
 
 
-def test_add_multiple_nodes():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
-    genome.mutate_add_node(tries=50, tracker=Mock()) # Avoid disabled link
+def test_add_multiple_nodes(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.mutate_add_node(tracker=Mock())
+    genome.mutate_add_node(tracker=Mock()) # Avoid disabled link
 
     assert len(genome.nodes) == 4, "two nodes added"
     assert len(genome.links) == 5, "four new links added"
@@ -59,10 +59,10 @@ def test_add_multiple_nodes():
     assert len(recurrent_links) == 0, "no link is marked as recurrent"
 
 
-def test_impossible_add_node():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_impossible_add_node(standard_config):
+    genome = Genome(id=1, config=standard_config)
     genome.links[0].enabled = False # Disable the only existing link
-    genome.mutate_add_node(tries=50, tracker=Mock())
+    genome.mutate_add_node(tracker=Mock())
 
     assert len(genome.nodes) == 2, "no new node added"
     assert len(genome.links) == 1, "no new link added"

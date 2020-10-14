@@ -19,7 +19,7 @@ class Config():
 
         self.node_add_tries = config['node_addition_attempts']
         self.link_add_tries = config['link_addition_attempts']
-        self.loop_tries = config['link_loop_attempts']
+        self.loop_add_tries = config['link_loop_attempts']
 
         self.loop_rate = config['loop_rate']
 

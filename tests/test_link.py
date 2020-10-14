@@ -2,9 +2,10 @@ from neat.genome import Genome
 from neat.enums.node_types import NodeType
 from unittest.mock import Mock
 
+
 def test_link_initialisation(genome):
-    inputs = genome.num_inputs
-    outputs = genome.num_outputs
+    inputs = genome.config.num_inputs
+    outputs = genome.config.num_outputs
     assert len(genome.links) == inputs * outputs, "correct number of links"
 
     ids = [x.id for x in genome.links]
@@ -20,7 +21,7 @@ def test_link_initialisation(genome):
 
 def test_possible_loop(loopable_genome):
     original_number_of_links = len(loopable_genome.links)
-    loopable_genome.add_loop(tries=1, tracker=Mock())
+    loopable_genome.add_loop(tracker=Mock())
     loop_gene = loopable_genome.links[-1]
 
     assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
@@ -31,7 +32,7 @@ def test_possible_loop(loopable_genome):
 
 def test_impossible_loop(unloopable_genome):
     original_number_of_links = len(unloopable_genome.links)
-    result = unloopable_genome.add_loop(tries=10, tracker=Mock())
+    result = unloopable_genome.add_loop(tracker=Mock())
     new_number_of_links = len(unloopable_genome.links)
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
@@ -39,51 +40,45 @@ def test_impossible_loop(unloopable_genome):
 
 def test_add_non_loop_link(connectable_genome):
     original_number_of_links = len(connectable_genome.links)
-    connectable_genome.add_non_loop_link(tries=50, tracker=Mock())
-    new_gene = connectable_genome.links[-1]
-    new_number_of_links = len(connectable_genome.links)
+    connectable_genome.add_non_loop_link(tracker=Mock())
+    link = connectable_genome.links[-1]
 
-    assert new_gene, "new gene is not None"
-    assert new_number_of_links == original_number_of_links + 1, "one new link added"
-    assert new_gene.from_node != new_gene.to_node, "from and to nodes are not the same"
+    assert len(connectable_genome.links) == original_number_of_links + 1, "one new link added"
+    assert link.from_node != link.to_node, "new link is not a loop"
 
 
 def test_impossible_add_non_loop_link(unloopable_genome):
     original_number_of_links = len(unloopable_genome.links)
-    result = unloopable_genome.add_non_loop_link(tries=10, tracker=Mock())
+    result = unloopable_genome.add_non_loop_link(tracker=Mock())
     new_number_of_links = len(unloopable_genome.links)
 
     assert result is None, "no link gene is returned"
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
 
-def test_add_recurrent_link():
-    # Create minimal genome which can have a recurrent link
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
-    genome.add_non_loop_link(tries=50, tracker=Mock())
-    new_link = genome.links[-1]
+def test_add_recurrent_link(make_recurrent_genome, standard_config):
+    make_recurrent_genome.add_non_loop_link(tracker=Mock())
+    new_link = make_recurrent_genome.links[-1]
 
-    assert len(genome.links) == 4, "link added to genome"
-    assert new_link.from_node == genome.nodes[1], "link goes from output"
-    assert new_link.to_node == genome.nodes[-1], "link goes to hidden"
+    assert new_link.from_node == make_recurrent_genome.nodes[1], "link goes from output"
+    assert new_link.to_node == make_recurrent_genome.nodes[-1], "link goes to input"
     assert new_link.recurrent, "link is recurrent"
 
 
-def test_connecting_two_output_nodes():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
+def test_connecting_two_output_nodes(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.mutate_add_node(tracker=Mock())
     for node in genome.nodes:
         node.type = NodeType.OUTPUT
-    genome.add_non_loop_link(tries=10, tracker=Mock())
+    genome.add_non_loop_link(tracker=Mock())
 
     assert len(genome.links) == 3, "no link was added to the genome"
 
 
-def test_perturbing_single_link():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_perturbing_single_link(standard_config):
+    genome = Genome(id=1, config=standard_config)
     initial_weight = genome.links[0].weight
-    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    genome.mutate_weights()
     new_weight = genome.links[0].weight
 
     assert new_weight != initial_weight, "weight perturbed"
@@ -91,12 +86,12 @@ def test_perturbing_single_link():
     assert new_weight <= initial_weight + 0.5, "weight is not above max allowed"
 
 
-def test_perturbing_multiple_links():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
+def test_perturbing_multiple_links(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.mutate_add_node(tracker=Mock())
 
     initial_weights = [link.weight for link in genome.links]
-    genome.mutate_weights(mutation_rate=1, replacement_rate=0, max_perturbation=0.5)
+    genome.mutate_weights()
     perturbed_weigths = [link.weight for link in genome.links]
 
     assert initial_weights[0] != perturbed_weigths[0]
@@ -107,10 +102,13 @@ def test_perturbing_multiple_links():
         assert weight >= initial_weights[i] - 0.5
 
 
-def test_replacing_link():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_replacing_link(genome):
+    genome.config.weight_mutation_rate = 1
+    genome.config.weight_replacement_rate = 1
+    genome.config.weight_mutation_range =  0
+
     initial_weight = genome.links[0].weight
-    genome.mutate_weights(mutation_rate=1, replacement_rate=1, max_perturbation=0)
+    genome.mutate_weights()
     new_weight = genome.links[0].weight
 
     assert new_weight != initial_weight, "weight perturbed"

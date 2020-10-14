@@ -14,6 +14,7 @@ class Genome:
         self.id = id
         self.config = config
         self.fitness = 0
+        self.adjusted_fitness = 0
         self.phenotype = None
 
         if link_genes is None or node_genes is None:
@@ -30,18 +31,18 @@ class Genome:
         Pre: self.nodes begins with the input nodes.
         """
 
-        if random() < self.config.loop_rate:
-            return self.add_loop(self.config.loop_tries, tracker)
+        if random() < self.config.loop_add_rate:
+            return self.add_loop(tracker)
 
-        return self.add_non_loop_link(self.config.link_add_tries, tracker)
+        return self.add_non_loop_link(tracker)
 
-    def add_loop(self, tries, tracker):
+    def add_loop(self, tracker):
         """
         Add recurrent loop.
         Side effects: adds link gene to this genome.
                       sets recurrent attribute of node to True.
         """
-
+        tries = self.config.loop_add_tries
         while tries:
             node = choice(self.nodes)
 
@@ -54,16 +55,17 @@ class Genome:
 
             tries -= 1
 
-    def add_non_loop_link(self, tries, tracker):
+    def add_non_loop_link(self, tracker):
         """
         Add non-loop link to genome.
         Side effects: adds link gene to this genome.
         """
+        tries = self.config.link_add_tries
         while tries:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.config.num_inputs:])
 
-            if self.invalid_link(from_node, to_node) or self.duplicate_link(from_node, to_node):
+            if self.invalid_link(from_node, to_node):
                 tries -= 1
                 continue
 
@@ -167,13 +169,6 @@ class Genome:
                 link.id = innovation_number
                 self.links.append(link)
                 innovation_number += 1
-
-    def duplicate_link(self, from_node, to_node):
-        # TODO: speedup by making self.links a dict?
-        for link in self.links:
-            if link.from_node == from_node and link.to_node == to_node:
-                return True
-        return False
 
 
     def size(self):

@@ -7,16 +7,16 @@ from math import exp
 def sigmoid(x):
     return 1 / (1 + exp(-x))
 
-def test_create_nework():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_create_nework(standard_config):
+    genome = Genome(id=1, config=standard_config)
     network = genome.network()
 
     assert len(network.nodes) == len(genome.nodes)
     assert len(network.links) == len(genome.links)
 
 
-def test_create_network_with_disabled_links():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_create_network_with_disabled_links(standard_config):
+    genome = Genome(id=1, config=standard_config)
     genome.links[0].enabled = False
     network = genome.network()
 
@@ -24,16 +24,16 @@ def test_create_network_with_disabled_links():
     assert len(network.nodes) == len(genome.nodes)
 
 
-def test_create_network_with_loops():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=10, tracker=Mock())
-    genome.add_loop(tries=50, tracker=Mock())
+def test_create_network_with_loops(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.mutate_add_node(tracker=Mock())
+    genome.add_loop(tracker=Mock())
     network = genome.network()
     assert len(network.links) == len(genome.links) - 1
 
 
-def test_updates_without_hidden_nodes():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
+def test_updates_without_hidden_nodes(standard_config):
+    genome = Genome(id=1, config=standard_config)
     network = genome.network()
 
     output = network.update(inputs=[0])
@@ -45,9 +45,9 @@ def test_updates_without_hidden_nodes():
     assert output == [sigmoid(network.links[0].weight)]
 
 
-def test_updates_with_hidden_nodes():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.mutate_add_node(tries=1, tracker=Mock())
+def test_updates_with_hidden_nodes(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.mutate_add_node(tracker=Mock())
 
     network = genome.network()
     final_output = network.update(inputs=[1])
@@ -59,8 +59,8 @@ def test_updates_with_hidden_nodes():
         assert node.sum == 0, "net input signal to each node reset"
 
 
-def test_update_with_multiple_inputs():
-    genome = Genome(id=1, num_inputs=2, num_outputs=1)
+def test_update_with_multiple_inputs(multiple_inputs_config):
+    genome = Genome(id=1, config=multiple_inputs_config)
     network = genome.network()
 
     output = network.update(inputs=[0,0])
@@ -70,8 +70,8 @@ def test_update_with_multiple_inputs():
     assert output == [sigmoid(network.links[0].weight + network.links[1].weight)]
 
 
-def test_update_with_multiple_outputs():
-    genome = Genome(id=1, num_inputs=2, num_outputs=2)
+def test_update_with_multiple_outputs(multiple_input_output_config):
+    genome = Genome(id=1, config=multiple_input_output_config)
     network = genome.network()
 
     outputs = network.update(inputs=[0, 0])
@@ -85,9 +85,9 @@ def test_update_with_multiple_outputs():
     assert outputs == [sigmoid(w11 + w21), sigmoid(w12 + w22)]
 
 
-def test_update_with_loop():
-    genome = Genome(id=1, num_inputs=1, num_outputs=1)
-    genome.add_loop(tries=50, tracker=Mock())
+def test_update_with_loop(standard_config):
+    genome = Genome(id=1, config=standard_config)
+    genome.add_loop(tracker=Mock())
     network = genome.network()
 
     output = network.update(inputs=[0])
