@@ -42,7 +42,7 @@ def test_speciate_identical_genomes(standard_config):
     population.speciate_genomes()
 
     assert len(population.species) == 1, "one species created"
-    assert len(population.species[0].members) == standard_config.population_size, "all genomes added to the same species"
+    assert len(population.species[0].genomes) == standard_config.population_size, "all genomes added to the same species"
 
 
 def test_speciate_distinct_genomes(standard_config, tracker):
@@ -54,5 +54,5 @@ def test_speciate_distinct_genomes(standard_config, tracker):
     population.speciate_genomes()
 
     assert len(population.species) == 2, "two species created"
-    assert len(population.species[0].members) == 1, "first species contains one genome"
-    assert len(population.species[1].members) == standard_config.population_size-1, "second species contains all but one genome"
+    assert len(population.species[0].genomes) == 1, "first species contains one genome"
+    assert len(population.species[1].genomes) == standard_config.population_size-1, "second species contains all but one genome"

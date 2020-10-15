@@ -1,3 +1,5 @@
+from random import choice
+from math import floor
 
 
 class Species:
@@ -5,7 +7,7 @@ class Species:
     def __init__(self, id, first_genome, config):
         self.id = id
         self.leader = first_genome
-        self.members = [first_genome]
+        self.genomes = [first_genome]
         self.age_since_improvement = 0
         self.age = 0
         self.expected_offspring = 0
@@ -14,7 +16,7 @@ class Species:
 
     def adjust_fitness(self):
 
-        for genome in self.members:
+        for genome in self.genomes:
 
             fitness = genome.fitness
 
@@ -24,19 +26,30 @@ class Species:
             if self.age > self.config.old_threshold:
                 fitness *= self.config.old_penalty
 
-            adjusted = fitness/len(self.members)
+            adjusted = fitness/len(self.genomes)
             genome.adjusted_fitness = adjusted
             self.adjusted_sum += adjusted
 
-    def add_member(self, genome):
-        self.members.append(genome)
+    def add_genome(self, new_genome):
 
-        if genome.fitness > self.leader.fitness:
-            self.leader = genome
+        added_genome = False
+
+        for i, genome in enumerate(self.genomes):
+
+            if new_genome.adjusted_fitness > genome.adjusted_fitness:
+                self.genomes[i:i] = [new_genome]
+                added_genome = True
+                break
+
+        if not added_genome:
+            self.genomes.append(new_genome)
+
+        if new_genome.fitness > self.leader.fitness:
+            self.leader = new_genome
             self.age_since_improvement = 0
 
     def epoch_reset(self):
-        self.members = []
+        self.genomes = []
         self.age += 1
         self.age_since_improvement += 1
         self.expected_offspring = 0
@@ -45,12 +58,20 @@ class Species:
     def should_go_extinct(self, no_improvement_threshold):
         return self.age_since_improvement > no_improvement_threshold
 
-    def reproduce(self):
+    def reproduce(self, breeder):
 
-        offspring = [self.leader] # Always include the species leader as is.
+        offspring = [self.leader] # Always save species champion.
 
-        for i in range(self.expected_offspring):
-            # TODO: crossover
-            pass
+        best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
+        mating_pool = self.genomes[best_percent_index]
+
+        while len(offspring) < self.expected_offspring:
+
+            mother = choice(mating_pool)
+            father = choice(mating_pool)
+
+            if mother != father:
+                baby = breeder.crossover(mother, father)
+                offspring.append(baby)
 
         return offspring

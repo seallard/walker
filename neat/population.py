@@ -28,7 +28,7 @@ class Population:
                 compatibility = self.compatibility(genome, species.leader)
 
                 if compatibility < self.config.compatibility_threshold:
-                    species.add_member(genome)
+                    species.add_genome(genome)
                     species_found = True
                     break
 
@@ -99,7 +99,7 @@ class Population:
         new_population = []
 
         for species in self.species:
-            new_population += species.reproduce()
+            new_population += species.reproduce(self.breeder)
 
         self.population = new_population
 
