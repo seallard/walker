@@ -1,7 +1,7 @@
 from neat.link_gene import LinkGene
 
 
-def test_insert_link_at_end(genome, tracker):
+def test_insert_link_at_end(genome):
     new_link = LinkGene(from_node=None, to_node=None)
     new_link.id = 10
     genome.insert_link(new_link)
@@ -10,7 +10,7 @@ def test_insert_link_at_end(genome, tracker):
     assert genome.links[0].id < new_link.id, "link id is greater than previous id"
 
 
-def test_insert_link_in_middle(genome, tracker):
+def test_insert_link_in_middle(genome):
     last_link = LinkGene(from_node=None, to_node=None)
     last_link.id = 10
     genome.insert_link(last_link)

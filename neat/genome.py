@@ -65,17 +65,17 @@ class Genome:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.config.num_inputs:])
 
-            if self.invalid_link(from_node, to_node):
+            if self.invalid_non_loop_link(from_node, to_node):
                 tries -= 1
                 continue
 
             recurrent = to_node.depth - from_node.depth <= 0
             new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
-            self.links.append(new_gene)
             tracker.assign_link_id(new_gene)
+            self.insert_link(new_gene)
             return
 
-    def invalid_link(self, from_node, to_node):
+    def invalid_non_loop_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
         both_are_outputs = from_node.is_output() and to_node.is_output()
         same_nodes = from_node.id == to_node.id
@@ -206,9 +206,10 @@ class Genome:
 
 
     def insert_link(self, link_gene):
-        """Maintain links sorted by increasing innovation numbers. """
+        """Maintain links sorted by increasing innovation numbers.
+        """
 
-        if link_gene.id > self.links[-1].id:
+        if self.links and link_gene.id > self.links[-1].id:
             self.links.append(link_gene)
             return
 

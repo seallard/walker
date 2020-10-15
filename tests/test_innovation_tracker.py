@@ -41,7 +41,7 @@ def test_multiple_node_innovations(genome, standard_config):
     assert len(tracker.link_innovations) == 4, "four link innovations added"
 
 
-def test_single_link_innovation(connectable_genome, standard_config):
+def test_single_link_innovation(connectable_genome, standard_config, tracker):
     tracker = InnovationTracker(standard_config)
     connectable_genome.add_non_loop_link(tracker=tracker)
     assert len(tracker.link_innovations) == 1
