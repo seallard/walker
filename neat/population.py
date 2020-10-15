@@ -90,23 +90,18 @@ class Population:
         return disjoint + excess + weight
 
     def set_spawn_amounts(self):
-        total_population_fitness = self.total_fitness()
-        for species in self.species:
-            fitness = species.average_adjusted_fitness()
-            offspring = floor(fitness/total_population_fitness)
-            species.expected_offpsring = offspring
+        population_average = self.calculate_mean_adjusted_fitness()
 
-    def total_fitness(self):
-        total_fitness = 0
         for species in self.species:
-            total_fitness += species.average_adjusted_fitness()
-        return total_fitness
+            species.expected_offspring = floor(species.adjusted_sum/population_average)
 
     def reproduce(self):
         new_population = []
 
         for species in self.species:
             new_population += species.reproduce()
+
+        self.population = new_population
 
     def mutate(self):
         for genome in self.genomes:
@@ -124,3 +119,10 @@ class Population:
     def adjust_fitness_scores(self):
         for species in self.species:
             species.adjust_fitness()
+
+    def calculate_mean_adjusted_fitness(self):
+        """Mean adjusted fitness of the entire population. """
+        total = 0
+        for species in self.species:
+            total += species.adjusted_sum
+        return total/len(self.species)

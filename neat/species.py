@@ -6,12 +6,11 @@ class Species:
         self.id = id
         self.leader = first_genome
         self.members = [first_genome]
-        self.max_fitness = first_genome.fitness
         self.age_since_improvement = 0
         self.age = 0
         self.expected_offspring = 0
         self.config = config
-
+        self.adjusted_sum = 0
 
     def adjust_fitness(self):
 
@@ -25,14 +24,15 @@ class Species:
             if self.age > self.config.old_threshold:
                 fitness *= self.config.old_penalty
 
-            genome.adjusted_fitness = fitness/len(self.members)
+            adjusted = fitness/len(self.members)
+            genome.adjusted_fitness = adjusted
+            self.adjusted_sum += adjusted
 
     def add_member(self, genome):
         self.members.append(genome)
 
         if genome.fitness > self.leader.fitness:
             self.leader = genome
-            self.max_fitness = genome.fitness
             self.age_since_improvement = 0
 
     def epoch_reset(self):
@@ -40,17 +40,10 @@ class Species:
         self.age += 1
         self.age_since_improvement += 1
         self.expected_offspring = 0
-
-    def average_adjusted_fitness(self):
-        total_fitness = 0
-        for genome in self.members:
-            total_fitness += genome.adjusted_fitness
-
-        return total_fitness/len(self.members)
+        self.adjusted_sum = 0
 
     def should_go_extinct(self, no_improvement_threshold):
         return self.age_since_improvement > no_improvement_threshold
-
 
     def reproduce(self):
 

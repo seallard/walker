@@ -46,7 +46,6 @@ def test_add_worse_member(standard_config):
     species.add_member(worse)
 
     assert species.leader == better
-    assert species.max_fitness == better.fitness
 
 def test_add_better_member(standard_config):
     better = Genome(id=1, config=standard_config)
@@ -56,4 +55,3 @@ def test_add_better_member(standard_config):
     species.add_member(better)
 
     assert species.leader == better
-    assert species.max_fitness == better.fitness
