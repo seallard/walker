@@ -1,5 +1,6 @@
 from neat.genome import Genome
 from neat.enums.node_types import NodeType
+from neat.innovation_tracker import InnovationTracker
 import pytest
 from unittest.mock import Mock
 
@@ -65,12 +66,17 @@ def connectable_genome(standard_config):
 
 
 @pytest.fixture
-def make_recurrent_genome(standard_config):
+def make_recurrent_genome(standard_config, tracker):
     genome = Genome(id=1, config=standard_config)
     genome.config.link_add_tries = 50
-    genome.mutate_add_node(tracker=Mock())
+    genome.mutate_add_node(tracker)
     genome.nodes[-1].id = 2
     genome.links[-2].id = 1
     genome.links[-1].id = 2
 
     return genome
+
+
+@pytest.fixture
+def tracker(standard_config):
+    return InnovationTracker(standard_config)

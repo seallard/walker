@@ -19,11 +19,11 @@ def test_node_initialisation(genome):
     assert node_output_types == outputs*[NodeType.OUTPUT], "correct type for outputs"
 
 
-def test_add_single_node(standard_config):
+def test_add_single_node(standard_config, tracker):
     genome = Genome(id=1, config=standard_config)
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    genome.mutate_add_node(tracker=Mock())
+    genome.mutate_add_node(tracker)
     new_node = genome.nodes[-1]
     new_in = genome.links[-2]
     new_out = genome.links[-1]
@@ -40,10 +40,10 @@ def test_add_single_node(standard_config):
     assert new_node.depth == 0.5, "depth of new single hidden node is 0.5"
 
 
-def test_add_multiple_nodes(standard_config):
+def test_add_multiple_nodes(standard_config, tracker):
     genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker=Mock())
-    genome.mutate_add_node(tracker=Mock()) # Avoid disabled link
+    genome.mutate_add_node(tracker)
+    genome.mutate_add_node(tracker) # Avoid disabled link
 
     assert len(genome.nodes) == 4, "two nodes added"
     assert len(genome.links) == 5, "four new links added"

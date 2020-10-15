@@ -49,8 +49,8 @@ class Genome:
             if node.can_have_loop():
                 node.recurrent = True
                 new_gene = LinkGene(node, node, True, True)
-                self.links.append(new_gene)
                 tracker.assign_link_id(new_gene)
+                self.insert_link(new_gene)
                 return
 
             tries -= 1
@@ -114,13 +114,14 @@ class Genome:
             new_in_link.weight = 1
             new_out_link.weight = link.weight
 
-            self.nodes.append(new_node)
-            self.links.append(new_in_link)
-            self.links.append(new_out_link)
-
             tracker.assign_node_id(link.from_node.id, link.to_node.id, new_node)
             tracker.assign_link_id(new_in_link)
             tracker.assign_link_id(new_out_link)
+
+            self.nodes.append(new_node)
+            self.insert_link(new_in_link)
+            self.insert_link(new_out_link)
+
             return
 
     def mutate_weights(self):
@@ -202,3 +203,19 @@ class Genome:
         network = Network(nodes, links, self.config.num_inputs, self.config.num_outputs)
         self.phenotype = network
         return network
+
+
+    def insert_link(self, link_gene):
+        """Maintain links sorted by increasing innovation numbers. """
+
+        if link_gene.id > self.links[-1].id:
+            self.links.append(link_gene)
+            return
+
+        for i, link in enumerate(self.links):
+
+            if link.id > link_gene.id:
+                self.links[i:i] = [link_gene] # Insert link at index i.
+                return
+
+        self.links.append(link_gene)

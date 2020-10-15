@@ -2,6 +2,7 @@ from neat.genome import Genome
 from neat.breeder import Breeder
 from unittest.mock import Mock
 
+
 def test_smaller_genome_more_fit(standard_config):
     breeder = Breeder(standard_config)
     mother = Genome(1, standard_config)
@@ -11,6 +12,7 @@ def test_smaller_genome_more_fit(standard_config):
 
     assert better == father
     assert worse == mother
+
 
 def test_higher_score_more_fit(standard_config):
     breeder = Breeder(standard_config)
@@ -24,6 +26,7 @@ def test_higher_score_more_fit(standard_config):
     assert better == mother
     assert worse == father
 
+
 def test_crossover_identical(standard_config):
     breeder = Breeder(standard_config)
     mother = Genome(1, standard_config)
@@ -36,13 +39,14 @@ def test_crossover_identical(standard_config):
     assert len([node for node in mother.nodes if node in offspring.nodes]) == 0
     assert len([node for node in father.nodes if node in offspring.nodes]) == 0
 
-def test_crossover_longer_less_fit(standard_config, genome):
+
+def test_crossover_longer_less_fit(standard_config, tracker):
     breeder = Breeder(standard_config)
     mother = Genome(1, standard_config)
     father = Genome(2, standard_config)
 
-    mother.mutate_add_node(tracker=Mock())
-    mother.mutate_add_node(tracker=Mock())
+    mother.mutate_add_node(tracker)
+    mother.mutate_add_node(tracker)
 
     offspring = breeder.crossover(mother, father)
     father.fitness = 100

@@ -15,13 +15,13 @@ def test_compat_identical(standard_config):
     assert compatibility == 0
 
 
-def test_compat_extra_link(standard_config):
+def test_compat_extra_link(standard_config, tracker):
     standard_config.c_weight = 0
     population = Population(config=standard_config)
 
     genome_1 = population.genomes[0]
     genome_2 = population.genomes[1]
-    genome_2.add_loop(tracker=Mock())
+    genome_2.add_loop(tracker)
 
     compatibility = population.compatibility(genome_1, genome_2)
     assert compatibility == 0.5
@@ -45,11 +45,11 @@ def test_speciate_identical_genomes(standard_config):
     assert len(population.species[0].members) == standard_config.population_size, "all genomes added to the same species"
 
 
-def test_speciate_distinct_genomes(standard_config):
+def test_speciate_distinct_genomes(standard_config, tracker):
     standard_config.compatibility_threshold = 0.1 # Make sure any difference in topology creates a new species.
     standard_config.c_weight = 0 # Ignore differences in weights.
     population = Population(standard_config)
-    population.genomes[0].mutate_add_node(tracker=Mock())
+    population.genomes[0].mutate_add_node(tracker)
 
     population.speciate_genomes()
 
