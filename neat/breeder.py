@@ -3,10 +3,11 @@ from neat.genome import Genome
 
 
 class Breeder:
-    """Create new genome from two parent genomes by crossover. """
+    """Create a new genome from two parent genomes by crossover. """
 
     def __init__(self, config):
         self.config = config
+        self.genome_id = self.config.population_size - 1
 
     def crossover(self, mother, father):
         """ Create offspring genome.
@@ -60,8 +61,7 @@ class Breeder:
 
             offspring_links.append(selected_link)
 
-        nodes = self.update_nodes(offspring_links)
-        return Genome(mother.id, self.config, nodes, offspring_links)
+        return self.create_offspring(offspring_links)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -96,27 +96,26 @@ class Breeder:
 
         return better_genome, worse_genome
 
-    def update_nodes(self, offspring_links):
-        """Create new nodes and update references in offspring links. """
-        created_nodes = {}
+    def create_offspring(self, offspring_links):
+        """Create a new genome to avoid aliasing trouble. """
+        copied_nodes = {}
+        copied_links = []
 
         for link in offspring_links:
 
-            if link.from_node.id not in created_nodes.keys():
-                new_node = link.from_node.copy()
-                created_nodes[link.from_node.id] = new_node
-                link.from_node = new_node
+            if link.from_node.id not in copied_nodes.keys():
+                copied_nodes[link.from_node.id] = link.from_node.copy()
 
-            else:
-                link.from_node = created_nodes[link.from_node.id]
+            if link.to_node.id not in copied_nodes.keys():
+                copied_nodes[link.to_node.id] = link.to_node.copy()
 
-            if link.to_node.id not in created_nodes.keys():
-                new_node = link.to_node.copy()
-                created_nodes[link.to_node.id] = new_node
-                link.to_node = new_node
+            from_node_copy = copied_nodes[link.from_node.id]
+            to_node_copy = copied_nodes[link.to_node.id]
+            link_copy = link.copy(from_node_copy, to_node_copy)
 
-            else:
-                link.to_node = created_nodes[link.to_node.id]
+            copied_links.append(link_copy)
 
-        offspring_nodes = list(created_nodes.values())
-        return offspring_nodes
+        copied_nodes = list(copied_nodes.values())
+        offspring = Genome(self.genome_id, self.config, copied_nodes, copied_links)
+        self.genome_id += 1
+        return offspring
