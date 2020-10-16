@@ -63,7 +63,7 @@ class Species:
         offspring = [self.leader] # Always save species champion.
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
-        mating_pool = self.genomes[best_percent_index]
+        mating_pool = self.genomes[:best_percent_index]
 
         while len(offspring) < self.expected_offspring:
 
