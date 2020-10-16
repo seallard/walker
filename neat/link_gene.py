@@ -9,7 +9,7 @@ class LinkGene:
         self.to_node = to_node
         self.enabled = enabled
         self.recurrent = recurrent
-        self.id = None
+        self.id = id
         self.weight = uniform(-1, 1)
 
     def can_be_split(self):
@@ -18,3 +18,9 @@ class LinkGene:
             not self.recurrent and
             self.from_node.type != NodeType.BIAS
         )
+
+    def copy(self, from_node, to_node):
+        copy = LinkGene(from_node, to_node, self.enabled, self.recurrent)
+        copy.id = self.id
+        copy.weight = self.weight
+        return copy

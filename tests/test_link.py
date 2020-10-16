@@ -112,3 +112,15 @@ def test_replacing_link(genome):
     assert new_weight != initial_weight, "weight perturbed"
     assert new_weight >= -1
     assert new_weight <= 1
+
+
+def test_copy(genome):
+    link = genome.links[0]
+    copy = link.copy(from_node=None, to_node=None)
+
+    assert copy.from_node != link.from_node
+    assert copy.to_node != link.to_node
+    assert copy.id == link.id
+    assert copy.recurrent == link.recurrent
+    assert copy.enabled == link.enabled
+    assert copy.weight == link.weight
