@@ -60,7 +60,7 @@ class Species:
 
     def reproduce(self, breeder):
 
-        offspring = [self.leader] # Always save species champion.
+        offspring = [breeder.create_offspring(self.leader.links)] # Always save species champion.
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
