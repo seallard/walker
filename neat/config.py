@@ -16,6 +16,7 @@ class Config():
 
         self.node_add_rate = config['add_node_probability']
         self.link_add_rate = config['add_link_probability']
+        self.loop_add_rate = config['add_loop_probability']
 
         self.node_add_tries = config['node_addition_attempts']
         self.link_add_tries = config['link_addition_attempts']

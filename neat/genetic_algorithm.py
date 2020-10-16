@@ -16,6 +16,7 @@ while not population.stopping_criterion():
         genome.fitness = fitness
 
     population.speciate_genomes()
+    population.statistics()
     population.adjust_fitness_scores()
     population.set_spawn_amounts()
     population.reproduce()

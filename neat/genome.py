@@ -51,6 +51,7 @@ class Genome:
                 new_gene = LinkGene(node, node, True, True)
                 tracker.assign_link_id(new_gene)
                 self.insert_link(new_gene)
+                print("Added a loop link")
                 return
 
             tries -= 1
@@ -69,6 +70,7 @@ class Genome:
                 tries -= 1
                 continue
 
+            #print("Added a non loop link")
             recurrent = to_node.depth - from_node.depth <= 0
             new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
             tracker.assign_link_id(new_gene)
@@ -121,6 +123,7 @@ class Genome:
             self.nodes.append(new_node)
             self.insert_link(new_in_link)
             self.insert_link(new_out_link)
+            #print("Added a node")
 
             return
 

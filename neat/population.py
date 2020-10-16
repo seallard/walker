@@ -126,3 +126,7 @@ class Population:
         for species in self.species:
             total += species.adjusted_sum
         return total/len(self.species)
+
+    def statistics(self):
+        print(f"Number of species: {len(self.species)}")
+        print(f"Number of genomes: {len(self.genomes)}")

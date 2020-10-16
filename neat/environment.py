@@ -16,13 +16,14 @@ class Environment:
         observation = self.env.reset()
 
         for step in range(self.time):
-            if self.evaluations > 10000:
+            if self.evaluations > 500:
                 self.env.render()
             action = network.update(observation)
             observation, reward, done, info = self.env.step(action=np.array(action))
             total_reward += reward
 
         self.evaluations += 1
+        print(self.evaluations)
         return total_reward
 
     def read_config(self):
