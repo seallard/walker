@@ -17,6 +17,8 @@ def standard_config():
     config.link_add_tries = 15
     config.recurrent_probability = 0.2
 
+    config.weight_mutation_probability = 1
+
     config.weight_mutation_rate = 1
     config.weight_replacement_rate = 0
     config.weight_mutation_range = 0.5
