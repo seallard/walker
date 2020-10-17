@@ -25,7 +25,6 @@ def test_add_loop(loopable_genome):
     loop_gene = loopable_genome.links[-1]
 
     assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
-    assert loop_gene.from_node.recurrent is True, "the node has been marked as recurrent"
     assert loop_gene.recurrent is True, "the link has been marked as recurrent"
     assert loop_gene.from_node == loop_gene.to_node, "link is a loop"
 

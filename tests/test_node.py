@@ -52,9 +52,6 @@ def test_add_multiple_nodes(standard_config, tracker):
     assert len(disabled_links) == 2, "two links disabled"
     assert not genome.links[0].enabled, "original link disabled"
 
-    recurrent_nodes = [node for node in genome.nodes if node.recurrent]
-    assert len(recurrent_nodes) == 0, "no node is marked as recurrent"
-
     recurrent_links = [link for link in genome.links if link.recurrent]
     assert len(recurrent_links) == 0, "no link is marked as recurrent"
 
@@ -73,7 +70,6 @@ def test_copy_node(genome):
     copy = original.copy()
 
     assert copy is not original, "copy is not the same object"
-    assert copy.recurrent == original.recurrent
     assert copy.id == original.id
     assert copy.type == original.type
     assert copy.depth == original.depth

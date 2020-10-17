@@ -61,13 +61,15 @@ class Species:
         return self.age_since_improvement > no_improvement_threshold
 
     def reproduce(self):
-
+        print("calling species.reproduce")
         offspring = [self.breeder.create_genome(self.leader.links)] # Always save species leader.
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
 
+        print(f"expected offspring {self.expected_offspring}")
         while len(offspring) < self.expected_offspring:
+            print(f"Entered reproduction loop in species with {len(self.genomes)} members")
 
             # Some of the time, only mutate.
             if random() < self.config.mutate_only_probability or mating_pool == []:

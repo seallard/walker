@@ -74,8 +74,7 @@ class Genome:
         while tries:
             node = choice(self.nodes)
 
-            if node.can_have_loop():
-                node.recurrent = True
+            if node.can_have_loop() and not self.link_exists(node, node):
                 new_gene = LinkGene(node, node, recurrent=True)
                 self.tracker.assign_link_id(new_gene)
                 self.insert_link(new_gene)

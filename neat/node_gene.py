@@ -3,16 +3,14 @@ from neat.enums.node_types import NodeType
 
 class NodeGene:
 
-    def __init__(self, node_type, depth, innovation_number=None, recurrent=False):
+    def __init__(self, node_type, depth, innovation_number=None):
         self.type = node_type
         self.depth = depth
         self.id = innovation_number
-        self.recurrent = recurrent
 
     def can_have_loop(self):
         """Check if suitable for loop link. """
         return (
-            not self.recurrent and
             self.type != NodeType.BIAS and
             self.type != NodeType.INPUT
         )
@@ -28,4 +26,4 @@ class NodeGene:
         return self.type == NodeType.OUTPUT
 
     def copy(self):
-        return NodeGene(self.type, self.depth, self.id, self.recurrent)
+        return NodeGene(self.type, self.depth, self.id)
