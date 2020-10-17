@@ -11,21 +11,18 @@ class Config():
         self.population_size = config['population_size']
 
         self.weight_mutation_range = config['weight_mutation_range']
-        self.weight_mutation_rate = config['weight_mutation_rate']
+        self.weight_mutation_probability = config['weight_mutation_probability']
         self.weight_replacement_rate = config['weight_replacement_rate']
 
-        self.node_add_rate = config['add_node_probability']
-        self.link_add_rate = config['add_link_probability']
-        self.loop_add_rate = config['add_loop_probability']
+        self.add_node_probability = config['add_node_probability']
+        self.add_link_probability = config['add_link_probability']
+        self.recurrent_probability = config['link_recurrent_probability']
 
         self.node_add_tries = config['node_addition_attempts']
         self.link_add_tries = config['link_addition_attempts']
-        self.loop_add_tries = config['link_loop_attempts']
-
-        self.loop_rate = config['loop_rate']
 
         self.recurrent_rate = config['link_recurrent_probability']
-        self.reactivation_rate = config['link_reactivation_probability']
+        self.reenable_link_probability = config['link_reenable_probability']
 
         self.mutate_only = config['mutate_only_probability']
         self.mate_only = config['mate_only_probability']

@@ -16,7 +16,7 @@ class Population:
         self.breeder = Breeder(config)
 
         for i in range(config.population_size):
-            genome = Genome(i, config)
+            genome = Genome(i, config, tracker=self.tracker)
             self.genomes.append(genome)
 
     def speciate_genomes(self):
@@ -33,7 +33,7 @@ class Population:
                     break
 
             if not species_found:
-                new_species = Species(self.species_id, genome, self.config)
+                new_species = Species(self.species_id, genome, self.config, self.breeder)
                 self.species.append(new_species)
                 self.species_id += 1
 
@@ -99,15 +99,9 @@ class Population:
         new_population = []
 
         for species in self.species:
-            new_population += species.reproduce(self.breeder)
+            new_population += species.reproduce()
 
         self.population = new_population
-
-    def mutate(self):
-        for genome in self.genomes:
-            genome.mutate_weights()
-            genome.mutate_add_link(self.tracker)
-            genome.mutate_add_node(self.tracker)
 
     def stopping_criterion(self):
         return False

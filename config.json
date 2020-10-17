@@ -2,19 +2,17 @@
     "population_size": 10,
 
     "weight_mutation_range": 0.5,
-    "weight_mutation_rate": 1.0,
+    "weight_mutation_probability": 1.0,
     "weight_replacement_rate": 0,
     "add_node_probability": 0.03,
     "add_link_probability": 0.05,
-    "add_loop_probability": 0.01,
+    "recurrent_probability": 0.2,
 
     "node_addition_attempts": 5,
     "link_addition_attempts": 5,
-    "link_loop_attempts": 5,
-    "link_reactivation_probability": 0.1,
     "link_recurrent_probability": 0.2,
-
-    "loop_rate": 0.1,
+    "link_reenable_probability": 0.1,
+    "link_toggle_enable_probability": 0.1,
 
     "mutate_only_probability": 0.25,
     "mate_only_probability": 0.2,

@@ -19,9 +19,9 @@ def test_link_initialisation(genome):
     assert genome.nodes[-1].depth == 1, "depth of output node is 1"
 
 
-def test_possible_loop(loopable_genome, tracker):
+def test_add_loop(loopable_genome):
     original_number_of_links = len(loopable_genome.links)
-    loopable_genome.add_loop(tracker=tracker)
+    loopable_genome.add_loop_link()
     loop_gene = loopable_genome.links[-1]
 
     assert len(loopable_genome.links) == original_number_of_links + 1, "one link gene has been added"
@@ -30,47 +30,20 @@ def test_possible_loop(loopable_genome, tracker):
     assert loop_gene.from_node == loop_gene.to_node, "link is a loop"
 
 
-def test_impossible_loop(unloopable_genome):
+def test_failing_to_add_loop(unloopable_genome):
     original_number_of_links = len(unloopable_genome.links)
-    unloopable_genome.add_loop(tracker=Mock())
+    unloopable_genome.add_loop_link()
     new_number_of_links = len(unloopable_genome.links)
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
 
-def test_add_non_loop_link(connectable_genome):
-    original_number_of_links = len(connectable_genome.links)
-    connectable_genome.add_non_loop_link(tracker=Mock())
-    link = connectable_genome.links[-1]
-
-    assert len(connectable_genome.links) == original_number_of_links + 1, "one new link added"
-    assert link.from_node != link.to_node, "new link is not a loop"
-
-
-def test_impossible_add_non_loop_link(unloopable_genome):
-    original_number_of_links = len(unloopable_genome.links)
-    unloopable_genome.add_non_loop_link(tracker=Mock())
-    new_number_of_links = len(unloopable_genome.links)
-
-    assert original_number_of_links == new_number_of_links, "no link gene has been added"
-
-
-def test_add_recurrent_link(make_recurrent_genome, tracker):
-    make_recurrent_genome.add_non_loop_link(tracker)
+def test_add_recurrent_link(make_recurrent_genome):
+    make_recurrent_genome.add_recurrent_link()
     new_link = make_recurrent_genome.links[-1]
 
     assert new_link.from_node == make_recurrent_genome.nodes[1], "link goes from output"
     assert new_link.to_node == make_recurrent_genome.nodes[-1], "link goes to input"
     assert new_link.recurrent, "link is recurrent"
-
-
-def test_connecting_two_output_nodes(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker)
-    for node in genome.nodes:
-        node.type = NodeType.OUTPUT
-    genome.add_non_loop_link(tracker)
-
-    assert len(genome.links) == 3, "no link was added to the genome"
 
 
 def test_perturbing_single_link(standard_config):
@@ -84,9 +57,8 @@ def test_perturbing_single_link(standard_config):
     assert new_weight <= initial_weight + 0.5, "weight is not above max allowed"
 
 
-def test_perturbing_multiple_links(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker)
+def test_perturbing_multiple_links(genome):
+    genome.mutate_add_node()
 
     initial_weights = [link.weight for link in genome.links]
     genome.mutate_weights()

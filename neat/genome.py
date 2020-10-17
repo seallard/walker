@@ -10,12 +10,13 @@ from neat.network import Network
 
 class Genome:
 
-    def __init__(self, id, config, node_genes=None, link_genes=None):
+    def __init__(self, id, config, node_genes=None, link_genes=None, tracker=None):
         self.id = id
         self.config = config
         self.fitness = 0
         self.adjusted_fitness = 0
         self.phenotype = None
+        self.tracker = tracker
 
         if link_genes is None or node_genes is None:
             self.__initialise_nodes()
@@ -24,41 +25,92 @@ class Genome:
             self.nodes = node_genes
             self.links = link_genes
 
-    def mutate_add_link(self, tracker):
+    def mutate_structure(self):
+        """Call each method of structural mutation with a certain probability. """
+
+        if random() < self.config.add_node_probability:
+            return self.mutate_add_node()
+
+        if random() < self.config.add_link_probability:
+            return self.mutate_add_link()
+
+    def mutate_non_structure(self):
+        """Call each method of non-structural mutation with a certain probability. """
+
+        if random() < self.config.weight_mutation_probability:
+            self.mutate_weights()
+
+        if random() < self.config.link_reenable_probability:
+            self.mutate_reenable_link()
+
+        if random() < self.config.link_toggle_enabled_probability:
+            self.mutate_toggle_enable()
+
+    def mutate_add_link(self):
         """
         Mutate genome by adding a new link between two previously unconnected nodes.
-        Returns None if the addition failed. Otherwise the new link gene.
+        The added link is either forward, recurrent or a loop.
         Pre: self.nodes begins with the input nodes.
         """
 
-        if random() < self.config.loop_add_rate:
-            return self.add_loop(tracker)
+        if random() < self.config.recurrent_probability:
 
-        return self.add_non_loop_link(tracker)
+            if random() < 0.5:
+                return self.add_loop_link()
 
-    def add_loop(self, tracker):
+            else:
+                return self.add_recurrent_link()
+
+        else:
+            return self.add_forward_link()
+
+    def add_loop_link(self):
         """
         Add recurrent loop.
         Side effects: adds link gene to this genome.
                       sets recurrent attribute of node to True.
         """
-        tries = self.config.loop_add_tries
+        tries = self.config.link_add_tries
         while tries:
             node = choice(self.nodes)
 
             if node.can_have_loop():
                 node.recurrent = True
-                new_gene = LinkGene(node, node, True, True)
-                tracker.assign_link_id(new_gene)
+                new_gene = LinkGene(node, node, recurrent=True)
+                self.tracker.assign_link_id(new_gene)
                 self.insert_link(new_gene)
                 print("Added a loop link")
-                return
-
+                return True
             tries -= 1
 
-    def add_non_loop_link(self, tracker):
+    def add_recurrent_link(self):
+        tries = self.config.link_add_tries
+        while tries:
+            from_node = choice(self.nodes)
+            to_node = choice(self.nodes[self.config.num_inputs:])
+
+            if self.invalid_recurrent_link(from_node, to_node):
+                tries -= 1
+                continue
+
+            new_gene = LinkGene(from_node, to_node, recurrent=True)
+            self.tracker.assign_link_id(new_gene)
+            self.insert_link(new_gene)
+            return True
+
+    def invalid_recurrent_link(self, from_node, to_node):
+        link_exists = self.link_exists(from_node, to_node)
+        is_forward = from_node.depth - to_node.depth <= 0
+
+        return (
+            link_exists or
+            not to_node.valid_out() or
+            is_forward
+        )
+
+    def add_forward_link(self):
         """
-        Add non-loop link to genome.
+        Add forward link to genome.
         Side effects: adds link gene to this genome.
         """
         tries = self.config.link_add_tries
@@ -66,30 +118,26 @@ class Genome:
             from_node = choice(self.nodes)
             to_node = choice(self.nodes[self.config.num_inputs:])
 
-            if self.invalid_non_loop_link(from_node, to_node):
+            if self.invalid_forward_link(from_node, to_node):
                 tries -= 1
                 continue
 
-            #print("Added a non loop link")
-            recurrent = to_node.depth - from_node.depth <= 0
-            new_gene = LinkGene(from_node, to_node, recurrent=recurrent)
-            tracker.assign_link_id(new_gene)
+            new_gene = LinkGene(from_node, to_node, recurrent=False)
+            self.tracker.assign_link_id(new_gene)
             self.insert_link(new_gene)
-            return
+            return True
 
-    def invalid_non_loop_link(self, from_node, to_node):
+    def invalid_forward_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
-        both_are_outputs = from_node.is_output() and to_node.is_output()
-        same_nodes = from_node.id == to_node.id
+        is_backward = from_node.depth - to_node.depth >= 0
 
         return (
             link_exists or
-            same_nodes or
-            both_are_outputs or
-            not to_node.valid_out()
+            not to_node.valid_out() or
+            is_backward
         )
 
-    def mutate_add_node(self, tracker):
+    def mutate_add_node(self):
         """
         Random insertion of a node between two previously connected nodes.
 
@@ -116,23 +164,49 @@ class Genome:
             new_in_link.weight = 1
             new_out_link.weight = link.weight
 
-            tracker.assign_node_id(link.from_node.id, link.to_node.id, new_node)
-            tracker.assign_link_id(new_in_link)
-            tracker.assign_link_id(new_out_link)
+            self.tracker.assign_node_id(link.from_node.id, link.to_node.id, new_node)
+            self.tracker.assign_link_id(new_in_link)
+            self.tracker.assign_link_id(new_out_link)
 
             self.nodes.append(new_node)
             self.insert_link(new_in_link)
             self.insert_link(new_out_link)
-            #print("Added a node")
+            print("Added a node")
 
-            return
+            return True
+
+    def mutate_reenable_link(self):
+        """Find the first disabled link and reenable it. """
+        for link in self.links:
+            if not link.enabled:
+                link.enabled = True
+                return
+
+    def mutate_toggle_enable(self):
+        """Toggle a random links enabled property if safe to do so. """
+        link = choice(self.links)
+
+        if self.safe_to_toggle(link):
+            link.enabled = not link.enabled
+
+    def safe_to_toggle(self, toggle_link):
+        """Make sure it is safe to toggle the link. Some valid toggles are discarded
+           since they are difficult to verify as safe.
+        """
+        if not toggle_link.enabled:
+            return True
+
+        for link in self.links:
+            same_from_node = link.from_node == toggle_link.from_node
+            if link != toggle_link and link.enabled and same_from_node and not link.recurrent:
+                return True
 
     def mutate_weights(self):
         """Perturb or replace weights.
         """
         for link in self.links:
 
-            if random() > self.config.weight_mutation_rate:
+            if random() > self.config.weight_mutation_probability:
                 continue
 
             if random() < self.config.weight_replacement_rate:

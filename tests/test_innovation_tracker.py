@@ -12,9 +12,9 @@ def test_initialisation(standard_config):
     assert tracker.next_node_id == 2
 
 
-def test_single_node_innovation(genome, standard_config):
-    tracker = InnovationTracker(standard_config)
-    genome.mutate_add_node(tracker=tracker)
+def test_single_node_innovation(genome):
+    tracker = genome.tracker
+    genome.mutate_add_node()
 
     assert len(tracker.node_innovations) == 1, "one node innovation"
     assert len(tracker.link_innovations) == 2, "two link innovations"
@@ -32,28 +32,27 @@ def test_single_node_innovation(genome, standard_config):
     assert tracker.link_innovations[out_key] == tracker.next_link_id - 1, "correct out link id stored"
 
 
-def test_multiple_node_innovations(genome, standard_config):
-    tracker = InnovationTracker(standard_config)
-    genome.mutate_add_node(tracker=tracker)
-    genome.mutate_add_node(tracker=tracker)
+def test_multiple_node_innovations(genome):
+    tracker = genome.tracker
+    genome.mutate_add_node()
+    genome.mutate_add_node()
 
     assert len(tracker.node_innovations) == 2, "two node innovations added"
     assert len(tracker.link_innovations) == 4, "four link innovations added"
 
 
-def test_single_link_innovation(connectable_genome, standard_config, tracker):
-    tracker = InnovationTracker(standard_config)
-    connectable_genome.add_non_loop_link(tracker=tracker)
-    assert len(tracker.link_innovations) == 1
+def test_single_link_innovation(connectable_genome):
+    connectable_genome.add_forward_link()
+    assert len(connectable_genome.tracker.link_innovations) == 1
 
 
 def test_existing_node_innovation(standard_config):
     tracker = InnovationTracker(standard_config)
-    genome_1 = Genome(1, standard_config)
-    genome_2 = Genome(2, standard_config)
+    genome_1 = Genome(id=1, config=standard_config, tracker=tracker)
+    genome_2 = Genome(id=2, config=standard_config, tracker=tracker)
 
-    genome_1.mutate_add_node(tracker=tracker)
-    genome_2.mutate_add_node(tracker=tracker)
+    genome_1.mutate_add_node()
+    genome_2.mutate_add_node()
 
     assert len(genome_1.nodes) == len(genome_2.nodes)
     assert genome_1.nodes[-1].id == genome_2.nodes[-1].id, "node received existing innovation id"
@@ -63,27 +62,26 @@ def test_existing_node_innovation(standard_config):
 
 def test_existing_non_consecutive_node_innovation(standard_config):
     tracker = InnovationTracker(standard_config)
-    genome_1 = Genome(1, standard_config)
-    genome_2 = Genome(2, standard_config)
+    genome_1 = Genome(1, standard_config, tracker=tracker)
+    genome_2 = Genome(2, standard_config, tracker=tracker)
 
-    genome_1.mutate_add_node(tracker=tracker)
-    genome_1.mutate_add_node(tracker=tracker)
-    genome_2.mutate_add_node(tracker=tracker)
+    genome_1.mutate_add_node()
+    genome_1.mutate_add_node()
+    genome_2.mutate_add_node()
 
     assert genome_1.nodes[-2].id == genome_2.nodes[-1].id, "node received existing innovation id"
     assert genome_1.links[-4].id == genome_2.links[-2].id, "in link received existing innovation id"
     assert genome_1.links[-3].id == genome_2.links[-1].id, "out link received existing innovation id"
 
 
-def test_existing_link_innovation(standard_config):
-    genome_1 = Genome(id=1, config=standard_config)
+def test_existing_link_innovation(standard_config, tracker):
+    genome_1 = Genome(id=1, config=standard_config, tracker=tracker)
     genome_1.links = []
 
-    genome_2 = Genome(id=1, config=standard_config)
+    genome_2 = Genome(id=1, config=standard_config, tracker=tracker)
     genome_2.links = []
 
-    tracker = InnovationTracker(config=standard_config)
-    genome_1.add_non_loop_link(tracker=tracker)
-    genome_2.add_non_loop_link(tracker=tracker)
+    genome_1.add_forward_link()
+    genome_2.add_forward_link()
 
     assert genome_1.links[-1].id == genome_2.links[-1].id

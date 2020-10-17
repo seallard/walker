@@ -24,10 +24,9 @@ def test_create_network_with_disabled_links(standard_config):
     assert len(network.nodes) == len(genome.nodes)
 
 
-def test_create_network_with_loops(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker)
-    genome.add_loop(tracker)
+def test_create_network_with_loops(genome):
+    genome.mutate_add_node()
+    genome.add_loop_link()
     network = genome.network()
     assert len(network.links) == len(genome.links) - 1
 
@@ -46,8 +45,8 @@ def test_updates_without_hidden_nodes(standard_config):
 
 
 def test_updates_with_hidden_nodes(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker)
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
+    genome.mutate_add_node()
 
     network = genome.network()
     final_output = network.update(inputs=[1])
@@ -85,9 +84,8 @@ def test_update_with_multiple_outputs(multiple_input_output_config):
     assert outputs == [sigmoid(w11 + w21), sigmoid(w12 + w22)]
 
 
-def test_update_with_loop(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.add_loop(tracker)
+def test_update_with_loop(genome):
+    genome.add_loop_link()
     network = genome.network()
 
     output = network.update(inputs=[0])

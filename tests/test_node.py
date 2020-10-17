@@ -20,10 +20,10 @@ def test_node_initialisation(genome):
 
 
 def test_add_single_node(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
     original_number_of_nodes = len(genome.nodes)
     original_number_of_links = len(genome.links)
-    genome.mutate_add_node(tracker)
+    genome.mutate_add_node()
     new_node = genome.nodes[-1]
     new_in = genome.links[-2]
     new_out = genome.links[-1]
@@ -41,9 +41,9 @@ def test_add_single_node(standard_config, tracker):
 
 
 def test_add_multiple_nodes(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
-    genome.mutate_add_node(tracker)
-    genome.mutate_add_node(tracker) # Avoid disabled link
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
+    genome.mutate_add_node()
+    genome.mutate_add_node() # Avoid disabled link
 
     assert len(genome.nodes) == 4, "two nodes added"
     assert len(genome.links) == 5, "four new links added"
@@ -62,7 +62,7 @@ def test_add_multiple_nodes(standard_config, tracker):
 def test_impossible_add_node(standard_config):
     genome = Genome(id=1, config=standard_config)
     genome.links[0].enabled = False # Disable the only existing link
-    genome.mutate_add_node(tracker=Mock())
+    genome.mutate_add_node()
 
     assert len(genome.nodes) == 2, "no new node added"
     assert len(genome.links) == 1, "no new link added"

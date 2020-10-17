@@ -42,11 +42,11 @@ def test_crossover_identical(standard_config):
 
 def test_crossover_longer_less_fit(standard_config, tracker):
     breeder = Breeder(standard_config)
-    mother = Genome(1, standard_config)
-    father = Genome(2, standard_config)
+    mother = Genome(id=1, config=standard_config, tracker=tracker)
+    father = Genome(id=2, config=standard_config, tracker=tracker)
 
-    mother.mutate_add_node(tracker)
-    mother.mutate_add_node(tracker)
+    mother.mutate_add_node()
+    mother.mutate_add_node()
 
     offspring = breeder.crossover(mother, father)
     father.fitness = 100

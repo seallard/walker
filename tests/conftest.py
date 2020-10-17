@@ -9,19 +9,25 @@ from unittest.mock import Mock
 @pytest.fixture()
 def standard_config():
     config = Mock()
+
     config.num_inputs = 1
     config.num_outputs = 1
+
     config.node_add_tries = 15
     config.link_add_tries = 15
-    config.loop_add_tries = 15
+    config.recurrent_probability = 0.2
+
     config.weight_mutation_rate = 1
     config.weight_replacement_rate = 0
     config.weight_mutation_range = 0.5
+
     config.population_size = 10
+
     config.c_excess = 1
     config.c_disjoint = 1
     config.c_weight = 1
     config.compatibility_threshold = 4
+
     config.survival_threshold = 0.8
     config.young_boost = 1
     config.old_penalty = 1
@@ -42,47 +48,42 @@ def multiple_input_output_config(multiple_inputs_config):
 
 
 @pytest.fixture()
-def genome(standard_config):
-    return Genome(id=0, config=standard_config)
+def tracker(standard_config):
+    return InnovationTracker(standard_config)
 
 
-@pytest.fixture
+@pytest.fixture()
+def genome(standard_config, tracker):
+    return Genome(id=0, config=standard_config, tracker=tracker)
+
+
+@pytest.fixture()
 def loopable_genome(genome):
     for node in genome.nodes:
         node.type = NodeType.HIDDEN
     return genome
 
 
-@pytest.fixture
+@pytest.fixture()
 def unloopable_genome(genome):
     for node in genome.nodes:
         node.type = NodeType.BIAS
     return genome
 
 
-@pytest.fixture
-def connectable_genome(standard_config):
-    genome = Genome(id=1, config=standard_config)
+@pytest.fixture()
+def connectable_genome(genome):
     genome.links = []
     return genome
 
 
-@pytest.fixture
-def make_recurrent_genome(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config)
+@pytest.fixture()
+def make_recurrent_genome(standard_config, genome):
     genome.config.link_add_tries = 50
-    genome.mutate_add_node(tracker)
-    genome.nodes[-1].id = 2
-    genome.links[-2].id = 1
-    genome.links[-1].id = 2
-
+    genome.mutate_add_node()
     return genome
 
 
-@pytest.fixture
-def tracker(standard_config):
-    return InnovationTracker(standard_config)
-
-@pytest.fixture
+@pytest.fixture()
 def breeder(standard_config):
     return Breeder(standard_config)

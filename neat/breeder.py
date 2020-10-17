@@ -61,7 +61,7 @@ class Breeder:
 
             offspring_links.append(selected_link)
 
-        return self.create_offspring(offspring_links)
+        return self.create_genome(offspring_links)
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -96,7 +96,7 @@ class Breeder:
 
         return better_genome, worse_genome
 
-    def create_offspring(self, offspring_links):
+    def create_genome(self, offspring_links):
         """Create a new genome to avoid aliasing trouble. """
         copied_nodes = {}
         copied_links = []

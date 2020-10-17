@@ -1,10 +1,11 @@
 from random import choice
 from math import floor
+from random import random
 
 
 class Species:
 
-    def __init__(self, id, first_genome, config):
+    def __init__(self, id, first_genome, config, breeder):
         self.id = id
         self.leader = first_genome
         self.genomes = [first_genome]
@@ -13,6 +14,7 @@ class Species:
         self.expected_offspring = 0
         self.config = config
         self.adjusted_sum = 0
+        self.breeder = breeder
 
     def adjust_fitness(self):
 
@@ -58,20 +60,39 @@ class Species:
     def should_go_extinct(self, no_improvement_threshold):
         return self.age_since_improvement > no_improvement_threshold
 
-    def reproduce(self, breeder):
+    def reproduce(self):
 
-        offspring = [breeder.create_offspring(self.leader.links)] # Always save species champion.
+        offspring = [self.breeder.create_genome(self.leader.links)] # Always save species leader.
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
 
         while len(offspring) < self.expected_offspring:
 
-            mother = choice(mating_pool)
-            father = choice(mating_pool)
+            # Some of the time, only mutate.
+            if random() < self.config.mutate_only_probability or mating_pool == []:
 
-            if mother != father:
-                baby = breeder.crossover(mother, father)
+                if mating_pool == []:
+                    parent = self.genomes[0]
+
+                else:
+                    parent = choice(mating_pool)
+
+                copy = self.breeder.create_genome()
+
+                success = copy.mutate_structure()
+
+                if not success:
+                    copy.mutate_non_structure()
+
+                offspring += [copy]
+
+            # Some of the time, mate.
+            else:
+                mother = choice(mating_pool)
+                father = choice(mating_pool)
+                baby = self.breeder.crossover(mother, father)
+
                 offspring.append(baby)
 
         return offspring

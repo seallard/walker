@@ -20,5 +20,4 @@ while not population.stopping_criterion():
     population.adjust_fitness_scores()
     population.set_spawn_amounts()
     population.reproduce()
-    population.mutate()
     population.reset()
