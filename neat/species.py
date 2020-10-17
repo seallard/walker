@@ -80,7 +80,7 @@ class Species:
                 else:
                     parent = choice(mating_pool)
 
-                copy = self.breeder.create_genome()
+                copy = self.breeder.create_genome(parent.links)
 
                 success = copy.mutate_structure()
 
