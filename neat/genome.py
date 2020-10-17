@@ -149,13 +149,14 @@ class Genome:
             biased_index = round(abs(random() - random())*(len(self.links)-1))
             link = self.links[biased_index]
 
-            if not link.can_be_split():
+            if not link.can_be_split() or self.link_split_before(link):
                 tries -= 1
                 continue
 
             link.enabled = False
 
             depth = abs(link.to_node.depth - link.from_node.depth)/2
+
             new_node = NodeGene(NodeType.HIDDEN, depth)
             new_in_link = LinkGene(link.from_node, new_node)
             new_out_link = LinkGene(new_node, link.to_node)
@@ -173,6 +174,19 @@ class Genome:
             print("Added a node")
 
             return True
+
+    def link_split_before(self, link):
+        """Checks whether a node exists between the two nodes in the link. """
+
+        from_node = link.from_node
+        to_node = link.to_node
+
+        for in_link in self.links:
+            if in_link.from_node == from_node:
+
+                for out_link in self.links:
+                    if out_link.from_node == in_link.to_node and out_link.to_node == to_node:
+                        return True
 
     def mutate_reenable_link(self):
         """Find the first disabled link and reenable it. """

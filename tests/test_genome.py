@@ -22,3 +22,13 @@ def test_insert_link_in_middle(genome):
     assert genome.links[1] == link, "link inserted in middle"
     assert genome.links[1].id > genome.links[0].id, "id greater than previous id"
     assert genome.links[1].id < genome.links[2].id, "id smaller than next id"
+
+
+def test_link_split_before(genome):
+    genome.mutate_add_node()
+
+    result = genome.link_split_before(genome.links[0])
+    assert result, "the first link has been split before"
+
+    result = genome.link_split_before(genome.links[-1])
+    assert not result, "the last link has not been split before"
