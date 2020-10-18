@@ -13,24 +13,7 @@ class Species:
         self.age = 0
         self.expected_offspring = 0
         self.config = config
-        self.adjusted_sum = 0
         self.breeder = breeder
-
-    def adjust_fitness(self):
-
-        for genome in self.genomes:
-
-            fitness = genome.fitness
-
-            if self.age < self.config.young_boost:
-                fitness *= self.config.young_boost
-
-            if self.age > self.config.old_threshold:
-                fitness *= self.config.old_penalty
-
-            adjusted = fitness/len(self.genomes)
-            genome.adjusted_fitness = adjusted
-            self.adjusted_sum += adjusted
 
     def add_genome(self, new_genome):
 
@@ -61,15 +44,12 @@ class Species:
         return self.age_since_improvement > no_improvement_threshold
 
     def reproduce(self):
-        print("calling species.reproduce")
-        offspring = [self.breeder.create_genome(self.leader.links)] # Always save species leader.
+        offspring = [self.breeder.create_genome(self.leader.links, self.leader.tracker)] # Always save species leader.
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
 
-        print(f"expected offspring {self.expected_offspring}")
         while len(offspring) < self.expected_offspring:
-            print(f"Entered reproduction loop in species with {len(self.genomes)} members")
 
             # Some of the time, only mutate.
             if random() < self.config.mutate_only_probability or mating_pool == []:
@@ -80,7 +60,7 @@ class Species:
                 else:
                     parent = choice(mating_pool)
 
-                copy = self.breeder.create_genome(parent.links)
+                copy = self.breeder.create_genome(parent.links, parent.tracker)
 
                 success = copy.mutate_structure()
 
@@ -98,3 +78,13 @@ class Species:
                 offspring.append(baby)
 
         return offspring
+
+    def get_average_fitness(self):
+        total_fitness = self.get_total_fitness()
+        return total_fitness/len(self.genomes)
+
+    def get_total_fitness(self):
+        total_fitness = 0
+        for genome in self.genomes:
+            total_fitness += genome.fitness
+        return total_fitness

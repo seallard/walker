@@ -90,14 +90,22 @@ class Population:
         return disjoint + excess + weight
 
     def set_spawn_amounts(self):
-        population_average = self.calculate_mean_adjusted_fitness()
+        """Fitness sharing. """
+
+        # Offspring = (AverageSpeciesFitness / Total_of_AverageSpeciesFitnesss) * PopulationSize
+        total_fitness = 0
+        for species in self.species:
+            total_fitness += species.get_total_fitness()
+
+        average_total_fitness = total_fitness/len(self.genomes)
 
         for species in self.species:
-            species.expected_offspring = floor(species.adjusted_sum/population_average)
+            average_species_fitness = species.get_average_fitness()
+            offspring = (average_species_fitness/average_total_fitness) * len(self.genomes)
+            species.expected_offspring = offspring
 
     def reproduce(self):
         new_population = []
-
         for species in self.species:
             new_population += species.reproduce()
 
@@ -122,5 +130,5 @@ class Population:
         return total/len(self.species)
 
     def statistics(self):
-        print(f"Number of species: {len(self.species)}")
-        print(f"Number of genomes: {len(self.genomes)}")
+        print(f"Number of species in population: {len(self.species)}")
+        print(f"Number of genomes in population: {len(self.genomes)}")
