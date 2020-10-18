@@ -23,7 +23,8 @@ class Environment:
             total_reward += reward
 
         self.evaluations += 1
-        print(self.evaluations)
+
+        print(f"Total reward {total_reward}")
         return total_reward
 
     def read_config(self):

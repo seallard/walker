@@ -128,3 +128,20 @@ class Population:
     def statistics(self):
         print(f"Number of species in population: {len(self.species)}")
         print(f"Number of genomes in population: {len(self.genomes)}")
+
+    def adjust_negative_fitness_scores(self):
+        """Shift all fitness scores so that they are positive.
+           Only necessary if the fitness function used can assign negative scores.
+        """
+
+        # Find the lowest fitness value.
+        min_fitness = self.genomes[0].fitness
+        for genome in self.genomes:
+            if genome.fitness < min_fitness:
+                min_fitness = genome.fitness
+
+        if min_fitness > 0:
+            return
+
+        for genome in self.genomes:
+            genome.fitness += abs(min_fitness)

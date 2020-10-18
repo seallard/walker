@@ -15,6 +15,7 @@ while not population.stopping_criterion():
         genome.fitness = environment.evaluate(phenotype)
 
     population.speciate_genomes()
+    population.adjust_negative_fitness_scores()
     population.set_spawn_amounts()
     population.reproduce()
     population.reset()
