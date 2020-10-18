@@ -1,5 +1,6 @@
 from random import random
 from neat.genome import Genome
+from neat.enums.node_types import NodeType
 
 
 class Breeder:
@@ -116,6 +117,33 @@ class Breeder:
             copied_links.append(link_copy)
 
         copied_nodes = list(copied_nodes.values())
+
+        # Ensure the nodes are sorted as expected [bias, input, output, hidden].
+        copied_nodes = self.sort_nodes(copied_nodes)
+
         offspring = Genome(self.genome_id, self.config, copied_nodes, copied_links)
         self.genome_id += 1
+
         return offspring
+
+    def sort_nodes(self, nodes):
+        """Sort nodes by types as [bias, input, output, hidden]. """
+        bias = []
+        inputs = []
+        outputs = []
+        hidden = []
+
+        for node in nodes:
+            if node.type == NodeType.BIAS:
+                bias.append(node)
+
+            elif node.type == NodeType.INPUT:
+                inputs.append(node)
+
+            elif node.type == NodeType.OUTPUT:
+                outputs.append(node)
+
+            elif node.type == NodeType.HIDDEN:
+                hidden.append(node)
+
+        return bias + inputs + outputs + hidden

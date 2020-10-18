@@ -13,7 +13,9 @@ class Network:
         self.running = False
 
     def update(self, inputs):
-        """Propagate input through network until each output is activated. """
+        """Propagate input through network until each output is activated.
+           Precondition: nodes are ordered as [inputs, outputs, hidden]
+        """
 
         # Initialise input nodes with inputs.
         for i, node in enumerate(self.nodes[:self.num_inputs]):
