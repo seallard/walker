@@ -12,12 +12,9 @@ while not population.stopping_criterion():
 
     for genome in population.genomes:
         phenotype = genome.network()
-        fitness = environment.evaluate(phenotype)
-        genome.fitness = fitness
+        genome.fitness = environment.evaluate(phenotype)
 
     population.speciate_genomes()
-    population.statistics()
-    population.adjust_fitness_scores()
     population.set_spawn_amounts()
     population.reproduce()
     population.reset()
