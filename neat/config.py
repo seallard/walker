@@ -23,8 +23,8 @@ class Config():
 
         self.recurrent_rate = config['link_recurrent_probability']
         self.reenable_link_probability = config['link_reenable_probability']
-
-        self.mutate_only = config['mutate_only_probability']
+        self.toggle_probability = config['link_toggle_enable_probability']
+        self.mutate_only_probability = config['mutate_only_probability']
         self.mate_only = config['mate_only_probability']
         self.interspecies_mating_rate = config['interspecies_mating_rate']
         self.mate_by_choosing = config['mate_by_choosing_probability']

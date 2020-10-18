@@ -28,9 +28,9 @@
     "maximum_stagnation": 100000000000000000,
     "target_number_of_species": 4,
     "young_threshold": 10,
-    "young_boost": 1.1,
+    "young_boost": 1,
     "old_threshold": 15,
-    "old_penalty": 0.75,
+    "old_penalty": 1,
 
     "environment": "BipedalWalker-v3",
     "input_dimension": 20,

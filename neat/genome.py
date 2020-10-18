@@ -40,10 +40,10 @@ class Genome:
         if random() < self.config.weight_mutation_probability:
             self.mutate_weights()
 
-        if random() < self.config.link_reenable_probability:
+        if random() < self.config.reenable_link_probability:
             self.mutate_reenable_link()
 
-        if random() < self.config.link_toggle_enabled_probability:
+        if random() < self.config.toggle_probability:
             self.mutate_toggle_enable()
 
     def mutate_add_link(self):

@@ -101,7 +101,7 @@ class Population:
         for species in self.species:
             new_population += species.reproduce()
 
-        self.population = new_population
+        self.genomes = new_population
 
     def stopping_criterion(self):
         return False
