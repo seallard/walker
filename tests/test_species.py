@@ -3,33 +3,6 @@ from neat.genome import Genome
 from unittest.mock import Mock
 
 
-def test_single_young_adjustment(genome, standard_config):
-    genome.fitness = 10
-    species = Species(id=1, first_genome=genome, config=standard_config, breeder=Mock())
-    species.adjust_fitness()
-
-    assert genome.adjusted_fitness == genome.fitness*standard_config.young_boost
-
-
-def test_single_middle_age_adjustment(standard_config):
-    genome = Genome(id=1, config=standard_config)
-    genome.fitness = 10
-    species = Species(id=1, first_genome=genome, config=standard_config, breeder=Mock())
-    species.age = 10
-    species.adjust_fitness()
-
-    assert genome.adjusted_fitness == genome.fitness
-
-
-def test_single_old_adjustment(genome, standard_config):
-    genome.fitness = 10
-    species = Species(id=1, first_genome=genome, config=standard_config, breeder=Mock())
-    species.age = standard_config.old_threshold + 1
-    species.adjust_fitness()
-
-    assert genome.adjusted_fitness == genome.fitness * standard_config.old_penalty
-
-
 def test_add_identical_genome(standard_config):
     genome_1 = Genome(id=1, config=standard_config)
     genome_2 = Genome(id=2, config=standard_config)

@@ -118,10 +118,6 @@ class Population:
         for species in self.species:
             species.epoch_reset()
 
-    def adjust_fitness_scores(self):
-        for species in self.species:
-            species.adjust_fitness()
-
     def calculate_mean_adjusted_fitness(self):
         """Mean adjusted fitness of the entire population. """
         total = 0

@@ -1,6 +1,7 @@
 from neat.genome import Genome
 from neat.breeder import Breeder
 from unittest.mock import Mock
+from neat.enums.node_types import NodeType
 
 
 def test_smaller_genome_more_fit(standard_config):
@@ -55,6 +56,3 @@ def test_crossover_longer_less_fit(standard_config, tracker):
     assert len(offspring.links) == len(father.links)
     assert None not in offspring.nodes
     assert None not in offspring.links
-
-def test_crossover_looped():
-    pass
