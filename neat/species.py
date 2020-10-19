@@ -40,8 +40,8 @@ class Species:
         self.expected_offspring = 0
         self.adjusted_sum = 0
 
-    def should_go_extinct(self, no_improvement_threshold):
-        return self.age_since_improvement > no_improvement_threshold
+    def should_go_extinct(self):
+        return self.age_since_improvement > self.config.maximum_stagnation
 
     def reproduce(self):
         offspring = [self.breeder.create_genome(self.leader.links, self.leader.tracker)] # Always save species leader.

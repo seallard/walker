@@ -25,7 +25,7 @@
     "disjoint_coefficient": 1,
     "weight_coefficient": 0.4,
     "survival_threshold": 0.5,
-    "maximum_stagnation": 100000000000000000,
+    "maximum_stagnation": 50,
     "target_number_of_species": 4,
     "young_threshold": 10,
     "young_boost": 1,

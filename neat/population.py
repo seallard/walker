@@ -115,6 +115,7 @@ class Population:
         return False
 
     def reset(self):
+        self.species = [species for species in self.species if not species.should_go_extinct()]
         for species in self.species:
             species.epoch_reset()
 
