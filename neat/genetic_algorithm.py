@@ -5,8 +5,8 @@ from neat.config import Config
 
 class GeneticAlgorithm:
 
-    def __init__(self, environment):
-        self.population = Population(config=Config("config.json"))
+    def __init__(self, config_filename, environment):
+        self.population = Population(config=Config(config_filename))
         self.environment = environment
 
     def run(self):
