@@ -3,19 +3,22 @@ from neat.population import Population
 from neat.config import Config
 
 
-config = Config("config.json")
-environment = Environment()
-population = Population(config=config)
+class GeneticAlgorithm:
 
+    def __init__(self, environment):
+        self.population = Population(config=Config("config.json"))
+        self.environment = environment
 
-while not population.stopping_criterion():
+    def run(self):
 
-    for genome in population.genomes:
-        phenotype = genome.network()
-        genome.fitness = environment.evaluate(phenotype)
+        while not self.population.stopping_criterion():
 
-    population.speciate_genomes()
-    population.adjust_negative_fitness_scores()
-    population.set_spawn_amounts()
-    population.reproduce()
-    population.reset()
+            for genome in self.population.genomes:
+                phenotype = genome.network()
+                genome.fitness = self.environment.evaluate(phenotype)
+
+            self.population.speciate_genomes()
+            self.population.adjust_negative_fitness_scores()
+            self.population.set_spawn_amounts()
+            self.population.reproduce()
+            self.population.reset()
