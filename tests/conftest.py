@@ -15,7 +15,7 @@ def standard_config():
 
     config.node_add_tries = 15
     config.link_add_tries = 15
-    config.recurrent_probability = 0.2
+    config.link_recurrent_probability = 0.2
 
     config.weight_mutation_probability = 1
 

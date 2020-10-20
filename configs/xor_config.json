@@ -6,15 +6,15 @@
     "weight_replacement_rate": 0,
     "add_node_probability": 0.03,
     "add_link_probability": 0.05,
-    "recurrent_probability": 0.2,
+    "recurrent_probability": 0,
 
     "node_addition_attempts": 5,
     "link_addition_attempts": 5,
-    "link_recurrent_probability": 0.2,
+    "link_recurrent_probability": 0,
     "link_reenable_probability": 0.1,
     "link_toggle_enable_probability": 0.1,
 
-    "mutate_only_probability": 0.25,
+    "mutate_only_probability": 1,
     "mate_only_probability": 0.2,
     "interspecies_mating_rate": 0.05,
     "mate_by_choosing_probability": 0.6,

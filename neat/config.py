@@ -16,12 +16,11 @@ class Config():
 
         self.add_node_probability = config['add_node_probability']
         self.add_link_probability = config['add_link_probability']
-        self.recurrent_probability = config['link_recurrent_probability']
 
         self.node_add_tries = config['node_addition_attempts']
         self.link_add_tries = config['link_addition_attempts']
 
-        self.recurrent_rate = config['link_recurrent_probability']
+        self.link_recurrent_probability = config['link_recurrent_probability']
         self.reenable_link_probability = config['link_reenable_probability']
         self.toggle_probability = config['link_toggle_enable_probability']
         self.mutate_only_probability = config['mutate_only_probability']
