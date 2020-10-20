@@ -29,3 +29,10 @@ class Node:
 
     def is_output(self):
         return self.type == NodeType.OUTPUT
+
+    def reset(self):
+        """Reset the output etc."""
+        self.output = 0
+        self.activation_count = 0
+        self.active = False
+        self.sum = 0

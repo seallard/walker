@@ -78,3 +78,9 @@ class Network:
     def get_outputs(self):
         output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
         return [node.output for node in output_nodes]
+
+    def reset(self):
+        """Remove any signals in the network. """
+
+        for node in self.nodes:
+            node.reset()
