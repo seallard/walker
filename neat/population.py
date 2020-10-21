@@ -14,6 +14,7 @@ class Population:
         self.genomes = []
         self.tracker = InnovationTracker(config)
         self.breeder = Breeder(config)
+        self.epoch = 0
 
         for i in range(config.population_size):
             genome = Genome(i, config, tracker=self.tracker)
@@ -93,15 +94,13 @@ class Population:
         """Fitness sharing. """
 
         # Offspring = (AverageSpeciesFitness / Total_of_AverageSpeciesFitnesss) * PopulationSize
-        total_fitness = 0
+        total_average_species_fitness = 0
         for species in self.species:
-            total_fitness += species.get_total_fitness()
+            total_average_species_fitness += species.get_average_fitness()
 
-        average_total_fitness = total_fitness/len(self.genomes)
-
-        for species in self.species:
+        for i, species in enumerate(self.species):
             average_species_fitness = species.get_average_fitness()
-            offspring = (average_species_fitness/average_total_fitness) * len(self.genomes)
+            offspring = round((average_species_fitness/total_average_species_fitness) * self.config.population_size)
             species.expected_offspring = offspring
 
     def reproduce(self):
@@ -118,17 +117,11 @@ class Population:
         self.species = [species for species in self.species if not species.should_go_extinct()]
         for species in self.species:
             species.epoch_reset()
-
-    def calculate_mean_adjusted_fitness(self):
-        """Mean adjusted fitness of the entire population. """
-        total = 0
-        for species in self.species:
-            total += species.adjusted_sum
-        return total/len(self.species)
+        self.epoch += 1
 
     def statistics(self):
         print(f"Number of species in population: {len(self.species)}")
-        print(f"Number of genomes in population: {len(self.genomes)}")
+        print(f"Number of genomes in population after generation {self.epoch}: {len(self.genomes)}")
 
     def adjust_negative_fitness_scores(self):
         """Shift all fitness scores so that they are positive.

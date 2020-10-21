@@ -14,7 +14,6 @@ class Genome:
         self.id = id
         self.config = config
         self.fitness = 0
-        self.adjusted_fitness = 0
         self.phenotype = None
         self.tracker = tracker
 
@@ -53,7 +52,7 @@ class Genome:
         Pre: self.nodes begins with the input nodes.
         """
 
-        if random() < self.config.recurrent_probability:
+        if random() < self.config.link_recurrent_probability:
 
             if random() < 0.5:
                 return self.add_loop_link()
@@ -171,7 +170,6 @@ class Genome:
             self.nodes.append(new_node)
             self.insert_link(new_in_link)
             self.insert_link(new_out_link)
-            print("Added a node")
 
             return True
 
@@ -196,7 +194,7 @@ class Genome:
                 return
 
     def mutate_toggle_enable(self):
-        """Toggle a random links enabled property if safe to do so. """
+        """Toggle a random links enabled attribute. """
         link = choice(self.links)
 
         if self.safe_to_toggle(link):

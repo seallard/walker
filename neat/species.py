@@ -21,7 +21,7 @@ class Species:
 
         for i, genome in enumerate(self.genomes):
 
-            if new_genome.adjusted_fitness > genome.adjusted_fitness:
+            if new_genome.fitness > genome.fitness:
                 self.genomes[i:i] = [new_genome]
                 added_genome = True
                 break
@@ -38,7 +38,6 @@ class Species:
         self.age += 1
         self.age_since_improvement += 1
         self.expected_offspring = 0
-        self.adjusted_sum = 0
 
     def should_go_extinct(self):
         return self.age_since_improvement > self.config.maximum_stagnation
