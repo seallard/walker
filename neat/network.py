@@ -23,9 +23,11 @@ class Network:
             node.active = True
 
         #TODO: initialise bias node with 1.
-        activated_once = False
+        activated_once = False # If output already is active from previous update.
+        max_tries = len(self.links) + 5
+        tries = 0
 
-        while self.output_inactive() or not activated_once:
+        while (self.output_inactive() or not activated_once) and tries < max_tries:
 
             # Iterate over nodes and calculate their net input signals.
             for node in self.nodes[self.num_inputs:]:
@@ -36,6 +38,7 @@ class Network:
                 node.activate()
 
             activated_once = True
+            tries += 1
 
         return self.get_outputs()
 
