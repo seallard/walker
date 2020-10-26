@@ -43,7 +43,14 @@ class Species:
         return self.age_since_improvement > self.config.maximum_stagnation
 
     def reproduce(self):
-        offspring = [self.breeder.create_genome(self.leader.links, self.leader.tracker)] # Always save species leader.
+
+        offspring = []
+
+        if self.genomes == []:
+            return []
+
+        # Always save species leader as is.
+        offspring.append(self.breeder.create_genome(self.leader.links, self.leader.tracker))
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
@@ -79,6 +86,10 @@ class Species:
         return offspring
 
     def get_average_fitness(self):
+
+        if self.genomes == []:
+            return 0
+
         total_fitness = self.get_total_fitness()
         return total_fitness/len(self.genomes)
 
