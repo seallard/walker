@@ -47,7 +47,8 @@ class Network:
         graph.add_nodes_from(self.nodes)
 
         color_map = []
-        labels = {}
+        node_labels = {}
+
         for node in self.nodes:
             if node.type == NodeType.INPUT:
                 color_map.append('green')
@@ -57,14 +58,17 @@ class Network:
             else:
                 color_map.append("red")
 
-            labels[node] = node.id
+            node_labels[node] = node.id
 
+        edge_labels = {}
         for link in self.links:
             graph.add_edge(link.from_node, link.to_node)
+            edge_labels[(link.from_node, link.to_node)] = link.id
 
 
         positioning = nx.spring_layout(graph)
-        nx.draw(graph, pos=positioning, labels=labels,edge_color='black', arrowsize=10, node_color=color_map)
+        nx.draw(graph, pos=positioning, labels=node_labels, edge_color='black', arrowsize=10, node_color=color_map)
+        nx.draw_networkx_edge_labels(graph, positioning, edge_labels=edge_labels)
         plt.show()
 
     def output_inactive(self):
