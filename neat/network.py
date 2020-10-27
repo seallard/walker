@@ -67,7 +67,7 @@ class Network:
 
 
         positioning = nx.spring_layout(graph)
-        nx.draw(graph, pos=positioning, labels=node_labels, edge_color='black', arrowsize=10, node_color=color_map)
+        nx.draw(graph, pos=positioning, labels=node_labels, edge_color='black', arrowsize=10, node_color=color_map, alpha=0.5)
         nx.draw_networkx_edge_labels(graph, positioning, edge_labels=edge_labels)
         plt.show()
 
