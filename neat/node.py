@@ -18,10 +18,11 @@ class Node:
 
         if self.active:
             self.activation_count += 1
-            self.output = 1 / (1 + exp(-self.sum)) # Sigmoid activation.
-            self.sum = 0 # Reset net input signal.
+            self.output = self.sigmoid()
 
     def calculate_net_input_signal(self):
+        self.active = False
+        self.sum = 0
         for link in self.in_links:
             if link.from_node.active:
                 self.sum += link.from_node.output * link.weight
@@ -36,3 +37,6 @@ class Node:
         self.activation_count = 0
         self.active = False
         self.sum = 0
+
+    def sigmoid(self):
+        return 1 / (1 + exp(-self.sum))

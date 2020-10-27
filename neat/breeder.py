@@ -1,5 +1,6 @@
 from random import random
 from neat.genome import Genome
+from neat.link_gene import LinkGene
 from neat.enums.node_types import NodeType
 
 
@@ -10,7 +11,7 @@ class Breeder:
         self.config = config
         self.genome_id = self.config.population_size - 1
 
-    def crossover(self, mother, father):
+    def crossover(self, mother, father, averaging):
         """ Create offspring genome.
 
         Precondition:
@@ -38,14 +39,16 @@ class Breeder:
                 better_link = better_genome.links[better_genome_index]
                 worse_link = worse_genome.links[worse_genome_index]
 
-                # Inherit matching links randomly.
                 if better_link.id == worse_link.id:
 
-                    if random() < 0.5:
-                        selected_link = better_link
-
+                    # Either inherit averaged or random link.
+                    if averaging:
+                        selected_link = self.average_link(better_link, worse_link)
                     else:
-                        selected_link = worse_link
+                        if random() < 0.5:
+                            selected_link = better_link
+                        else:
+                            selected_link = worse_link
 
                     better_genome_index += 1
                     worse_genome_index += 1
@@ -62,7 +65,13 @@ class Breeder:
 
             offspring_links.append(selected_link)
 
-        return self.create_genome(offspring_links, mother.tracker)
+        new_genome = self.create_genome(offspring_links, mother.tracker)
+
+        # Store parents for debugging purposes.
+        new_genome.father = better_genome
+        new_genome.mother = worse_genome
+        return new_genome
+
 
     def fitness_order(self, mother, father):
         """ Determine which is the fittest genome.
@@ -147,3 +156,9 @@ class Breeder:
                 hidden.append(node)
 
         return bias + inputs + outputs + hidden
+
+    def average_link(self, link1, link2):
+        new_weight = (link1.weight + link2.weight)/2
+        copy = link1.copy(link1.from_node, link1.to_node)
+        copy.weight = new_weight
+        return copy

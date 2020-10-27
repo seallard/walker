@@ -14,11 +14,9 @@ class GeneticAlgorithm:
         while not self.population.stopping_criterion():
 
             for genome in self.population.genomes:
-                phenotype = genome.network()
-                genome.fitness = self.environment.evaluate(phenotype)
+                genome.fitness = self.environment.evaluate(genome)
 
             self.population.speciate_genomes()
-            self.population.adjust_negative_fitness_scores()
             self.population.set_spawn_amounts()
             self.population.reproduce()
             self.population.reset()

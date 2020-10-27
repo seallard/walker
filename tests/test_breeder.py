@@ -1,5 +1,6 @@
 from neat.genome import Genome
 from neat.breeder import Breeder
+from neat.link_gene import LinkGene
 from unittest.mock import Mock
 from neat.enums.node_types import NodeType
 
@@ -33,7 +34,7 @@ def test_crossover_identical(standard_config):
     mother = Genome(1, standard_config)
     father = Genome(2, standard_config)
 
-    offspring = breeder.crossover(mother, father)
+    offspring = breeder.crossover(mother, father, False)
 
     assert len(offspring.nodes) == len(mother.nodes)
     assert len(offspring.links) == len(father.links)
@@ -49,10 +50,20 @@ def test_crossover_longer_less_fit(standard_config, tracker):
     mother.mutate_add_node()
     mother.mutate_add_node()
 
-    offspring = breeder.crossover(mother, father)
+    offspring = breeder.crossover(mother, father, False)
     father.fitness = 100
 
     assert len(offspring.nodes) == len(father.nodes)
     assert len(offspring.links) == len(father.links)
     assert None not in offspring.nodes
     assert None not in offspring.links
+
+
+def test_average_link(standard_config):
+    breeder = Breeder(standard_config)
+    link1 = LinkGene(None, None)
+    link2 = LinkGene(None, None)
+
+    new_link = breeder.average_link(link1, link2)
+
+    assert new_link.weight == (link1.weight + link2.weight)/2

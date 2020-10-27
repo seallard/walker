@@ -18,7 +18,7 @@ class Environment:
         for step in range(self.time):
             if self.evaluations > 500:
                 self.env.render()
-            action = network.update(observation)
+            action = network.activate(observation)
             observation, reward, done, info = self.env.step(action=np.array(action))
             total_reward += reward
 

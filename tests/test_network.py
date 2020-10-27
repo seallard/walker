@@ -31,52 +31,48 @@ def test_create_network_with_loops(genome):
     assert len(network.links) == len(genome.links) - 1
 
 
-def test_updates_without_hidden_nodes(standard_config):
-    genome = Genome(id=1, config=standard_config)
+def test_activates_without_hidden_nodes(genome):
     network = genome.network()
 
-    output = network.update(inputs=[0])
+    output = network.activate(inputs=[0])
     assert network.nodes[0].output == 0
     assert network.nodes[1].output == 0.5
     assert output == [0.5], "0 -> sigmoid -> 0.5"
 
-    output = network.update(inputs=[1])
+    output = network.activate(inputs=[1])
     assert output == [sigmoid(network.links[0].weight)]
 
 
-def test_updates_with_hidden_nodes(standard_config, tracker):
-    genome = Genome(id=1, config=standard_config, tracker=tracker)
+def test_activates_with_hidden_nodes(genome):
     genome.mutate_add_node()
 
     network = genome.network()
-    final_output = network.update(inputs=[1])
-    first_output = network.nodes[2].output
+    output = network.activate(inputs=[1])[0]
+    output_of_hidden_node = network.nodes[2].output
 
-    assert first_output == sigmoid(network.links[-2].weight)
-    assert final_output == [sigmoid(first_output * network.links[-1].weight)]
-    for node in network.nodes:
-        assert node.sum == 0, "net input signal to each node reset"
+    assert output_of_hidden_node == sigmoid(network.links[0].weight)
+    assert output == sigmoid(sigmoid(network.links[0].weight) * network.links[1].weight)
 
 
-def test_update_with_multiple_inputs(multiple_inputs_config):
+def test_activate_with_multiple_inputs(multiple_inputs_config):
     genome = Genome(id=1, config=multiple_inputs_config)
     network = genome.network()
 
-    output = network.update(inputs=[0,0])
+    output = network.activate(inputs=[0,0])
     assert output == [sigmoid(0)]
 
-    output = network.update(inputs=[1,1])
+    output = network.activate(inputs=[1,1])
     assert output == [sigmoid(network.links[0].weight + network.links[1].weight)]
 
 
-def test_update_with_multiple_outputs(multiple_input_output_config):
+def test_activate_with_multiple_outputs(multiple_input_output_config):
     genome = Genome(id=1, config=multiple_input_output_config)
     network = genome.network()
 
-    outputs = network.update(inputs=[0, 0])
+    outputs = network.activate(inputs=[0, 0])
     assert outputs == [sigmoid(0), sigmoid(0)]
 
-    outputs = network.update(inputs=[1, 1])
+    outputs = network.activate(inputs=[1, 1])
     w11 = network.links[0].weight
     w12 = network.links[1].weight
     w21 = network.links[2].weight
@@ -84,13 +80,14 @@ def test_update_with_multiple_outputs(multiple_input_output_config):
     assert outputs == [sigmoid(w11 + w21), sigmoid(w12 + w22)]
 
 
-def test_update_with_loop(genome):
+def test_activate_with_loop(genome):
     genome.add_loop_link()
     network = genome.network()
+    assert network.links[-1].from_node.id == 0
 
-    output = network.update(inputs=[0])
+    output = network.activate(inputs=[0])
     assert output == [sigmoid(0)], "correct output"
 
-    output = network.update(inputs=[0])
+    output = network.activate(inputs=[0])
     loop_weight = network.links[1].weight
     assert output == [sigmoid(sigmoid(0)*loop_weight)]

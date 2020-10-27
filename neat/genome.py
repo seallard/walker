@@ -26,12 +26,16 @@ class Genome:
 
     def mutate_structure(self):
         """Call each method of structural mutation with a certain probability. """
+        node_success = False
+        link_success = False
 
         if random() < self.config.add_node_probability:
-            return self.mutate_add_node()
+            node_success = self.mutate_add_node()
 
         if random() < self.config.add_link_probability:
-            return self.mutate_add_link()
+            link_success = self.mutate_add_link()
+
+        return node_success or link_success
 
     def mutate_non_structure(self):
         """Call each method of non-structural mutation with a certain probability. """
@@ -94,6 +98,7 @@ class Genome:
             new_gene = LinkGene(from_node, to_node, recurrent=True)
             self.tracker.assign_link_id(new_gene)
             self.insert_link(new_gene)
+            print("Added recurrent link")
             return True
 
     def invalid_recurrent_link(self, from_node, to_node):
@@ -123,6 +128,7 @@ class Genome:
             new_gene = LinkGene(from_node, to_node, recurrent=False)
             self.tracker.assign_link_id(new_gene)
             self.insert_link(new_gene)
+            print("Added forward link")
             return True
 
     def invalid_forward_link(self, from_node, to_node):
@@ -170,7 +176,7 @@ class Genome:
             self.nodes.append(new_node)
             self.insert_link(new_in_link)
             self.insert_link(new_out_link)
-
+            print("Added node")
             return True
 
     def link_split_before(self, link):
@@ -216,9 +222,6 @@ class Genome:
         """Perturb or replace weights.
         """
         for link in self.links:
-
-            if random() > self.config.weight_mutation_probability:
-                continue
 
             if random() < self.config.weight_replacement_rate:
                 link.weight = uniform(-1, 1)
@@ -280,14 +283,14 @@ class Genome:
                 to_node = nodes[link_gene.to_node.id]
 
                 # Create link.
-                link = Link(from_node, to_node, link_gene.weight)
+                link = Link(from_node, to_node, link_gene.weight, link_gene.id)
                 links.append(link)
 
-                # Update in and out links of nodes.
+                # Add link to nodes.
                 from_node.out_links.append(link)
                 to_node.in_links.append(link)
 
-        nodes = list(nodes.values())
+        nodes = list(nodes.values()) # Already sorted correctly [bias, inputs, outputs, hidden]
         network = Network(nodes, links, self.config.num_inputs, self.config.num_outputs)
         self.phenotype = network
         return network

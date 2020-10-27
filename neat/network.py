@@ -12,7 +12,7 @@ class Network:
         self.num_outputs = num_outputs
         self.running = False
 
-    def update(self, inputs):
+    def activate(self, inputs):
         """Propagate input through network until each output is activated.
            Precondition: nodes are ordered as [inputs, outputs, hidden]
         """
@@ -23,11 +23,11 @@ class Network:
             node.active = True
 
         #TODO: initialise bias node with 1.
-        activated_once = False # If output already is active from previous update.
+        activated_once = False # If output already is active from previous activate.
         max_tries = len(self.links) + 5
         tries = 0
 
-        while (self.output_inactive() or not activated_once) and tries < max_tries:
+        while tries < max_tries: # Dirty way: cleaner to check if outputs are stable.
 
             # Iterate over nodes and calculate their net input signals.
             for node in self.nodes[self.num_inputs:]:
