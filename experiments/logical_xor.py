@@ -11,6 +11,7 @@ class LogicalXor:
     def evaluate(self, genome):
 
         self.evals += 1
+        print(self.evals)
 
         # All possible inputs for XOR in random order.
         examples = [(0, 0, 0),(1, 0, 1),(0, 1, 1),(1, 1, 0)]
@@ -29,6 +30,7 @@ class LogicalXor:
 
             total_diff += abs(expected - output)
 
+        print(f"Correct answers {correct_answers}")
         if correct_answers == 4:
             print(f"Evaluation {self.evals}")
             print("Solved XOR")

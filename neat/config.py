@@ -62,7 +62,7 @@ class Config():
         self.node_add_tries = mutation_settings['node_addition_attempts']
 
         # The maximum magnitude of a mutation that changes the weight of a connection.
-        self.weight_mutation_range = mutation_settings['weight_mutation_range']
+        self.weight_mutation_power = mutation_settings['weight_mutation_power']
         self.weight_mutation_probability = mutation_settings['weight_mutation_probability']
         self.weight_replacement_rate = mutation_settings['weight_replacement_rate']
 

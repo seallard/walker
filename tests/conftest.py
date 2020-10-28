@@ -21,7 +21,7 @@ def standard_config():
 
     config.weight_mutation_rate = 1
     config.weight_replacement_rate = 0
-    config.weight_mutation_range = 0.5
+    config.weight_mutation_power = 0.5
 
     config.population_size = 10
 

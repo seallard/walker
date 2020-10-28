@@ -1,7 +1,7 @@
 {
     "population_size": 10,
 
-    "weight_mutation_range": 0.5,
+    "weight_mutation_power": 0.5,
     "weight_mutation_probability": 1.0,
     "weight_replacement_rate": 0,
     "add_node_probability": 0.03,

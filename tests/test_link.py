@@ -74,7 +74,7 @@ def test_perturbing_multiple_links(genome):
 def test_replacing_link(genome):
     genome.config.weight_mutation_rate = 1
     genome.config.weight_replacement_rate = 1
-    genome.config.weight_mutation_range =  0
+    genome.config.weight_mutation_power =  0
 
     initial_weight = genome.links[0].weight
     genome.mutate_weights()
