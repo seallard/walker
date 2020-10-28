@@ -78,14 +78,8 @@ class Population:
                 disjoint += 1
                 g2_index += 1
 
-        if g1.size() > g2.size():
-            n = g1.size()
-
-        else:
-            n = g2.size()
-
-        disjoint = self.config.c_disjoint * disjoint/n
-        excess = self.config.c_excess * excess/n
+        disjoint = self.config.c_disjoint * disjoint
+        excess = self.config.c_excess * excess
         weight = self.config.c_weight * weight_diff/matched
 
         return disjoint + excess + weight
