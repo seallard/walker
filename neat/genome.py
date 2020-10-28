@@ -238,25 +238,28 @@ class Genome:
         return False
 
     def __initialise_nodes(self):
-        """Create the input and output genes. """
+        """Create the bias, input and output genes. """
         self.nodes = []
         in_depth = 0
         out_depth = 1
 
-        for innovation_number in range(self.config.num_inputs):
-            node = NodeGene(NodeType.INPUT, in_depth, innovation_number)
-            self.nodes.append(node)
+        bias_node = NodeGene(NodeType.BIAS, in_depth, 0)
+        self.nodes.append(bias_node)
 
-        for innovation_number in range(self.config.num_inputs, self.config.num_inputs + self.config.num_outputs):
-            node = NodeGene(NodeType.OUTPUT, out_depth, innovation_number)
-            self.nodes.append(node)
+        for innovation_number in range(1, self.config.num_inputs+1):
+            input_node = NodeGene(NodeType.INPUT, in_depth, innovation_number)
+            self.nodes.append(input_node)
+
+        for innovation_number in range(self.config.num_inputs+1, self.config.num_inputs + self.config.num_outputs + 1):
+            output_node = NodeGene(NodeType.OUTPUT, out_depth, innovation_number)
+            self.nodes.append(output_node)
 
     def __initialise_links(self):
         """Connect each input node to each output node. """
         self.links = []
         innovation_number = 0
-        for input_node in self.nodes[:self.config.num_inputs]:
-            for output_node in self.nodes[self.config.num_inputs:]:
+        for input_node in self.nodes[1:self.config.num_inputs + 1]:
+            for output_node in self.nodes[self.config.num_inputs + 1:]:
                 link = LinkGene(input_node, output_node)
                 link.id = innovation_number
                 self.links.append(link)

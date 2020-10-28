@@ -10,7 +10,7 @@ class InnovationTracker:
     def __init__(self, config):
         self.link_innovations = {}
         self.node_innovations = {}
-        self.next_node_id = config.num_inputs + config.num_outputs
+        self.next_node_id = config.num_inputs + config.num_outputs + 1 # One bias node.
         self.next_link_id = config.num_inputs * config.num_outputs
 
     def assign_node_id(self, first_node_id, second_node_id, gene):

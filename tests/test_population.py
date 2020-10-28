@@ -15,21 +15,6 @@ def test_compat_identical(standard_config):
     assert compatibility == 0
 
 
-def test_compat_extra_link(standard_config):
-    standard_config.c_weight = 0
-    population = Population(config=standard_config)
-
-    genome_1 = population.genomes[0]
-    genome_2 = population.genomes[1]
-    genome_2.add_loop_link()
-
-    compatibility = population.compatibility(genome_1, genome_2)
-    assert compatibility == 0.5
-
-    compatibility = population.compatibility(genome_2, genome_1)
-    assert compatibility == 0.5
-
-
 def test_speciate_single_genome(standard_config):
     population = Population(standard_config)
     population.speciate_genomes()

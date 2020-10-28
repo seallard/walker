@@ -63,7 +63,9 @@ def test_average_link(standard_config):
     breeder = Breeder(standard_config)
     link1 = LinkGene(None, None)
     link2 = LinkGene(None, None)
+    w1_save = link1.weight
+    w2_save = link2.weight
 
     new_link = breeder.average_link(link1, link2)
 
-    assert new_link.weight == (link1.weight + link2.weight)/2
+    assert new_link.weight == (w1_save + w2_save)/2

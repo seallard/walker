@@ -10,34 +10,35 @@ class Network:
         self.links = links
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
-        self.running = False
 
     def activate(self, inputs):
         """Propagate input through network until each output is activated.
-           Precondition: nodes are ordered as [inputs, outputs, hidden]
+           Precondition: nodes are ordered as [bias, inputs, outputs, hidden]
         """
 
+        # Initialise bias node.
+        self.nodes[0].output = 1
+        self.nodes[0].active = True
+
         # Initialise input nodes with inputs.
-        for i, node in enumerate(self.nodes[:self.num_inputs]):
+        for i, node in enumerate(self.nodes[1:self.num_inputs + 1]):
             node.output = inputs[i]
             node.active = True
 
-        #TODO: initialise bias node with 1.
-        activated_once = False # If output already is active from previous activate.
         max_tries = len(self.links) + 5
         tries = 0
 
+        # TODO: only wait for stabilization if classification task. Add a bool parameter?
         while tries < max_tries: # Dirty way: cleaner to check if outputs are stable.
 
             # Iterate over nodes and calculate their net input signals.
-            for node in self.nodes[self.num_inputs:]:
+            for node in self.nodes[self.num_inputs + 1:]:
                 node.calculate_net_input_signal()
 
             # Activate each node based on their net input signal.
-            for node in self.nodes[self.num_inputs:]:
+            for node in self.nodes[self.num_inputs + 1:]:
                 node.activate()
 
-            activated_once = True
             tries += 1
 
         return self.get_outputs()
@@ -71,22 +72,8 @@ class Network:
         nx.draw_networkx_edge_labels(graph, positioning, edge_labels=edge_labels)
         plt.show()
 
-    def output_inactive(self):
-
-        if self.running:
-            return False
-
-        else:
-            output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
-            for node in output_nodes:
-                if node.activation_count == 0:
-                    return True
-
-            self.running = True
-            return False
-
     def get_outputs(self):
-        output_nodes = self.nodes[self.num_inputs:self.num_inputs+self.num_outputs]
+        output_nodes = self.nodes[self.num_inputs + 1:self.num_inputs+self.num_outputs + 1]
         return [node.output for node in output_nodes]
 
     def reset(self):

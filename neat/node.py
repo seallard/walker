@@ -23,6 +23,7 @@ class Node:
     def calculate_net_input_signal(self):
         self.active = False
         self.sum = 0
+        self.output = 0
         for link in self.in_links:
             if link.from_node.active:
                 self.sum += link.from_node.output * link.weight

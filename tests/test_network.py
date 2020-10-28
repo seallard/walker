@@ -31,24 +31,22 @@ def test_create_network_with_loops(genome):
     assert len(network.links) == len(genome.links) - 1
 
 
-def test_activates_without_hidden_nodes(genome):
+def test_activate_without_hidden_nodes(genome):
     network = genome.network()
+    output = network.activate(inputs=[0])[0]
 
-    output = network.activate(inputs=[0])
-    assert network.nodes[0].output == 0
-    assert network.nodes[1].output == 0.5
-    assert output == [0.5], "0 -> sigmoid -> 0.5"
+    assert output == sigmoid(0)
 
-    output = network.activate(inputs=[1])
-    assert output == [sigmoid(network.links[0].weight)]
+    #output = network.activate(inputs=[1])
+    #assert output == [sigmoid(network.links[0].weight)]
 
 
-def test_activates_with_hidden_nodes(genome):
+def test_activate_with_hidden_nodes(genome):
     genome.mutate_add_node()
 
     network = genome.network()
     output = network.activate(inputs=[1])[0]
-    output_of_hidden_node = network.nodes[2].output
+    output_of_hidden_node = network.nodes[-1].output
 
     assert output_of_hidden_node == sigmoid(network.links[0].weight)
     assert output == sigmoid(sigmoid(network.links[0].weight) * network.links[1].weight)
@@ -79,15 +77,3 @@ def test_activate_with_multiple_outputs(multiple_input_output_config):
     w22 = network.links[3].weight
     assert outputs == [sigmoid(w11 + w21), sigmoid(w12 + w22)]
 
-
-def test_activate_with_loop(genome):
-    genome.add_loop_link()
-    network = genome.network()
-    assert network.links[-1].from_node.id == 0
-
-    output = network.activate(inputs=[0])
-    assert output == [sigmoid(0)], "correct output"
-
-    output = network.activate(inputs=[0])
-    loop_weight = network.links[1].weight
-    assert output == [sigmoid(sigmoid(0)*loop_weight)]

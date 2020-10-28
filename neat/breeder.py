@@ -1,6 +1,7 @@
 from random import random
 from neat.genome import Genome
 from neat.link_gene import LinkGene
+from neat.node_gene import NodeGene
 from neat.enums.node_types import NodeType
 
 
@@ -111,7 +112,13 @@ class Breeder:
         copied_nodes = {}
         copied_links = []
 
+         # The bias node must be saved, even if there are no links from it.
+        found_bias = False
+
         for link in offspring_links:
+
+            if link.from_node.type == NodeType.BIAS:
+                found_bias = True
 
             if link.from_node.id not in copied_nodes.keys():
                 copied_nodes[link.from_node.id] = link.from_node.copy()
@@ -126,6 +133,10 @@ class Breeder:
             copied_links.append(link_copy)
 
         copied_nodes = list(copied_nodes.values())
+
+        # Create a bias node if it was not present in any of the links.
+        if not found_bias:
+            copied_nodes.append(NodeGene(NodeType.BIAS, 0, 0))
 
         # Ensure the nodes are sorted as expected [bias, input, output, hidden].
         copied_nodes = self.sort_nodes(copied_nodes)
@@ -159,6 +170,5 @@ class Breeder:
 
     def average_link(self, link1, link2):
         new_weight = (link1.weight + link2.weight)/2
-        copy = link1.copy(link1.from_node, link1.to_node)
-        copy.weight = new_weight
-        return copy
+        link1.weight = new_weight
+        return link1
