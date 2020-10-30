@@ -229,6 +229,13 @@ class Genome:
             else:
                 link.weight += uniform(-1, 1) * self.config.weight_mutation_power
 
+            # Cap weights.
+            if link.weight > 8.0:
+                link.weight = 8.0
+
+            if link.weight < -8.0:
+                link.weight = -8.0
+
     def link_exists(self, from_node, to_node):
         """Check if link is present in the genome. """
 
