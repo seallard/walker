@@ -8,13 +8,6 @@ def test_initialisation(standard_config):
     assert len(population.genomes) == 10
 
 
-def test_compat_identical(standard_config):
-    standard_config.c_weight = 0 # Ignore weight differences.
-    population = Population(standard_config)
-    compatibility = population.compatibility(population.genomes[0], population.genomes[1])
-    assert compatibility == 0
-
-
 def test_speciate_single_genome(standard_config):
     population = Population(standard_config)
     population.speciate_genomes()

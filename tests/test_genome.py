@@ -32,3 +32,9 @@ def test_link_split_before(genome):
 
     result = genome.link_split_before(genome.links[-1])
     assert not result, "the last link has not been split before"
+
+
+def test_compatibility(genome, standard_config):
+    standard_config.c_weight = 0 # Ignore weight differences.
+    compatibility = genome.compatibility(genome)
+    assert compatibility == 0

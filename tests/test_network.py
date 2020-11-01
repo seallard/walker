@@ -5,7 +5,8 @@ from unittest.mock import Mock
 from math import exp
 
 def sigmoid(x):
-    return 1 / (1 + exp(-x))
+    return 1 / (1 + exp(-4.9*x))
+
 
 def test_create_nework(standard_config):
     genome = Genome(id=1, config=standard_config)

@@ -150,9 +150,16 @@ class Genome:
             - appends one node gene and two link genes to this genome
         """
         tries = self.config.node_add_tries
+
         while tries:
-            biased_index = round(abs(random() - random())*(len(self.links)-1))
-            link = self.links[biased_index]
+
+            # Bias link index towards older ondes to avoid chaining effect if few links exist.
+            if len(self.nodes) < 10:
+                biased_index = round(abs(random() - random())*(len(self.links)-1))
+                link = self.links[biased_index]
+
+            else:
+                link = choice(self.links)
 
             if not link.can_be_split() or self.link_split_before(link):
                 tries -= 1
@@ -321,3 +328,50 @@ class Genome:
                 return
 
         self.links.append(link_gene)
+
+
+    def compatibility(self, other):
+        """Compatibility score. """
+
+        weight_diff = 0
+        matched = 0
+        disjoint = 0
+        excess = 0
+
+        g1_index = 0
+        g2_index = 0
+
+        while g1_index <= self.size():
+
+            # Reached end of other.
+            if g2_index == other.size():
+                excess += len(self.links) - g1_index
+                break
+
+            # Reached end of self.
+            if g1_index == self.size():
+                excess += len(other.links) - g2_index
+                break
+
+            g1_gene = self.links[g1_index]
+            g2_gene = other.links[g2_index]
+
+            if g2_gene.id == g1_gene.id:
+                matched += 1
+                weight_diff += abs(g2_gene.weight - g1_gene.weight)
+                g2_index += 1
+                g1_index += 1
+
+            elif g2_gene.id > g1_gene.id:
+                disjoint += 1
+                g1_index += 1
+
+            else:
+                disjoint += 1
+                g2_index += 1
+
+        disjoint = self.config.c_disjoint * disjoint
+        excess = self.config.c_excess * excess
+        weight = self.config.c_weight * weight_diff/matched
+
+        return disjoint + excess + weight

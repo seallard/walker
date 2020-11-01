@@ -64,13 +64,3 @@ def test_existing_non_consecutive_node_innovation(standard_config):
     assert genome_1.nodes[-2].id == genome_2.nodes[-1].id, "node received existing innovation id"
     assert genome_1.links[-4].id == genome_2.links[-2].id, "in link received existing innovation id"
     assert genome_1.links[-3].id == genome_2.links[-1].id, "out link received existing innovation id"
-
-
-def test_existing_link_innovation(standard_config, tracker):
-    genome_1 = Genome(id=1, config=standard_config, tracker=tracker)
-    genome_2 = Genome(id=1, config=standard_config, tracker=tracker)
-
-    genome_1.add_forward_link()
-    genome_2.add_forward_link()
-
-    assert genome_1.links[-1].id == genome_2.links[-1].id

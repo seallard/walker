@@ -26,7 +26,7 @@ class Population:
             species_found = False
 
             for species in self.species:
-                compatibility = self.compatibility(genome, species.leader)
+                compatibility = genome.compatibility(species.leader)
 
                 if compatibility < self.config.compatibility_threshold:
                     species.add_genome(genome)
@@ -37,52 +37,6 @@ class Population:
                 new_species = Species(self.species_id, genome, self.config, self.breeder)
                 self.species.append(new_species)
                 self.species_id += 1
-
-    def compatibility(self, g1, g2):
-        """Compatibility of genomes. """
-
-        weight_diff = 0
-        matched = 0
-        disjoint = 0
-        excess = 0
-
-        g1_index = 0
-        g2_index = 0
-
-        while g1_index <= g1.size():
-
-            # Reached end of g2.
-            if g2_index == g2.size():
-                excess += len(g1.links) - g1_index
-                break
-
-            # Reached end of g1.
-            if g1_index == g1.size():
-                excess += len(g2.links) - g2_index
-                break
-
-            g1_gene = g1.links[g1_index]
-            g2_gene = g2.links[g2_index]
-
-            if g2_gene.id == g1_gene.id:
-                matched += 1
-                weight_diff += abs(g2_gene.weight - g1_gene.weight)
-                g2_index += 1
-                g1_index += 1
-
-            elif g2_gene.id > g1_gene.id:
-                disjoint += 1
-                g1_index += 1
-
-            else:
-                disjoint += 1
-                g2_index += 1
-
-        disjoint = self.config.c_disjoint * disjoint
-        excess = self.config.c_excess * excess
-        weight = self.config.c_weight * weight_diff/matched
-
-        return disjoint + excess + weight
 
     def set_spawn_amounts(self):
         """Fitness sharing. """
