@@ -67,25 +67,28 @@ class Species:
                 else:
                     parent = choice(mating_pool)
 
-                copy = self.breeder.create_genome(parent.links, parent.tracker)
+                baby = self.breeder.create_genome(parent.links, parent.tracker)
 
-                structural_mutation_succeeded = copy.mutate_structure()
-
-                if not structural_mutation_succeeded:
-                    copy.mutate_non_structure()
-
-                offspring += [copy]
+                if not baby.mutate_structure():
+                    baby.mutate_non_structure()
 
             # Some of the time, mate.
             else:
                 mother = choice(mating_pool)
                 father = choice(mating_pool)
+                compatibility = mother.compatibility(father)
 
                 # Decide if matching links should be averaged or inherited randomly.
                 averaging = random() < self.config.mate_by_averaging
 
                 baby = self.breeder.crossover(mother, father, averaging)
-                offspring.append(baby)
+
+                # Decide whether to mutate baby.
+                if random() > self.config.mate_only_probability or mother.id == father.id or compatibility == 0:
+                    if not baby.mutate_structure():
+                        baby.mutate_non_structure()
+
+            offspring.append(baby)
 
         return offspring
 
