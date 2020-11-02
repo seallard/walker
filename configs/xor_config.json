@@ -32,18 +32,18 @@
 
     "mutation_settings": {
         "add_link_probability": 0.05,
-        "link_addition_attempts": 20,
+        "link_addition_attempts": 10,
 
         "add_node_probability": 0.03,
-        "node_addition_attempts": 20,
+        "node_addition_attempts": 10,
 
-        "weight_mutation_power": 2.5,
-        "weight_mutation_probability": 1.0,
-        "weight_replacement_rate": 0,
+        "weight_mutation_power": 4.5,
+        "weight_mutation_probability": 0.7,
+        "weight_replacement_rate": 0.1,
 
         "link_recurrent_probability": 0,
-        "link_reenable_probability": 0.1,
-        "link_toggle_enable_probability": 0
+        "link_reenable_probability": 0.02,
+        "link_toggle_enable_probability": 0.01
     },
 
     "environment_settings": {

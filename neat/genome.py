@@ -40,8 +40,7 @@ class Genome:
     def mutate_non_structure(self):
         """Call each method of non-structural mutation with a certain probability. """
 
-        if random() < self.config.weight_mutation_probability:
-            self.mutate_weights()
+        self.mutate_weights() # Iterate over each link and mutate with some probability.
 
         if random() < self.config.reenable_link_probability:
             self.mutate_reenable_link()
@@ -58,7 +57,7 @@ class Genome:
 
         if random() < self.config.link_recurrent_probability:
 
-            if random() < 0.5:
+            if random() > 0.5:
                 return self.add_loop_link()
 
             else:
@@ -74,41 +73,50 @@ class Genome:
                       sets recurrent attribute of node to True.
         """
         tries = self.config.link_add_tries
+
         while tries:
-            node = choice(self.nodes)
+
+            # Select a random non-input node.
+            node = choice(self.nodes[self.config.num_inputs+1:])
 
             if node.can_have_loop() and not self.link_exists(node, node):
+
                 new_gene = LinkGene(node, node, recurrent=True)
                 self.tracker.assign_link_id(new_gene)
                 self.insert_link(new_gene)
-                print("Added a loop link")
+
                 return True
+
             tries -= 1
 
     def add_recurrent_link(self):
+
         tries = self.config.link_add_tries
+
         while tries:
-            from_node = choice(self.nodes)
-            to_node = choice(self.nodes[self.config.num_inputs:])
 
-            if self.invalid_recurrent_link(from_node, to_node):
-                tries -= 1
-                continue
+            from_node = choice(self.nodes[self.config.num_inputs+1:])
+            to_node = choice(self.nodes[self.config.num_inputs + self.config.num_outputs+1:])
 
-            new_gene = LinkGene(from_node, to_node, recurrent=True)
-            self.tracker.assign_link_id(new_gene)
-            self.insert_link(new_gene)
-            print("Added recurrent link")
-            return True
+            if self.valid_recurrent_link(from_node, to_node):
 
-    def invalid_recurrent_link(self, from_node, to_node):
+                new_gene = LinkGene(from_node, to_node, recurrent=True)
+                self.tracker.assign_link_id(new_gene)
+                self.insert_link(new_gene)
+
+                return True
+
+            tries -= 1
+
+
+    def valid_recurrent_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
-        is_forward = from_node.depth - to_node.depth <= 0
+        is_recurrent = from_node.depth - to_node.depth > 0
 
         return (
-            link_exists or
-            not to_node.valid_out() or
-            is_forward
+            not link_exists and
+            to_node.valid_out() and
+            is_recurrent
         )
 
     def add_forward_link(self):
@@ -116,29 +124,36 @@ class Genome:
         Add forward link to genome.
         Side effects: adds link gene to this genome.
         """
+
+        inputs = self.nodes[:self.config.num_inputs + 1]
+        hidden = self.nodes[self.config.num_inputs + 1 + self.config.num_outputs:]
+
         tries = self.config.link_add_tries
+
         while tries:
-            from_node = choice(self.nodes)
-            to_node = choice(self.nodes[self.config.num_inputs:])
 
-            if self.invalid_forward_link(from_node, to_node):
-                tries -= 1
-                continue
+            from_node = choice(inputs + hidden)
+            to_node = choice(self.nodes[self.config.num_inputs + 1:])
 
-            new_gene = LinkGene(from_node, to_node, recurrent=False)
-            self.tracker.assign_link_id(new_gene)
-            self.insert_link(new_gene)
-            print("Added forward link")
-            return True
+            if self.valid_forward_link(from_node, to_node):
 
-    def invalid_forward_link(self, from_node, to_node):
+                new_gene = LinkGene(from_node, to_node, recurrent=False)
+                self.tracker.assign_link_id(new_gene)
+                self.insert_link(new_gene)
+
+                print("Added forward link")
+                return True
+
+            tries -= 1
+
+    def valid_forward_link(self, from_node, to_node):
         link_exists = self.link_exists(from_node, to_node)
-        is_backward = from_node.depth - to_node.depth >= 0
+        is_forward = from_node.depth - to_node.depth < 0
 
         return (
-            link_exists or
-            not to_node.valid_out() or
-            is_backward
+            not link_exists and
+            to_node.valid_out() and
+            is_forward
         )
 
     def mutate_add_node(self):
@@ -153,7 +168,7 @@ class Genome:
 
         while tries:
 
-            # Bias link index towards older ondes to avoid chaining effect if few links exist.
+            # Bias link index towards older ones to avoid chaining effect if few links exist.
             if len(self.nodes) < 10:
                 biased_index = round(abs(random() - random())*(len(self.links)-1))
                 link = self.links[biased_index]
@@ -161,7 +176,7 @@ class Genome:
             else:
                 link = choice(self.links)
 
-            if not link.can_be_split() or self.link_split_before(link):
+            if not link.can_be_split():
                 tries -= 1
                 continue
 
@@ -176,6 +191,7 @@ class Genome:
             new_in_link.weight = 1
             new_out_link.weight = link.weight
 
+            # TODO: check whether node id is used in genome already.
             self.tracker.assign_node_id(link.from_node.id, link.to_node.id, new_node)
             self.tracker.assign_link_id(new_in_link)
             self.tracker.assign_link_id(new_out_link)
@@ -185,19 +201,6 @@ class Genome:
             self.insert_link(new_out_link)
             print("Added node")
             return True
-
-    def link_split_before(self, link):
-        """Checks whether a node exists between the two nodes in the link. """
-
-        from_node = link.from_node
-        to_node = link.to_node
-
-        for in_link in self.links:
-            if in_link.from_node == from_node:
-
-                for out_link in self.links:
-                    if out_link.from_node == in_link.to_node and out_link.to_node == to_node:
-                        return True
 
     def mutate_reenable_link(self):
         """Find the first disabled link and reenable it. """
@@ -214,15 +217,16 @@ class Genome:
             link.enabled = not link.enabled
 
     def safe_to_toggle(self, toggle_link):
-        """Make sure it is safe to toggle the link. Some valid toggles are discarded
-           since they are difficult to verify as safe.
+        """
+        Make sure there is another link from the from_node of the link being toggled.
         """
         if not toggle_link.enabled:
             return True
 
         for link in self.links:
             same_from_node = link.from_node == toggle_link.from_node
-            if link != toggle_link and link.enabled and same_from_node and not link.recurrent:
+
+            if same_from_node and link.enabled and link != toggle_link:
                 return True
 
     def mutate_weights(self):
@@ -230,11 +234,16 @@ class Genome:
         """
         for link in self.links:
 
-            if random() < self.config.weight_replacement_rate:
-                link.weight = uniform(-1, 1)
+            # Mutate each link weight with some probability.
+            if random() < self.config.weight_mutation_probability:
 
-            else:
-                link.weight += uniform(-1, 1) * self.config.weight_mutation_power
+                # Some of the time, replace the weight entirely.
+                if random() < self.config.weight_replacement_rate:
+                    link.weight = uniform(-1, 1) * self.config.weight_mutation_power
+
+                # Otherwise, only perturb it by some small amount.
+                else:
+                    link.weight += uniform(-1, 1) * self.config.weight_mutation_power
 
             # Cap weights.
             if link.weight > 8.0:
