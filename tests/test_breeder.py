@@ -5,10 +5,10 @@ from unittest.mock import Mock
 from neat.enums.node_types import NodeType
 
 
-def test_smaller_genome_more_fit(standard_config):
+def test_smaller_genome_more_fit(standard_config, tracker):
     breeder = Breeder(standard_config)
-    mother = Genome(1, standard_config)
-    father = Genome(2, standard_config)
+    mother = Genome(1, standard_config, tracker=tracker)
+    father = Genome(2, standard_config, tracker=tracker)
 
     better, worse = breeder.fitness_order(mother, father)
 
@@ -16,10 +16,10 @@ def test_smaller_genome_more_fit(standard_config):
     assert worse == mother
 
 
-def test_higher_score_more_fit(standard_config):
+def test_higher_score_more_fit(standard_config, tracker):
     breeder = Breeder(standard_config)
-    mother = Genome(1, standard_config)
-    father = Genome(2, standard_config)
+    mother = Genome(1, standard_config, tracker=tracker)
+    father = Genome(2, standard_config, tracker=tracker)
 
     mother.fitness = 100
 
@@ -29,10 +29,10 @@ def test_higher_score_more_fit(standard_config):
     assert worse == father
 
 
-def test_crossover_identical(standard_config):
+def test_crossover_identical(standard_config, tracker):
     breeder = Breeder(standard_config)
-    mother = Genome(1, standard_config)
-    father = Genome(2, standard_config)
+    mother = Genome(1, standard_config, tracker=tracker)
+    father = Genome(2, standard_config, tracker=tracker)
 
     offspring = breeder.crossover(mother, father, False)
 

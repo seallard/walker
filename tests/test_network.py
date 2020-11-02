@@ -8,16 +8,16 @@ def sigmoid(x):
     return 1 / (1 + exp(-4.9*x))
 
 
-def test_create_nework(standard_config):
-    genome = Genome(id=1, config=standard_config)
+def test_create_nework(standard_config, tracker):
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
     network = genome.network()
 
     assert len(network.nodes) == len(genome.nodes)
     assert len(network.links) == len(genome.links)
 
 
-def test_create_network_with_disabled_links(standard_config):
-    genome = Genome(id=1, config=standard_config)
+def test_create_network_with_disabled_links(standard_config, tracker):
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
     genome.links[0].enabled = False
     network = genome.network()
 
@@ -55,8 +55,8 @@ def test_activate_with_hidden_nodes(genome):
     assert output == sigmoid(sigmoid(network.links[0].weight) * network.links[1].weight)
 
 
-def test_activate_with_multiple_inputs(multiple_inputs_config):
-    genome = Genome(id=1, config=multiple_inputs_config)
+def test_activate_with_multiple_inputs(multiple_inputs_config, tracker):
+    genome = Genome(id=1, config=multiple_inputs_config, tracker=tracker)
     genome.links[0].enabled = False
     network = genome.network()
 
@@ -67,8 +67,8 @@ def test_activate_with_multiple_inputs(multiple_inputs_config):
     assert output == [sigmoid(network.links[0].weight + network.links[1].weight)]
 
 
-def test_activate_with_multiple_outputs(multiple_input_output_config):
-    genome = Genome(id=1, config=multiple_input_output_config)
+def test_activate_with_multiple_outputs(multiple_input_output_config, tracker):
+    genome = Genome(id=1, config=multiple_input_output_config, tracker=tracker)
     genome.links[0].enabled = False
     genome.links[1].enabled = False
     network = genome.network()

@@ -44,8 +44,8 @@ def test_add_recurrent_link(genome):
     assert genome.links[-1].to_node == genome.nodes[-1], "to hidden node"
 
 
-def test_perturbing_single_link(standard_config):
-    genome = Genome(id=1, config=standard_config)
+def test_perturbing_single_link(standard_config, tracker):
+    genome = Genome(id=1, config=standard_config, tracker=tracker)
     initial_weight = genome.links[0].weight
     genome.mutate_weights()
     new_weight = genome.links[0].weight

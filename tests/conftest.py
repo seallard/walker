@@ -13,8 +13,8 @@ def standard_config():
     config.num_inputs = 1
     config.num_outputs = 1
 
-    config.node_add_tries = 15
-    config.link_add_tries = 15
+    config.node_add_tries = 30
+    config.link_add_tries = 30
     config.link_recurrent_probability = 0.2
 
     config.weight_mutation_probability = 1
@@ -70,12 +70,6 @@ def loopable_genome(genome):
 def unloopable_genome(genome):
     for node in genome.nodes:
         node.type = NodeType.BIAS
-    return genome
-
-
-@pytest.fixture()
-def connectable_genome(genome):
-    genome.links = []
     return genome
 
 

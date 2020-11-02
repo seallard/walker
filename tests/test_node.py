@@ -51,8 +51,7 @@ def test_add_multiple_nodes(genome):
     assert not genome.links[1].enabled, "original link disabled"
 
 
-def test_impossible_add_node(standard_config):
-    genome = Genome(id=1, config=standard_config)
+def test_impossible_add_node(genome):
     genome.links[0].enabled = False
     genome.links[1].enabled = False
     genome.mutate_add_node()
