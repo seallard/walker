@@ -40,4 +40,4 @@ class Node:
         self.sum = 0
 
     def sigmoid(self):
-        return 1 / (1 + exp(-4*self.sum))
+        return 1 / (1 + exp(-4.9*self.sum)) # Coefficient from original NEAT src.
