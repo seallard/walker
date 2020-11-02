@@ -56,16 +56,20 @@ class Network:
 
             elif node.type == NodeType.HIDDEN:
                 color_map.append('blue')
+
+            elif node.type == NodeType.BIAS:
+                color_map.append('yellow')
+
             else:
                 color_map.append("red")
 
             node_labels[node] = node.id
 
         edge_labels = {}
+
         for link in self.links:
             graph.add_edge(link.from_node, link.to_node)
             edge_labels[(link.from_node, link.to_node)] = link.id
-
 
         positioning = nx.spring_layout(graph)
         nx.draw(graph, pos=positioning, labels=node_labels, edge_color='black', arrowsize=10, node_color=color_map, alpha=0.5)
