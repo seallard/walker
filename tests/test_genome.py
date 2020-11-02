@@ -6,8 +6,8 @@ def test_insert_link_at_end(genome):
     new_link.id = 10
     genome.insert_link(new_link)
 
-    assert genome.links[1] == new_link, "link inserted at end"
-    assert genome.links[0].id < new_link.id, "link id is greater than previous id"
+    assert genome.links[-1] == new_link, "link inserted at end"
+    assert genome.links[-2].id < new_link.id, "link id is greater than previous id"
 
 
 def test_insert_link_in_middle(genome):
@@ -19,9 +19,9 @@ def test_insert_link_in_middle(genome):
     link.id = 5
     genome.insert_link(link)
 
-    assert genome.links[1] == link, "link inserted in middle"
-    assert genome.links[1].id > genome.links[0].id, "id greater than previous id"
-    assert genome.links[1].id < genome.links[2].id, "id smaller than next id"
+    assert genome.links[-2] == link, "link inserted in middle"
+    assert genome.links[-2].id > genome.links[-3].id, "id greater than previous id"
+    assert genome.links[-2].id < genome.links[-1].id, "id smaller than next id"
 
 
 def test_compatibility(genome, standard_config):

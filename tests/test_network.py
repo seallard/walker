@@ -33,6 +33,7 @@ def test_create_network_with_loops(genome):
 
 
 def test_activate_without_hidden_nodes(genome):
+    genome.links[0].enabled = False
     network = genome.network()
     output = network.activate(inputs=[0])[0]
 
@@ -43,6 +44,7 @@ def test_activate_without_hidden_nodes(genome):
 
 
 def test_activate_with_hidden_nodes(genome):
+    genome.links[0].enabled = False
     genome.mutate_add_node()
 
     network = genome.network()
@@ -55,6 +57,7 @@ def test_activate_with_hidden_nodes(genome):
 
 def test_activate_with_multiple_inputs(multiple_inputs_config):
     genome = Genome(id=1, config=multiple_inputs_config)
+    genome.links[0].enabled = False
     network = genome.network()
 
     output = network.activate(inputs=[0,0])
@@ -66,6 +69,8 @@ def test_activate_with_multiple_inputs(multiple_inputs_config):
 
 def test_activate_with_multiple_outputs(multiple_input_output_config):
     genome = Genome(id=1, config=multiple_input_output_config)
+    genome.links[0].enabled = False
+    genome.links[1].enabled = False
     network = genome.network()
 
     outputs = network.activate(inputs=[0, 0])

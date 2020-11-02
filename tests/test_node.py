@@ -44,20 +44,21 @@ def test_add_multiple_nodes(genome):
     genome.mutate_add_node()
 
     assert len(genome.nodes) == 5, "two nodes added"
-    assert len(genome.links) == 5, "four new links added"
+    assert len(genome.links) == 6, "four new links added"
 
     disabled_links = [link for link in genome.links if not link.enabled]
     assert len(disabled_links) == 2, "two links disabled"
-    assert not genome.links[0].enabled, "original link disabled"
+    assert not genome.links[1].enabled, "original link disabled"
 
 
 def test_impossible_add_node(standard_config):
     genome = Genome(id=1, config=standard_config)
-    genome.links[0].enabled = False # Disable the only existing link
+    genome.links[0].enabled = False
+    genome.links[1].enabled = False
     genome.mutate_add_node()
 
     assert len(genome.nodes) == 3, "no new node added"
-    assert len(genome.links) == 1, "no new link added"
+    assert len(genome.links) == 2, "no new link added"
 
 
 def test_copy_node(genome):

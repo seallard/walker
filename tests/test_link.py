@@ -6,10 +6,10 @@ from unittest.mock import Mock
 def test_link_initialisation(genome):
     inputs = genome.config.num_inputs
     outputs = genome.config.num_outputs
-    assert len(genome.links) == inputs * outputs, "correct number of links"
+    assert len(genome.links) == inputs * outputs + outputs, "correct number of links"
 
     ids = [x.id for x in genome.links]
-    expected_ids = [x for x in range(0, inputs * outputs)]
+    expected_ids = [x for x in range(0, inputs * outputs + outputs)]
     assert ids == expected_ids, "correct link innovation ids"
 
     assert True not in [x.recurrent for x in genome.links], "no initial link is recurrent"

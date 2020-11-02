@@ -278,10 +278,10 @@ class Genome:
             self.nodes.append(output_node)
 
     def __initialise_links(self):
-        """Connect each input node to each output node. """
+        """Connect each input node (and bias) to each output node. """
         self.links = []
         innovation_number = 0
-        for input_node in self.nodes[1:self.config.num_inputs + 1]:
+        for input_node in self.nodes[:self.config.num_inputs + 1]:
             for output_node in self.nodes[self.config.num_inputs + 1:]:
                 link = LinkGene(input_node, output_node)
                 link.id = innovation_number
