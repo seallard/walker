@@ -36,13 +36,12 @@ def test_failing_to_add_loop(unloopable_genome):
     assert original_number_of_links == new_number_of_links, "no link gene has been added"
 
 
-def test_add_recurrent_link(make_recurrent_genome):
-    make_recurrent_genome.add_recurrent_link()
-    new_link = make_recurrent_genome.links[-1]
+def test_add_recurrent_link(genome):
+    genome.mutate_add_node()
+    genome.add_recurrent_link()
 
-    assert new_link.from_node == make_recurrent_genome.nodes[1], "link goes from output"
-    assert new_link.to_node == make_recurrent_genome.nodes[-1], "link goes to input"
-    assert new_link.recurrent, "link is recurrent"
+    assert genome.links[-1].from_node == genome.nodes[-2], "from output node"
+    assert genome.links[-1].to_node == genome.nodes[-1], "to hidden node"
 
 
 def test_perturbing_single_link(standard_config):

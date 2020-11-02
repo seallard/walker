@@ -80,13 +80,5 @@ def connectable_genome(genome):
 
 
 @pytest.fixture()
-def make_recurrent_genome(standard_config, genome):
-    genome.config.link_add_tries = 50
-    genome.mutate_add_node()
-    genome.nodes = genome.nodes[1:] # Remove bias node.
-    return genome
-
-
-@pytest.fixture()
 def breeder(standard_config):
     return Breeder(standard_config)
