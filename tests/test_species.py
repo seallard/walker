@@ -14,9 +14,9 @@ def test_add_identical_genome(standard_config, tracker):
 
 def test_add_worse_genome(standard_config, tracker):
     better = Genome(id=1, config=standard_config, tracker=tracker)
-    better.fitness = 10
+    better.original_fitness = 10
     worse = Genome(id=2, config=standard_config, tracker=tracker)
-    worse.fitness = 0
+    worse.original_fitness = 0
 
     species = Species(id=1, first_genome=better, config=standard_config, breeder=Mock())
     species.add_genome(worse)
@@ -28,7 +28,7 @@ def test_add_worse_genome(standard_config, tracker):
 def test_add_better_genome(standard_config, tracker):
     better = Genome(id=1, config=standard_config, tracker=tracker)
     worse = Genome(id=2, config=standard_config, tracker=tracker)
-    better.fitness = 10
+    better.original_fitness = 10
     species = Species(id=1, first_genome=worse, config=standard_config, breeder=Mock())
     species.add_genome(better)
 

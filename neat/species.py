@@ -21,7 +21,7 @@ class Species:
 
         for i, genome in enumerate(self.genomes):
 
-            if new_genome.fitness > genome.fitness:
+            if new_genome.original_fitness > genome.original_fitness:
                 self.genomes[i:i] = [new_genome]
                 added_genome = True
                 break
@@ -29,7 +29,7 @@ class Species:
         if not added_genome:
             self.genomes.append(new_genome)
 
-        if new_genome.fitness > self.leader.fitness:
+        if new_genome.original_fitness > self.leader.original_fitness:
             self.leader = new_genome
             self.age_since_improvement = 0
 
@@ -105,8 +105,23 @@ class Species:
     def get_total_fitness(self):
         total_fitness = 0
         for genome in self.genomes:
-            total_fitness += genome.fitness
+            total_fitness += genome.adjusted_fitness
         return total_fitness
+
+    def adjust_fitness(self):
+        """Boost fitnesses of genomes in this species if young. """
+
+        if self.age < self.config.young_threshold:
+            for genome in self.genomes:
+                genome.adjusted_fitness = genome.original_fitness * self.config.young_boost
+
+        elif self.age > self.config.old_threshold:
+            for genome in self.genomes:
+                genome.adjusted_fitness = genome.original_fitness * self.config.old_penalty
+
+        else:
+            for genome in self.genomes:
+                genome.adjusted_fitness = genome.original_fitness
 
     def get_random_parent(self):
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))

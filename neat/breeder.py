@@ -86,7 +86,7 @@ class Breeder:
         Returns:
             (better_genome, worse_genome)
         """
-        if mother.fitness == father.fitness:
+        if mother.original_fitness == father.original_fitness:
 
             if mother.size() < father.size():
                 better_genome = mother
@@ -96,7 +96,7 @@ class Breeder:
                 better_genome = father
                 worse_genome = mother
 
-        elif mother.fitness < father.fitness:
+        elif mother.original_fitness < father.original_fitness:
             better_genome = father
             worse_genome = mother
 

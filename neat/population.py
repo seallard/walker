@@ -103,13 +103,19 @@ class Population:
         """
 
         # Find the lowest fitness value.
-        min_fitness = self.genomes[0].fitness
+        min_fitness = self.genomes[0].original_fitness
         for genome in self.genomes:
-            if genome.fitness < min_fitness:
-                min_fitness = genome.fitness
+            if genome.original_fitness < min_fitness:
+                min_fitness = genome.original_fitness
 
         if min_fitness > 0:
             return
 
         for genome in self.genomes:
-            genome.fitness += abs(min_fitness)
+            genome.original_fitness += abs(min_fitness)
+
+    def adjust_fitness_scores(self):
+        """Boost young and penalise old species. """
+
+        for species in self.species:
+            species.adjust_fitness()

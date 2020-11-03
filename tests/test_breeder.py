@@ -21,7 +21,7 @@ def test_higher_score_more_fit(standard_config, tracker):
     mother = Genome(1, standard_config, tracker=tracker)
     father = Genome(2, standard_config, tracker=tracker)
 
-    mother.fitness = 100
+    mother.original_fitness = 100
 
     better, worse = breeder.fitness_order(mother, father)
 
@@ -51,7 +51,7 @@ def test_crossover_longer_less_fit(standard_config, tracker):
     mother.mutate_add_node()
 
     offspring = breeder.crossover(mother, father, False)
-    father.fitness = 100
+    father.original_fitness = 100
 
     assert len(offspring.nodes) == len(father.nodes)
     assert len(offspring.links) == len(father.links)

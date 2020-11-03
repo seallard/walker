@@ -13,7 +13,8 @@ class Genome:
     def __init__(self, id, config, node_genes=None, link_genes=None, tracker=None):
         self.id = id
         self.config = config
-        self.fitness = 0
+        self.original_fitness = 0
+        self.adjusted_fitness = 0
         self.phenotype = None
         self.tracker = tracker
 
@@ -141,7 +142,6 @@ class Genome:
                 self.tracker.assign_link_id(new_gene)
                 self.insert_link(new_gene)
 
-                print("Added forward link")
                 return True
 
             tries -= 1
@@ -199,7 +199,7 @@ class Genome:
             self.nodes.append(new_node)
             self.insert_link(new_in_link)
             self.insert_link(new_out_link)
-            print("Added node")
+
             return True
 
     def mutate_reenable_link(self):
@@ -239,7 +239,7 @@ class Genome:
 
                 # Some of the time, replace the weight entirely.
                 if random() < self.config.weight_replacement_rate:
-                    link.weight = uniform(-1, 1) * self.config.weight_mutation_power
+                    link.weight = uniform(-1, 1)
 
                 # Otherwise, only perturb it by some small amount.
                 else:
