@@ -15,8 +15,6 @@ class Config():
         #### SPECIES SETTINGS ####
         species_settings = config['species_settings']
 
-        self.species_target_number = species_settings['target_number'] # TODO: Not used.
-
         # Maximum number of generations a species is allowed to stay at the same max fitness before it is removed.
         self.maximum_stagnation = species_settings['maximum_stagnation']
 
@@ -40,14 +38,10 @@ class Config():
         self.mutate_only_probability = reproduction_settings['mutate_only_probability']
 
         # Percentage of crossovers allowed to occur between parents of different species.
-        self.interspecies_mating_rate = reproduction_settings['interspecies_mating_rate'] # TODO: not used.
+        self.interspecies_mating_rate = reproduction_settings['interspecies_mating_rate']
 
-        # Probability that genes will be chosen one at a time from either parent during crossover.
-        self.mate_by_choosing = reproduction_settings['mate_by_choosing_probability'] # TODO: not used.
-
-        # Probability that matching genes will be averaged during crossover.
-        self.mate_by_averaging = reproduction_settings['mate_by_averaging_probability'] # TODO: not used.
-
+        # Probability that matching genes will be averaged during crossover (otherwise randomly chosen).
+        self.mate_by_averaging = reproduction_settings['mate_by_averaging_probability']
 
 
         #### MUTATION SETTINGS ####

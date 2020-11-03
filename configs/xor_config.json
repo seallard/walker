@@ -4,12 +4,9 @@
     },
 
     "species_settings": {
-        "target_number": 0,
         "maximum_stagnation": 15,
         "young_threshold": 10,
-        "old_threshold": 15,
-        "young_boost": 1,
-        "old_penalty": 1,
+        "young_significance": 1.0,
 
         "compatibility_threshold": 3.0,
         "excess_coefficient": 1,
@@ -20,13 +17,9 @@
 
     "reproduction_settings": {
         "survival_threshold": 0.2,
-
         "mutate_only_probability": 0.25,
         "mate_only_probability": 0.2,
-
         "interspecies_mating_rate": 0.001,
-
-        "mate_by_choosing_probability": 0.6,
         "mate_by_averaging_probability": 0.4
     },
 
@@ -48,7 +41,6 @@
 
     "environment_settings": {
         "environment": "XOR",
-
         "input_dimension": 2,
         "output_dimension": 1
     }

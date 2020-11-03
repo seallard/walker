@@ -3,6 +3,8 @@ from neat.species import Species
 from neat.innovation_tracker import InnovationTracker
 from neat.breeder import Breeder
 from math import floor
+from random import random
+from random import choice
 
 
 class Population:
@@ -46,7 +48,7 @@ class Population:
         for species in self.species:
             total_average_species_fitness += species.get_average_fitness()
 
-        for i, species in enumerate(self.species):
+        for species in self.species:
             average_species_fitness = species.get_average_fitness()
             offspring = round((average_species_fitness/total_average_species_fitness) * self.config.population_size)
             species.expected_offspring = offspring
@@ -54,9 +56,33 @@ class Population:
     def reproduce(self):
         new_population = []
         for species in self.species:
+
+            do_interspecies_mating = False
+
+            if floor(len(species.genomes) * self.config.survival_threshold) > 0:
+                interspecies_matings = self.number_of_interspecies_matings(species)
+                species.expected_offspring -= interspecies_matings
+                do_interspecies_mating = True
+
             new_population += species.reproduce()
 
+            if do_interspecies_mating:
+                for i in range(interspecies_matings):
+                    mother = choice(self.species).leader
+                    father = species.get_random_parent()
+                    averaging = random() < self.config.mate_by_averaging
+
+                    offspring = self.breeder.crossover(mother, father, averaging)
+                    new_population.append(offspring)
+
         self.genomes = new_population
+
+    def number_of_interspecies_matings(self, species):
+        counter = 0
+        for i in range(species.expected_offspring):
+            if random() < self.config.interspecies_mating_rate:
+                counter += 1
+        return counter
 
     def stopping_criterion(self):
         return False

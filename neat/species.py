@@ -107,3 +107,8 @@ class Species:
         for genome in self.genomes:
             total_fitness += genome.fitness
         return total_fitness
+
+    def get_random_parent(self):
+        best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
+        mating_pool = self.genomes[:best_percent_index]
+        return choice(mating_pool)
