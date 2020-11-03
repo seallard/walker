@@ -24,6 +24,11 @@ class Config():
         self.c_weight = species_settings['weight_coefficient']
         self.compatibility_threshold = species_settings['compatibility_threshold']
 
+        # Fitness adjustment parameters
+        self.young_threshold = species_settings['young_threshold']
+        self.old_threshold = species_settings['old_threshold']
+        self.young_boost = species_settings['young_boost']
+        self.old_penalty = species_settings['old_penalty']
 
         #### REPRODUCTION SETTINGS ####
         reproduction_settings = config['reproduction_settings']

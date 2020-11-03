@@ -6,7 +6,9 @@
     "species_settings": {
         "maximum_stagnation": 15,
         "young_threshold": 10,
-        "young_significance": 1.0,
+        "young_boost": 1.0,
+        "old_threshold": 30,
+        "old_penalty": 1.0,
 
         "compatibility_threshold": 3.0,
         "excess_coefficient": 1,
@@ -30,7 +32,7 @@
         "add_node_probability": 0.03,
         "node_addition_attempts": 10,
 
-        "weight_mutation_power": 4.5,
+        "weight_mutation_power": 2.5,
         "weight_mutation_probability": 0.7,
         "weight_replacement_rate": 0.1,
 

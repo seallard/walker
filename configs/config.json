@@ -16,7 +16,6 @@
     "mutate_only_probability": 0.25,
     "mate_only_probability": 0.2,
     "interspecies_mating_rate": 0.05,
-    "mate_by_choosing_probability": 0.6,
     "mate_by_averaging_probability": 0.4,
 
     "compatibility_threshold": 4,
@@ -25,7 +24,6 @@
     "weight_coefficient": 0.4,
     "survival_threshold": 0.5,
     "maximum_stagnation": 50,
-    "target_number_of_species": 4,
     "young_threshold": 10,
     "young_boost": 1,
     "old_threshold": 15,

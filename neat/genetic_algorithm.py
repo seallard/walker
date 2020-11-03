@@ -14,9 +14,14 @@ class GeneticAlgorithm:
         while not self.population.stopping_criterion():
 
             for genome in self.population.genomes:
-                genome.fitness = self.environment.evaluate(genome)
+                fitness, done = self.environment.evaluate(genome)
+                genome.original_fitness = fitness
+
+                if done:
+                    return
 
             self.population.speciate_genomes()
+            self.population.adjust_fitness_scores()
             self.population.set_spawn_amounts()
             self.population.reproduce()
             self.population.reset()
