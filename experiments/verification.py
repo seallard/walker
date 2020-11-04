@@ -3,7 +3,7 @@ from experiments.logical_xor import LogicalXor
 
 environment = LogicalXor()
 
-for i in range(10):
+for i in range(100):
     print(f"Run {i}")
     ga = GeneticAlgorithm(config_filename = "configs/xor_config.json", environment=environment)
 

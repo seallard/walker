@@ -9,9 +9,9 @@ class LogicalXor:
         self.limit = 20000
         self.evals = 0
         self.solution_networks = []
+        self.solution_genomes = []
         self.fails = 0
         self.evals_until_solved = []
-        self.worst = 0
 
     def evaluate(self, genome):
         self.evals += 1
@@ -19,7 +19,7 @@ class LogicalXor:
         if self.evals > self.limit:
             self.fails += 1
             self.evals = 0
-            return
+            return 0, True
 
         # All possible inputs for XOR in random order.
         examples = [(0, 0, 0),(1, 0, 1),(0, 1, 1),(1, 1, 0)]
@@ -51,10 +51,8 @@ class LogicalXor:
             print(f"Solved XOR at evaluation {self.evals}")
 
             self.solution_networks.append(network)
+            self.solution_genomes.append(genome)
             self.evals_until_solved.append(self.evals)
-
-            if self.evals > self.worst:
-                self.worst = self.evals
             self.evals = 0
 
             return fitness, True
@@ -76,7 +74,7 @@ class LogicalXor:
 
     def stats(self):
 
-        nodes = [len(network.nodes)-3 for network in self.solution_networks]
+        nodes = [len(network.nodes)-4 for network in self.solution_networks]
         links = [len(network.links) for network in self.solution_networks]
 
         mean_nodes = self.mean(nodes)
@@ -98,4 +96,9 @@ class LogicalXor:
         print(f"Std for evaluations: {std_evals}")
 
         print(f"Number of failures: {self.fails}")
-        print(f"Worst performance: {self.worst}")
+        print(f"Worst performance: {max([x for x in self.evals_until_solved])}")
+
+        print(f"Number of optimal solutions: {len([x for x in self.solution_networks if len(x.nodes) == 5])}")
+
+        for network in self.solution_networks:
+            network.draw()
