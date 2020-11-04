@@ -1,6 +1,7 @@
 from random import choice
 from random import shuffle
-
+import numpy as np
+from matplotlib import pyplot as plt
 
 class LogicalXor:
     """XOR environment for verification/testing algorithm. """
@@ -100,5 +101,20 @@ class LogicalXor:
 
         print(f"Number of optimal solutions: {len([x for x in self.solution_networks if len(x.nodes) == 5])}")
 
+        self.histogram(self.evals_until_solved)
+
         for network in self.solution_networks:
-            network.draw()
+            if len(network.nodes) == 5:
+                network.draw()
+
+    def histogram(self, data):
+
+        bins = np.arange(0, 20000, 1000) # fixed bin size
+        plt.xlim([0, 20000])
+
+        plt.hist(data, bins=bins, alpha=0.8, edgecolor='black', linewidth=1.2)
+        plt.title('XOR experiment')
+        plt.xlabel('evaluations (bin size = 1000)')
+        plt.ylabel('count')
+
+        plt.show()

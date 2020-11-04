@@ -26,10 +26,10 @@
     },
 
     "mutation_settings": {
-        "add_link_probability": 0.05,
+        "add_link_probability": 0.1,
         "link_addition_attempts": 10,
 
-        "add_node_probability": 0.03,
+        "add_node_probability": 0.06,
         "node_addition_attempts": 10,
 
         "weight_mutation_power": 3,
