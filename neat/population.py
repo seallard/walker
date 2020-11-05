@@ -48,10 +48,30 @@ class Population:
         for species in self.species:
             total_average_species_fitness += species.get_average_fitness()
 
+        remainder = 0
+
         for species in self.species:
+
             average_species_fitness = species.get_average_fitness()
-            offspring = round((average_species_fitness/total_average_species_fitness) * self.config.population_size)
-            species.expected_offspring = offspring
+            offspring = (average_species_fitness/total_average_species_fitness) * self.config.population_size
+
+            species.expected_offspring = int(offspring)
+
+            # Deal with fractional remainder of expected offspring.
+            remainder += offspring - int(offspring)
+
+            if remainder > 1:
+                remainder_int = floor(remainder)
+                species.expected_offspring += remainder_int
+                remainder -= remainder_int
+
+        # Check if any precision was lost.
+        total_expected_offspring = 0
+        for species in self.species:
+            total_expected_offspring += species.expected_offspring
+
+        if total_expected_offspring < self.config.population_size:
+            self.species[0].expected_offspring += 1
 
     def reproduce(self):
         new_population = []
