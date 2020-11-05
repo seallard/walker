@@ -114,7 +114,7 @@ class LogicalXor:
 
         plt.hist(data, bins=bins, alpha=0.8, edgecolor='black', linewidth=1.2)
         plt.title('XOR experiment')
-        plt.xlabel('evaluations (bin size = 1000)')
-        plt.ylabel('count')
+        plt.xlabel('networks evaluated')
+        plt.ylabel('runs')
 
         plt.show()
