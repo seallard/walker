@@ -11,7 +11,7 @@ class Network:
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
 
-    def activate(self, inputs):
+    def activate(self, inputs, stabilize):
         """Propagate input through network until each output is activated.
            Precondition: nodes are ordered as [bias, inputs, outputs, hidden]
         """
@@ -25,7 +25,12 @@ class Network:
             node.output = inputs[i]
             node.active = True
 
-        max_tries = len(self.links) + 5
+        if stabilize:
+            max_tries = len(self.links) + 5
+
+        else:
+            max_tries = 1
+
         tries = 0
 
         # TODO: only wait for stabilization if classification task. Add a bool parameter?
