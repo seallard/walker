@@ -5,3 +5,4 @@ networkx
 matplotlib
 gym
 numpy
+scikit-learn
