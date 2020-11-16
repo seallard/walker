@@ -5,9 +5,11 @@
 # and interaction with his sensors.
 #
 import math
+from sklearn.preprocessing import normalize
+import numpy as np
 
-import agent
-import geometry
+from . import agent
+from . import geometry
 
 # The maximal allowed speed for the maze solver agent
 MAX_AGENT_SPEED = 3.0
@@ -61,7 +63,7 @@ class MazeEnvironment:
                 return True
 
         return False
-    
+
     def create_net_inputs(self):
         """
         The function to create the ANN input values from the simulation environment.
@@ -69,10 +71,14 @@ class MazeEnvironment:
             The list of ANN inputs consist of values get from solver agent sensors.
         """
         inputs = []
+
         # The range finders
         for ri in self.agent.range_finders:
             inputs.append(ri)
 
+        inputs = np.array(inputs)
+        inputs = normalize(inputs[:,np.newaxis], axis=0).ravel()
+        inputs = list(inputs)
         # The radar sensors
         for rs in self.agent.radar:
             inputs.append(rs)
@@ -277,7 +283,7 @@ def maze_simulation_evaluate(env, net, time_steps):
         if maze_simulation_step(env, net):
             print("Maze solved in %d steps" % (i + 1))
             return 1.0
-        
+
     # Calculate the fitness score based on distance from exit
     fitness = env.agent_distance_to_exit()
     # Normalize fitness score to range (0,1]
@@ -300,6 +306,6 @@ def maze_simulation_step(env, net):
     # create inputs from the current state of the environment
     inputs = env.create_net_inputs()
     # load inputs into controll ANN and get results
-    output = net.activate(inputs)
+    output = net.activate(inputs, stabilize=False)
     # apply control signal to the environment and update
     return env.update(output)

@@ -139,3 +139,28 @@ class Population:
 
         for species in self.species:
             species.adjust_fitness()
+
+    def get_species(self, genome_id):
+        # TODO: use dict.
+        for species in self.species:
+            for genome in species.genomes:
+                if genome.id == genome_id:
+                    return species
+        assert False
+
+    def run(self, fitness_function, n=None):
+        """Run NEAT for n generations or until solution is found. """
+
+        # TODO: track statistics.
+
+        generations = 0
+        while n is None or generations < n:
+
+            self.speciate_genomes()
+
+            # Assign fitness scores.
+            fitness_function(self.genomes)
+
+            self.adjust_fitness_scores()
+            self.set_spawn_amounts()
+            self.reproduce()

@@ -1,0 +1,49 @@
+{
+    "population_settings": {
+        "size": 10
+    },
+
+    "species_settings": {
+        "maximum_stagnation": 15,
+        "young_threshold": 10,
+        "young_boost": 1.0,
+        "old_threshold": 30,
+        "old_penalty": 1.0,
+
+        "compatibility_threshold": 3.0,
+        "excess_coefficient": 1,
+        "disjoint_coefficient": 1,
+        "weight_coefficient": 0.4
+    },
+
+
+    "reproduction_settings": {
+        "survival_threshold": 0.2,
+        "mutate_only_probability": 0.25,
+        "mate_only_probability": 0.2,
+        "interspecies_mating_rate": 0.001,
+        "mate_by_averaging_probability": 0.4
+    },
+
+    "mutation_settings": {
+        "add_link_probability": 0.1,
+        "link_addition_attempts": 10,
+
+        "add_node_probability": 0.06,
+        "node_addition_attempts": 10,
+
+        "weight_mutation_power": 3,
+        "weight_mutation_probability": 0.8,
+        "weight_replacement_rate": 0.1,
+
+        "link_recurrent_probability": 0,
+        "link_reenable_probability": 0.2,
+        "link_toggle_enable_probability": 0.01
+    },
+
+    "environment_settings": {
+        "environment": "maze",
+        "input_dimension": 10,
+        "output_dimension": 2
+    }
+}
