@@ -34,7 +34,7 @@ class LogicalXor:
         for example in examples:
             a, b, expected = example
 
-            output = network.activate([a, b])[0]
+            output = network.activate([a, b], stabilize=True)[0]
 
             if round(output) == expected:
                 correct_answers += 1
