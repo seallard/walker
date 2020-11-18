@@ -1,5 +1,6 @@
 from neat.genome import Genome
 from neat.species import Species
+from neat.reporting import ReporterSet
 from neat.innovation_tracker import InnovationTracker
 from neat.breeder import Breeder
 from math import floor
@@ -16,7 +17,9 @@ class Population:
         self.genomes = []
         self.tracker = InnovationTracker(config)
         self.breeder = Breeder(config)
-        self.epoch = 0
+        self.reporters = ReporterSet()
+        self.generation = 0
+        self.best_genome = None
 
         for i in range(config.population_size):
             genome = Genome(i, config, tracker=self.tracker)
@@ -111,11 +114,6 @@ class Population:
         self.species = [species for species in self.species if not species.should_go_extinct()]
         for species in self.species:
             species.epoch_reset()
-        self.epoch += 1
-
-    def statistics(self):
-        print(f"Number of species in population: {len(self.species)}")
-        print(f"Number of genomes in population after generation {self.epoch}: {len(self.genomes)}")
 
     def adjust_negative_fitness_scores(self):
         """Shift all fitness scores so that they are positive.
@@ -148,19 +146,38 @@ class Population:
                     return species
         assert False
 
-    def run(self, fitness_function, n=None):
+    def run(self, fitness_function, update_records, n=None):
         """Run NEAT for n generations or until solution is found. """
 
-        # TODO: track statistics.
+        while n is None or self.generation < 10:
 
-        generations = 0
-        while n is None or generations < n:
-
-            self.speciate_genomes()
+            self.reporters.start_generation(self.generation)
 
             # Assign fitness scores.
             fitness_function(self.genomes)
 
+            # Gather and report statistics.
+            best = None
+            for genome in self.genomes:
+                if best is None or genome.fitness > best.fitness:
+                    best = genome
+
+                    if self.best_genome is None or best.original_fitness > self.best_genome.original_fitness:
+                        self.best_genome = best
+
+            self.speciate_genomes()
+            self.reporters.post_evaluate(self.genomes, self.species, best)
+
             self.adjust_fitness_scores()
             self.set_spawn_amounts()
             self.reproduce()
+            self.reset()
+
+            #self.reporters.end_generation(self.genomes, self.species)
+            self.generation += 1
+
+        return self.best_genome
+
+
+    def add_reporter(self, reporter):
+        self.reporters.add(reporter)

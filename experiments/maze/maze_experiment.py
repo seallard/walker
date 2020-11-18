@@ -14,6 +14,7 @@ import argparse
 
 from neat.config import Config
 from neat.population import Population
+from neat.statistics import StatisticsReporter
 
 # The helper used to visualize experiment results
 from . import visualize
@@ -67,22 +68,27 @@ def eval_fitness(genome, time_steps=400):
                                         env=maze_env,
                                         net=control_net,
                                         time_steps=time_steps)
-
-    # Store simulation results into the agent record
-    record = agent.AgentRecord(
-        generation=trialSim.population.epoch,
-        agent_id=genome.id)
-    record.fitness = fitness
-    record.x = maze_env.agent.location.x
-    record.y = maze_env.agent.location.y
-    record.hit_exit = maze_env.exit_found
-    species = trialSim.population.get_species(genome.id)
-    record.species_id = species.id
-    record.species_age = species.age
-    # add record to the store
-    trialSim.record_store.add_record(record)
-
     return fitness
+
+def update_records(genomes):
+
+    for genome in genomes:
+
+        # Store simulation results into the agent record
+        record = agent.AgentRecord(
+            generation=trialSim.population.generation,
+            agent_id=genome.id)
+
+        record.fitness = genome.fitness
+        record.x = maze_env.agent.location.x
+        record.y = maze_env.agent.location.y
+        record.hit_exit = maze_env.exit_found
+        species = trialSim.population.get_species(genome.id)
+        record.species_id = species.id
+        record.species_age = species.age
+
+        # add record to the store
+        trialSim.record_store.add_record(record)
 
 def eval_genomes(genomes):
     """
@@ -126,12 +132,12 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
     trialSim = MazeSimulationTrial(maze_env=maze_env, population=p)
 
     # TODO: add stats object which is updated in population.
-    #stats = neat.StatisticsReporter()
-    #p.add_reporter(stats)
+    stats = StatisticsReporter()
+    p.add_reporter(stats)
 
     # Run for up to N generations.
     start_time = time.time()
-    best_genome = p.run(eval_genomes, n=n_generations)
+    best_genome = p.run(eval_genomes, update_records, n=n_generations)
 
     elapsed_time = time.time() - start_time
 
@@ -165,8 +171,8 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
                                         width=args.width,
                                         height=args.height,
                                         filename=os.path.join(trial_out_dir, 'maze_records.svg'))
-        #visualize.plot_stats(stats, ylog=False, view=True, filename=os.path.join(trial_out_dir, 'avg_fitness.svg'))
-        #visualize.plot_species(stats, view=True, filename=os.path.join(trial_out_dir, 'speciation.svg'))
+        visualize.plot_stats(stats, ylog=False, view=True, filename=os.path.join(trial_out_dir, 'avg_fitness.svg'))
+        visualize.plot_species(stats, view=True, filename=os.path.join(trial_out_dir, 'speciation.svg'))
 
     return solution_found
 
