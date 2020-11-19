@@ -19,7 +19,6 @@ class Population:
         self.breeder = Breeder(config)
         self.reporters = ReporterSet()
         self.generation = 0
-        self.best_genome = None
 
         for i in range(config.population_size):
             genome = Genome(i, config, tracker=self.tracker)
@@ -146,8 +145,10 @@ class Population:
                     return species
         assert False
 
-    def run(self, fitness_function, update_records, n=None):
+    def run(self, fitness_function, store_records, n=None):
         """Run NEAT for n generations or until solution is found. """
+
+        best_genome = None
 
         while n is None or self.generation < 10:
 
@@ -162,10 +163,11 @@ class Population:
                 if best is None or genome.fitness > best.fitness:
                     best = genome
 
-                    if self.best_genome is None or best.original_fitness > self.best_genome.original_fitness:
-                        self.best_genome = best
+                    if best_genome is None or best.original_fitness > best_genome.original_fitness:
+                        best_genome = best
 
             self.speciate_genomes()
+            store_records(self.genomes) # Save data from evaluation and genomes.
             self.reporters.post_evaluate(self.genomes, self.species, best)
 
             self.adjust_fitness_scores()
@@ -176,7 +178,7 @@ class Population:
             #self.reporters.end_generation(self.genomes, self.species)
             self.generation += 1
 
-        return self.best_genome
+        return best_genome
 
 
     def add_reporter(self, reporter):

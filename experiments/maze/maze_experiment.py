@@ -68,27 +68,35 @@ def eval_fitness(genome, time_steps=400):
                                         env=maze_env,
                                         net=control_net,
                                         time_steps=time_steps)
+
+    # Ugly hack (speciation is done after evaluation, temporarily store record data in genome).
+    genome.x = maze_env.agent.location.x
+    genome.y = maze_env.agent.location.y
+    genome.hit_exit = maze_env.exit_found
+
     return fitness
 
-def update_records(genomes):
+def store_records(genomes):
+    """Store simulation results from each genome in record for later visualisation. """
 
     for genome in genomes:
 
-        # Store simulation results into the agent record
         record = agent.AgentRecord(
             generation=trialSim.population.generation,
             agent_id=genome.id)
 
         record.fitness = genome.fitness
-        record.x = maze_env.agent.location.x
-        record.y = maze_env.agent.location.y
-        record.hit_exit = maze_env.exit_found
+        record.x = genome.x
+        record.y = genome.y
+        record.hit_exit = genome.hit_exit
+
         species = trialSim.population.get_species(genome.id)
         record.species_id = species.id
         record.species_age = species.age
 
         # add record to the store
         trialSim.record_store.add_record(record)
+
 
 def eval_genomes(genomes):
     """
@@ -137,7 +145,7 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
 
     # Run for up to N generations.
     start_time = time.time()
-    best_genome = p.run(eval_genomes, update_records, n=n_generations)
+    best_genome = p.run(eval_genomes, store_records, n=n_generations)
 
     elapsed_time = time.time() - start_time
 
