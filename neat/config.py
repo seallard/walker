@@ -75,3 +75,4 @@ class Config():
         self.environment = environment_settings['environment']
         self.num_inputs = environment_settings['input_dimension']
         self.num_outputs = environment_settings['output_dimension']
+        self.fitness_threshold = 1.0
