@@ -11,6 +11,8 @@ import random
 import time
 import copy
 import argparse
+import concurrent
+import multiprocessing
 
 from neat.config import Config
 from neat.population import Population
@@ -68,13 +70,7 @@ def eval_fitness(genome, time_steps=400):
                                         env=maze_env,
                                         net=control_net,
                                         time_steps=time_steps)
-
-    # Ugly hack (speciation is done after evaluation, temporarily store record data in genome).
-    genome.x = maze_env.agent.location.x
-    genome.y = maze_env.agent.location.y
-    genome.hit_exit = maze_env.exit_found
-
-    return fitness
+    return (fitness, maze_env.agent.location.x, maze_env.agent.location.y, maze_env.exit_found)
 
 def store_records(genomes):
     """Store simulation results from each genome in record for later visualisation. """
@@ -88,11 +84,10 @@ def store_records(genomes):
         record.fitness = genome.fitness
         record.x = genome.x
         record.y = genome.y
-        record.hit_exit = genome.hit_exit
+        record.hit = genome.hit
 
-        species = trialSim.population.get_species(genome.id)
-        record.species_id = species.id
-        record.species_age = species.age
+        record.species_id = genome.species_id
+        record.species_age = genome.species_age
 
         # add record to the store
         trialSim.record_store.add_record(record)
@@ -100,18 +95,31 @@ def store_records(genomes):
 
 def eval_genomes(genomes):
     """
-    The function to evaluate the fitness of each genome in
-    the genomes list.
+    Evaluate the fitness of each genome.
     Arguments:
         genomes: The list of genomes from population in the
                  current generation
     """
-    for genome in genomes:
-        fitness = eval_fitness(genome)
-        genome.fitness = fitness
-        genome.original_fitness = fitness
 
-def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generations=100, silent=False):
+    start_time = time.time()
+    cores_available = multiprocessing.cpu_count()
+    executor = concurrent.futures.ProcessPoolExecutor(cores_available)
+    futures = [executor.submit(eval_fitness, genome) for genome in genomes]
+
+    for i, future in enumerate(futures):
+
+        fitness, x, y, hit = future.result()
+
+        genomes[i].fitness = fitness
+        genomes[i].original_fitness = fitness
+        genomes[i].x = x
+        genomes[i].y = y
+        genomes[i].hit = hit
+
+    elapsed_time = time.time() - start_time
+    print(elapsed_time)
+
+def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experiment_id, args=None, silent=False):
     """
     The function to run the experiment against hyper-parameters
     defined in the provided configuration file.
@@ -148,6 +156,7 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
     best_genome = p.run(eval_genomes, store_records, n=n_generations)
 
     elapsed_time = time.time() - start_time
+    print(f"Performed {n_generations*config.population_size} evaluations in {elapsed_time}")
 
     # Display the best genome among generations.
     print('\nBest genome:\n%s' % (best_genome))
@@ -159,7 +168,7 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
         print("FAILURE: Failed to find the stable maze solver controller!!!")
 
     # write the record store data
-    rs_file = os.path.join(trial_out_dir, "data.pickle")
+    rs_file = os.path.join(trial_out_dir, f"data_{experiment_id}.pickle")
     trialSim.record_store.dump(rs_file)
 
     print("Record store file: %s" % rs_file)
@@ -185,37 +194,34 @@ def run_experiment(config_file, maze_env, trial_out_dir, args=None, n_generation
     return solution_found
 
 if __name__ == '__main__':
-    # read command line parameters
-    parser = argparse.ArgumentParser(description="The maze experiment runner.")
-    parser.add_argument('-m', '--maze', default='medium',
-                        help='The maze configuration to use.')
-    parser.add_argument('-g', '--generations', default=500, type=int,
-                        help='The number of generations for the evolutionary process.')
-    parser.add_argument('--width', type=int, default=400, help='The width of the records subplot')
-    parser.add_argument('--height', type=int, default=400, help='The height of the records subplot')
-    args = parser.parse_args()
 
-    if not (args.maze == 'medium' or args.maze == 'hard'):
-        print('Unsupported maze configuration: %s' % args.maze)
-        exit(1)
+    for run in range(1):
 
-    # Determine path to configuration file.
-    config_path = "configs/maze.json"
+        print(f"Run {run}")
 
-    trial_out_dir = os.path.join(out_dir, args.maze)
+        # read command line parameters
+        parser = argparse.ArgumentParser(description="The maze experiment runner.")
+        parser.add_argument('-m', '--maze', default='medium',
+                            help='The maze configuration to use.')
+        parser.add_argument('-g', '--generations', default=500, type=int,
+                            help='The number of generations for the evolutionary process.')
+        parser.add_argument('--width', type=int, default=400, help='The width of the records subplot')
+        parser.add_argument('--height', type=int, default=400, help='The height of the records subplot')
+        args = parser.parse_args()
 
-    # Clean results of previous run if any or init the ouput directory
-    utils.clear_output(trial_out_dir)
+        config_path = "configs/maze.json"
+        trial_out_dir = os.path.join(out_dir, f"{args.maze}_run_{run}")
 
-    # Run the experiment
-    maze_env_config = os.path.join(local_dir, '%s_maze.txt' % args.maze)
-    maze_env = maze.read_environment(maze_env_config)
+        # Run the experiment
+        maze_env_config = os.path.join(local_dir, '%s_maze.txt' % args.maze)
+        maze_env = maze.read_environment(maze_env_config)
 
-    # visualize.draw_maze_records(maze_env, None, view=True)
+        # visualize.draw_maze_records(maze_env, None, view=True)
 
-    print("Starting the %s maze experiment" % args.maze)
-    run_experiment( config_file=config_path,
-                    maze_env=maze_env,
-                    trial_out_dir=trial_out_dir,
-                    n_generations=args.generations,
-                    args=args)
+        print(f"Starting the {args.maze} maze experiment, run {run}")
+        run_experiment( config_file=config_path,
+                        maze_env=maze_env,
+                        trial_out_dir=trial_out_dir,
+                        n_generations=args.generations,
+                        experiment_id = run,
+                        args=args)
