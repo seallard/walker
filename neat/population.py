@@ -34,12 +34,16 @@ class Population:
 
                 if compatibility < self.config.compatibility_threshold:
                     species.add_genome(genome)
+                    genome.species_id = species.id
+                    genome.species_age = species.age
                     species_found = True
                     break
 
             if not species_found:
                 new_species = Species(self.species_id, genome, self.config, self.breeder)
                 self.species.append(new_species)
+                genome.species_id = new_species.id
+                genome.species_age = new_species.age
                 self.species_id += 1
 
     def set_spawn_amounts(self):
@@ -111,6 +115,17 @@ class Population:
 
     def reset(self):
         self.species = [species for species in self.species if not species.should_go_extinct()]
+
+        # Adjust the compatibility threshold. Apparently, 0.3 works well.
+        if len(self.species) < self.config.target_number_of_species:
+            self.config.compatibility_threshold -= 0.3
+
+        if len(self.species) > self.config.target_number_of_species:
+            self.config.compatibility_threshold += 0.3
+
+        if self.config.compatibility_threshold < 0.3:
+            self.config.compatibility_threshold = 0.3
+
         for species in self.species:
             species.epoch_reset()
 
@@ -137,20 +152,12 @@ class Population:
         for species in self.species:
             species.adjust_fitness()
 
-    def get_species(self, genome_id):
-        # TODO: use dict.
-        for species in self.species:
-            for genome in species.genomes:
-                if genome.id == genome_id:
-                    return species
-        assert False
-
     def run(self, fitness_function, store_records, n=None):
         """Run NEAT for n generations or until solution is found. """
 
         best_genome = None
 
-        while n is None or self.generation < 10:
+        while n is None or self.generation < n:
 
             self.reporters.start_generation(self.generation)
 

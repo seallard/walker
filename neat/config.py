@@ -14,6 +14,7 @@ class Config():
 
         #### SPECIES SETTINGS ####
         species_settings = config['species_settings']
+        self.target_number_of_species = 5
 
         # Maximum number of generations a species is allowed to stay at the same max fitness before it is removed.
         self.maximum_stagnation = species_settings['maximum_stagnation']
