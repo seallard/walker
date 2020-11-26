@@ -14,7 +14,6 @@ class Config():
 
         #### SPECIES SETTINGS ####
         species_settings = config['species_settings']
-        self.target_number_of_species = 5
 
         # Maximum number of generations a species is allowed to stay at the same max fitness before it is removed.
         self.maximum_stagnation = species_settings['maximum_stagnation']
@@ -23,7 +22,12 @@ class Config():
         self.c_excess = species_settings['excess_coefficient']
         self.c_disjoint = species_settings['disjoint_coefficient']
         self.c_weight = species_settings['weight_coefficient']
+
+        # Compatibility threshold settings
         self.compatibility_threshold = species_settings['compatibility_threshold']
+        self.dynamic_thresholding = bool(species_settings['dynamic_thresholding'])
+        self.threshold_adjustment = species_settings['threshold_adjustment']
+        self.target_number_of_species = species_settings['target_number']
 
         # Fitness adjustment parameters
         self.young_threshold = species_settings['young_threshold']

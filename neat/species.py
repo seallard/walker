@@ -39,10 +39,11 @@ class Species:
         self.age_since_improvement += 1
         self.expected_offspring = 0
 
-    def should_go_extinct(self):
-        stagnated = self.age_since_improvement > self.config.maximum_stagnation
-        empty = self.genomes == []
-        return stagnated or empty
+    def stagnated(self):
+        return self.age_since_improvement > self.config.maximum_stagnation
+
+    def is_empty(self):
+        return self.genomes == []
 
     def reproduce(self):
 

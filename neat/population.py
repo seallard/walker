@@ -49,6 +49,9 @@ class Population:
     def set_spawn_amounts(self):
         """Fitness sharing. """
 
+        # Remove stagnated species.
+        self.species = [species for species in self.species if not species.stagnated()]
+
         # Offspring = (AverageSpeciesFitness / Total_of_AverageSpeciesFitnesss) * PopulationSize
         total_average_species_fitness = 0
         for species in self.species:
@@ -90,7 +93,8 @@ class Population:
                 species.expected_offspring -= interspecies_matings
                 do_interspecies_mating = True
 
-            new_population += species.reproduce()
+            if species.expected_offspring > 0:
+                new_population += species.reproduce()
 
             if do_interspecies_mating:
                 for i in range(interspecies_matings):
@@ -114,17 +118,21 @@ class Population:
         return False
 
     def reset(self):
-        self.species = [species for species in self.species if not species.should_go_extinct()]
 
-        # Adjust the compatibility threshold. Apparently, 0.3 works well.
-        if len(self.species) < self.config.target_number_of_species:
-            self.config.compatibility_threshold -= 0.3
+        # Remove empty species.
+        self.species = [species for species in self.species if not species.is_empty()]
 
-        if len(self.species) > self.config.target_number_of_species:
-            self.config.compatibility_threshold += 0.3
+        if self.config.dynamic_thresholding:
 
-        if self.config.compatibility_threshold < 0.3:
-            self.config.compatibility_threshold = 0.3
+            # Adjust the compatibility threshold.
+            if len(self.species) < self.config.target_number_of_species:
+                self.config.compatibility_threshold -= self.config.threshold_adjustment
+
+            if len(self.species) > self.config.target_number_of_species:
+                self.config.compatibility_threshold += self.config.threshold_adjustment
+
+            if self.config.compatibility_threshold < self.config.threshold_adjustment:
+                self.config.compatibility_threshold = self.config.threshold_adjustment
 
         for species in self.species:
             species.epoch_reset()
@@ -155,7 +163,7 @@ class Population:
     def run(self, fitness_function, store_records, n=None):
         """Run NEAT for n generations or until solution is found. """
 
-        best_genome = None
+        alltime_champ = None
 
         while n is None or self.generation < n:
 
@@ -165,17 +173,24 @@ class Population:
             fitness_function(self.genomes)
 
             # Gather and report statistics.
-            best = None
-            for genome in self.genomes:
-                if best is None or genome.fitness > best.fitness:
-                    best = genome
+            generation_champ = None
 
-                    if best_genome is None or best.original_fitness > best_genome.original_fitness:
-                        best_genome = best
+            for genome in self.genomes:
+                if generation_champ is None or genome.original_fitness > generation_champ.original_fitness:
+                    generation_champ = genome
+
+            if alltime_champ is None:
+                alltime_champ = generation_champ
+
+            elif generation_champ.original_fitness > alltime_champ.original_fitness:
+                alltime_champ = generation_champ
+
+            elif generation_champ.original_fitness < alltime_champ.original_fitness:
+                print(f"The generation champ was worse than the all time champ: {generation_champ.original_fitness} < {alltime_champ.original_fitness}")
 
             self.speciate_genomes()
             store_records(self.genomes) # Save data from evaluation and genomes.
-            self.reporters.post_evaluate(self.genomes, self.species, best)
+            self.reporters.post_evaluate(self.genomes, self.species, generation_champ)
 
             self.adjust_fitness_scores()
             self.set_spawn_amounts()
@@ -185,7 +200,7 @@ class Population:
             #self.reporters.end_generation(self.genomes, self.species)
             self.generation += 1
 
-        return best_genome
+        return alltime_champ
 
 
     def add_reporter(self, reporter):

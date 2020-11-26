@@ -10,6 +10,9 @@
         "old_threshold": 30,
         "old_penalty": 1.0,
 
+        "dynamic_thresholding": 1,
+        "target_number": 10,
+        "threshold_adjustment": 0.3,
         "compatibility_threshold": 3.0,
         "excess_coefficient": 1,
         "disjoint_coefficient": 1,
