@@ -107,7 +107,7 @@ class Breeder:
 
         return better_genome, worse_genome
 
-    def create_genome(self, offspring_links, tracker):
+    def create_genome(self, offspring_links, tracker, genome_id=None):
         """Create a new genome to avoid aliasing trouble. """
         copied_nodes = {}
         copied_links = []
@@ -141,8 +141,10 @@ class Breeder:
         # Ensure the nodes are sorted as expected [bias, input, output, hidden].
         copied_nodes = self.sort_nodes(copied_nodes)
 
-        offspring = Genome(self.genome_id, self.config, copied_nodes, copied_links, tracker)
-        self.genome_id += 1
+        if genome_id is None:
+            genome_id = self.genome_id
+            self.genome_id += 1
+        offspring = Genome(genome_id, self.config, copied_nodes, copied_links, tracker)
 
         return offspring
 

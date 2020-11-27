@@ -185,8 +185,8 @@ class Population:
             elif generation_champ.original_fitness > alltime_champ.original_fitness:
                 alltime_champ = generation_champ
 
-            elif generation_champ.original_fitness < alltime_champ.original_fitness:
-                print(f"The generation champ was worse than the all time champ: {generation_champ.original_fitness} < {alltime_champ.original_fitness}")
+            #elif generation_champ.original_fitness < alltime_champ.original_fitness:
+            #    print(f"The generation champ was worse than the all time champ: {generation_champ.original_fitness} < {alltime_champ.original_fitness}")
 
             self.speciate_genomes()
             store_records(self.genomes) # Save data from evaluation and genomes.
@@ -197,6 +197,7 @@ class Population:
             self.reproduce()
             self.reset()
 
+            print(f"Generation {self.generation}. Best in generation: {generation_champ.original_fitness}. Best so far: {alltime_champ.original_fitness}")
             #self.reporters.end_generation(self.genomes, self.species)
             self.generation += 1
 

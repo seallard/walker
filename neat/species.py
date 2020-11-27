@@ -29,9 +29,11 @@ class Species:
         if not added_genome:
             self.genomes.append(new_genome)
 
-        if new_genome.original_fitness > self.leader.original_fitness:
+        if new_genome.original_fitness >= self.leader.original_fitness:
+
+            if new_genome.id != self.leader.id:
+                self.age_since_improvement = 0
             self.leader = new_genome
-            self.age_since_improvement = 0
 
     def epoch_reset(self):
         self.genomes = []
@@ -53,7 +55,7 @@ class Species:
             return []
 
         # Always save species leader as is.
-        offspring.append(self.breeder.create_genome(self.leader.links, self.leader.tracker))
+        offspring.append(self.breeder.create_genome(self.leader.links, self.leader.tracker, self.leader.id))
 
         best_percent_index = floor(self.config.survival_threshold*len(self.genomes))
         mating_pool = self.genomes[:best_percent_index]
