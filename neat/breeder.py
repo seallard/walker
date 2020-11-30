@@ -68,9 +68,6 @@ class Breeder:
 
         new_genome = self.create_genome(offspring_links, mother.tracker)
 
-        # Store parents for debugging purposes.
-        new_genome.father = better_genome
-        new_genome.mother = worse_genome
         return new_genome
 
 
@@ -108,7 +105,10 @@ class Breeder:
         return better_genome, worse_genome
 
     def create_genome(self, offspring_links, tracker, genome_id=None):
-        """Create a new genome to avoid aliasing trouble. """
+        """Create a new genome from the selected links.
+           The links reference different node objects, so this function
+           creates new links which reference the same new node objects.
+        """
         copied_nodes = {}
         copied_links = []
 
@@ -172,5 +172,14 @@ class Breeder:
 
     def average_link(self, link1, link2):
         new_weight = (link1.weight + link2.weight)/2
-        link1.weight = new_weight
-        return link1
+
+        from_node = link1.from_node.copy()
+        to_node = link1.to_node.copy()
+        enabled = link1.enabled
+        recurrent = link1.recurrent
+
+        new_link = LinkGene(from_node, to_node, enabled, recurrent)
+        new_link.id = link1.id
+        new_link.weight = new_weight
+
+        return new_link

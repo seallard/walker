@@ -80,6 +80,7 @@ def eval_genomes(genomes):
         fitness, x, y, hit = future.result()
 
         genomes[i].original_fitness = fitness
+        genomes[i].adjusted_fitness = fitness
         genomes[i].x = x
         genomes[i].y = y
         genomes[i].hit = hit
@@ -141,6 +142,7 @@ if __name__ == '__main__':
     maze_difficulty = "medium"
     metric = "pure_fitness"
     generations = 500
+    runs = 30
 
     # Directory to store outputs.
     local_dir = os.path.dirname(__file__)
@@ -150,7 +152,7 @@ if __name__ == '__main__':
     config_path = "configs/maze.json"
     maze_env_config = os.path.join(local_dir, f"{maze_difficulty}_maze.txt")
 
-    for run in range(2):
+    for run in range(runs):
 
         print(f"Run {run}")
 

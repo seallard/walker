@@ -59,13 +59,26 @@ def test_crossover_longer_less_fit(standard_config, tracker):
     assert None not in offspring.links
 
 
-def test_average_link(standard_config):
+def test_create_genome_parent_unchanged(genome, standard_config):
     breeder = Breeder(standard_config)
-    link1 = LinkGene(None, None)
-    link2 = LinkGene(None, None)
-    w1_save = link1.weight
-    w2_save = link2.weight
 
-    new_link = breeder.average_link(link1, link2)
+    old_link_weights = [x.weight for x in genome.links]
+    new_genome = breeder.create_genome(genome.links, None)
 
-    assert new_link.weight == (w1_save + w2_save)/2
+    assert old_link_weights == [x.weight for x in genome.links]
+    assert old_link_weights == [x.weight for x in new_genome.links]
+
+
+def test_crossover_averaging_unchanged(standard_config, tracker):
+    breeder = Breeder(standard_config)
+
+    mother = Genome(id=1, config=standard_config, tracker=tracker)
+    mother_original_weights = [x.weight for x in mother.links]
+
+    father = Genome(id=2, config=standard_config, tracker=tracker)
+    father_original_weigjts = [x.weight for x in father.links]
+
+    breeder.crossover(mother, father, averaging=True)
+
+    assert mother_original_weights == [x.weight for x in mother.links], "weights of mother not mutated"
+    assert father_original_weigjts == [x.weight for x in father.links], "weights of father not mutated"

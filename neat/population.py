@@ -49,8 +49,16 @@ class Population:
     def set_spawn_amounts(self):
         """Fitness sharing. """
 
+        # Sort by decreasing fitness.
+        self.species.sort(key=lambda x: x.leader.original_fitness, reverse=True)
+
         # Remove stagnated species.
-        self.species = [species for species in self.species if not species.stagnated()]
+        non_stagnated_species = [species for species in self.species if not species.stagnated()]
+
+        if len(non_stagnated_species) > 0:
+            self.species = non_stagnated_species
+        else:
+            self.species = self.species[:2] # When all species stagnated.
 
         # Offspring = (AverageSpeciesFitness / Total_of_AverageSpeciesFitnesss) * PopulationSize
         total_average_species_fitness = 0
@@ -137,6 +145,8 @@ class Population:
         for species in self.species:
             species.epoch_reset()
 
+        self.generation += 1
+
     def adjust_negative_fitness_scores(self):
         """Shift all fitness scores so that they are positive.
            Only necessary if the fitness function used can assign negative scores.
@@ -163,46 +173,15 @@ class Population:
     def run(self, fitness_function, store_records, n=None):
         """Run NEAT for n generations or until solution is found. """
 
-        alltime_champ = None
-
-        while n is None or self.generation < n:
-
-            self.reporters.start_generation(self.generation)
+        while self.generation < n:
 
             # Assign fitness scores.
             fitness_function(self.genomes)
-
-            # Gather and report statistics.
-            generation_champ = None
-
-            for genome in self.genomes:
-                if generation_champ is None or genome.original_fitness > generation_champ.original_fitness:
-                    generation_champ = genome
-
-            if alltime_champ is None:
-                alltime_champ = generation_champ
-
-            elif generation_champ.original_fitness > alltime_champ.original_fitness:
-                alltime_champ = generation_champ
-
-            #elif generation_champ.original_fitness < alltime_champ.original_fitness:
-            #    print(f"The generation champ was worse than the all time champ: {generation_champ.original_fitness} < {alltime_champ.original_fitness}")
-
             self.speciate_genomes()
             store_records(self.genomes) # Save data from evaluation and genomes.
-            self.reporters.post_evaluate(self.genomes, self.species, generation_champ)
-
-            self.adjust_fitness_scores()
             self.set_spawn_amounts()
             self.reproduce()
             self.reset()
-
-            print(f"Generation {self.generation}. Best in generation: {generation_champ.original_fitness}. Best so far: {alltime_champ.original_fitness}")
-            #self.reporters.end_generation(self.genomes, self.species)
-            self.generation += 1
-
-        return alltime_champ
-
 
     def add_reporter(self, reporter):
         self.reporters.add(reporter)
