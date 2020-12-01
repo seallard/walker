@@ -1,6 +1,5 @@
 from neat.population import Population
 from neat.genome import Genome
-from unittest.mock import Mock
 
 
 def test_initialisation(standard_config):

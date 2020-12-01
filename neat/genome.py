@@ -15,7 +15,6 @@ class Genome:
         self.config = config
         self.original_fitness = 0
         self.adjusted_fitness = 0
-        self.phenotype = None
         self.tracker = tracker
 
         if link_genes is None or node_genes is None:
@@ -316,7 +315,6 @@ class Genome:
 
         nodes = list(nodes.values()) # Already sorted correctly [bias, inputs, outputs, hidden]
         network = Network(nodes, links, self.config.num_inputs, self.config.num_outputs)
-        self.phenotype = network
         return network
 
 
@@ -348,15 +346,18 @@ class Genome:
         g1_index = 0
         g2_index = 0
 
-        while g1_index <= self.size():
+        self_size = self.size()
+        other_size = other.size()
+
+        while g1_index <= self_size:
 
             # Reached end of other.
-            if g2_index == other.size():
+            if g2_index == other_size:
                 excess += len(self.links) - g1_index
                 break
 
             # Reached end of self.
-            if g1_index == self.size():
+            if g1_index == self_size:
                 excess += len(other.links) - g2_index
                 break
 

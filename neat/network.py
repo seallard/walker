@@ -33,7 +33,6 @@ class Network:
 
         tries = 0
 
-        # TODO: only wait for stabilization if classification task. Add a bool parameter?
         while tries < max_tries: # Dirty way: cleaner to check if outputs are stable.
 
             # Iterate over nodes and calculate their net input signals.

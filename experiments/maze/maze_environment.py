@@ -5,7 +5,6 @@
 # and interaction with his sensors.
 #
 import math
-from sklearn.preprocessing import normalize
 import numpy as np
 
 from . import agent
@@ -77,7 +76,7 @@ class MazeEnvironment:
             inputs.append(ri)
 
         inputs = np.array(inputs)
-        inputs = normalize(inputs[:,np.newaxis], axis=0).ravel()
+        inputs = inputs / np.sqrt(np.sum(inputs**2)) # Normalize.
         inputs = list(inputs)
         # The radar sensors
         for rs in self.agent.radar:

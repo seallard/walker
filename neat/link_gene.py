@@ -3,7 +3,7 @@ from neat.enums.node_types import NodeType
 
 
 class LinkGene:
-
+    __slots__ = ['from_node', 'to_node', 'enabled', 'recurrent', 'weight', 'id']
     def __init__(self, from_node, to_node, enabled=True, recurrent=False):
         self.from_node = from_node
         self.to_node = to_node

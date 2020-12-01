@@ -4,7 +4,7 @@
     },
 
     "species_settings": {
-        "maximum_stagnation": 15,
+        "maximum_stagnation": 25,
         "young_threshold": 10,
         "young_boost": 1.0,
         "old_threshold": 30,

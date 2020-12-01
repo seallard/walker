@@ -173,12 +173,24 @@ class Population:
     def run(self, fitness_function, store_records, n=None):
         """Run NEAT for n generations or until solution is found. """
 
-        while self.generation < n:
+        solution_found = False
+
+        while self.generation < n and not solution_found:
+
+            print(f"Generation {self.generation}")
 
             # Assign fitness scores.
-            fitness_function(self.genomes)
+            solution_found = fitness_function(self.genomes)
+
             self.speciate_genomes()
-            store_records(self.genomes) # Save data from evaluation and genomes.
+
+            # Save data from evaluation.
+            store_records(self.genomes)
+
+            # Terminate if solution was found.
+            if solution_found:
+                return True
+
             self.set_spawn_amounts()
             self.reproduce()
             self.reset()

@@ -2,11 +2,11 @@ import os
 import time
 import copy
 import concurrent
+import concurrent.futures
 import multiprocessing
 
 from neat.config import Config
 from neat.population import Population
-from neat.statistics import StatisticsReporter
 
 from . import maze_environment as maze
 from . import agent
@@ -57,6 +57,7 @@ def store_records(genomes):
         record.hit_exit = genome.hit
         record.species_id = genome.species_id
         record.species_age = genome.species_age
+        record.genome = genome
 
         # add record to the store
         trialSim.record_store.add_record(record)
@@ -70,10 +71,12 @@ def eval_genomes(genomes):
                  current generation
     """
 
-    start_time = time.time()
     cores_available = multiprocessing.cpu_count()
     executor = concurrent.futures.ProcessPoolExecutor(cores_available)
+    start_time = time.time()
     futures = [executor.submit(eval_fitness, genome) for genome in genomes]
+
+    found_solution = False
 
     for i, future in enumerate(futures):
 
@@ -85,8 +88,12 @@ def eval_genomes(genomes):
         genomes[i].y = y
         genomes[i].hit = hit
 
+        if hit:
+            found_solution = True
+
     elapsed_time = time.time() - start_time
     print(elapsed_time)
+    return found_solution
 
 def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experiment_id):
     """
@@ -111,42 +118,31 @@ def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experime
     global trialSim
     trialSim = MazeSimulationTrial(maze_env=maze_env, population=p)
 
-    # Collect stats.
-    stats = StatisticsReporter()
-    p.add_reporter(stats)
-
     # Run for N generations.
     start_time = time.time()
-    best_genome = p.run(eval_genomes, store_records, n=n_generations)
+    solution_found = p.run(eval_genomes, store_records, n=n_generations)
     elapsed_time = time.time() - start_time
 
-    print(f"Performed {n_generations*config.population_size} evaluations in {elapsed_time}")
-
-    solution_found = (best_genome.original_fitness >= config.fitness_threshold)
+    print(f"Performed {n_generations*config.population_size} evaluations in {elapsed_time} seconds")
 
     if solution_found:
-        print("SUCCESS: The stable maze solver controller was found!!!")
-    else:
-        print("FAILURE: Failed to find the stable maze solver controller!!!")
+        print(f"Solved in generation {trialSim.population.generation}")
 
-    # Write record store data for entire run to file.
+    # Save record store data for entire run to file.
     result_path = os.path.join(trial_out_dir, f"run_{experiment_id}.pickle")
     trialSim.record_store.dump(result_path)
-
-    print("Trial elapsed time: %.3f sec" % (elapsed_time))
-
-    return solution_found
 
 if __name__ == '__main__':
 
     maze_difficulty = "medium"
     metric = "pure_fitness"
-    generations = 500
-    runs = 30
+    generations = 10
+    runs = 1
 
     # Directory to store outputs.
     local_dir = os.path.dirname(__file__)
     out_dir = os.path.join(local_dir, "out", f"{metric}", f"{maze_difficulty}")
+    os.makedirs(out_dir)
 
     # Configs
     config_path = "configs/maze.json"

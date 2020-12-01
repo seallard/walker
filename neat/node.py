@@ -3,7 +3,7 @@ from math import exp
 
 
 class Node:
-
+    __slots__ = ['in_links', 'out_links', 'type', 'id', 'output', 'activation_count', 'active', 'sum']
     def __init__(self, node_gene):
         self.in_links = []
         self.out_links = []

@@ -4,11 +4,11 @@
     },
 
     "species_settings": {
-        "maximum_stagnation": 15,
+        "maximum_stagnation": 20,
         "young_threshold": 10,
-        "young_boost": 1.0,
+        "young_boost": 1.10,
         "old_threshold": 30,
-        "old_penalty": 1.0,
+        "old_penalty": 0.90,
 
         "dynamic_thresholding": 0,
         "target_number": 0,

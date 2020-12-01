@@ -2,7 +2,7 @@ from neat.enums.node_types import NodeType
 
 
 class NodeGene:
-
+    __slots__ = ['type', 'depth', 'id']
     def __init__(self, node_type, depth, innovation_number=None):
         self.type = node_type
         self.depth = depth
