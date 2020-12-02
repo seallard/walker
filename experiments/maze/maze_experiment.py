@@ -24,6 +24,27 @@ class MazeSimulationTrial:
         self.record_store = agent.AgentRecordStore()
         self.population = population
 
+def store_records(genomes):
+    """Store results from each genome. """
+
+    for genome in genomes:
+
+        record = {}
+        record['coordinates'] = (genome.x, genome.y)
+        record['genome_id'] = genome.id
+        record['generation'] = trialSim.population.generation
+        record['solution'] = int(genome.hit)
+        record['species_id'] = genome.species_id
+        record['species_age'] = genome.species_age
+        record['fitness'] = genome.original_fitness
+
+        network = genome.network()
+        record['nodes'] = len(network.nodes)
+        record['links'] = len(network.links)
+
+        # add record to the store
+        trialSim.record_store.add_record(record)
+
 def eval_fitness(genome, time_steps=400):
     """
     Evaluates fitness of the provided genome.
@@ -41,27 +62,6 @@ def eval_fitness(genome, time_steps=400):
                                         net=control_net,
                                         time_steps=time_steps)
     return (fitness, maze_env.agent.location.x, maze_env.agent.location.y, maze_env.exit_found)
-
-def store_records(genomes):
-    """Store simulation results from each genome in record for later visualisation. """
-
-    for genome in genomes:
-
-        record = agent.AgentRecord(
-            generation=trialSim.population.generation,
-            agent_id=genome.id)
-
-        record.fitness = genome.original_fitness
-        record.x = genome.x
-        record.y = genome.y
-        record.hit_exit = genome.hit
-        record.species_id = genome.species_id
-        record.species_age = genome.species_age
-        record.genome = genome
-
-        # add record to the store
-        trialSim.record_store.add_record(record)
-
 
 def eval_genomes(genomes):
     """
@@ -129,15 +129,15 @@ def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experime
         print(f"Solved in generation {trialSim.population.generation}")
 
     # Save record store data for entire run to file.
-    result_path = os.path.join(trial_out_dir, f"run_{experiment_id}.pickle")
+    result_path = os.path.join(trial_out_dir, f"run_{experiment_id}.json")
     trialSim.record_store.dump(result_path)
 
 if __name__ == '__main__':
 
-    maze_difficulty = "medium"
+    maze_difficulty = "hard"
     metric = "pure_fitness"
-    generations = 10
-    runs = 1
+    generations = 500
+    runs = 30
 
     # Directory to store outputs.
     local_dir = os.path.dirname(__file__)
