@@ -157,8 +157,8 @@ if __name__ == '__main__':
 
     config_path = "configs/maze.json"
 
-    runs = 1
-    generations = 1
+    runs = 30
+    generations = 500
     experiments = [("medium", "novelty", True, only_novelty)]
     # , ("hard", "novelty", True, only_novelty), ("medium", "fit", False, None), ("hard", "fit", False, None)
 
