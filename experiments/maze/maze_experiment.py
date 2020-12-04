@@ -159,8 +159,8 @@ if __name__ == '__main__':
 
     runs = 30
     generations = 500
-    experiments = [("medium", "novelty", True, only_novelty)]
-    # , ("hard", "novelty", True, only_novelty), ("medium", "fit", False, None), ("hard", "fit", False, None)
+    experiments = [("hard", "novelty", True, only_novelty)]
+    # ("medium", "novelty", True, only_novelty),("medium", "fit", False, None), ("hard", "fit", False, None)
 
     for experiment in experiments:
         maze_difficulty, metric, use_novelty, weighting = experiment
