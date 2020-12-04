@@ -4,13 +4,16 @@ import copy
 import concurrent
 import concurrent.futures
 import multiprocessing
+import random
 
 from neat.config import Config
 from neat.population import Population
+from novelty_search.novelty_search import Archive
 
 from . import maze_environment as maze
 from . import agent
 
+archive = Archive() # Used in novelty search to store points for novelty score calculation.
 
 class MazeSimulationTrial:
     def __init__(self, maze_env, population):
@@ -23,27 +26,6 @@ class MazeSimulationTrial:
         self.orig_maze_environment = maze_env
         self.record_store = agent.AgentRecordStore()
         self.population = population
-
-def store_records(genomes):
-    """Store results from each genome. """
-
-    for genome in genomes:
-
-        record = {}
-        record['coordinates'] = (genome.x, genome.y)
-        record['genome_id'] = genome.id
-        record['generation'] = trialSim.population.generation
-        record['solution'] = int(genome.hit)
-        record['species_id'] = genome.species_id
-        record['species_age'] = genome.species_age
-        record['fitness'] = genome.original_fitness
-
-        network = genome.network()
-        record['nodes'] = len(network.nodes)
-        record['links'] = len(network.links)
-
-        # add record to the store
-        trialSim.record_store.add_record(record)
 
 def eval_fitness(genome, time_steps=400):
     """
@@ -61,41 +43,78 @@ def eval_fitness(genome, time_steps=400):
                                         env=maze_env,
                                         net=control_net,
                                         time_steps=time_steps)
-    return (fitness, maze_env.agent.location.x, maze_env.agent.location.y, maze_env.exit_found)
+    return (fitness, maze_env.agent.location.x, maze_env.agent.location.y, maze_env.exit_found, control_net)
 
-def eval_genomes(genomes):
+def only_novelty():
+    return 1
+
+def eval_genomes(genomes, use_novelty, weighting):
     """
     Evaluate the fitness of each genome.
     Arguments:
         genomes: The list of genomes from population in the
                  current generation
+        use_novelty: Bool indicating whether to use novelty score.
+        weighting: Function returning novelty weight [0,1].
     """
 
     cores_available = multiprocessing.cpu_count()
     executor = concurrent.futures.ProcessPoolExecutor(cores_available)
-    start_time = time.time()
     futures = [executor.submit(eval_fitness, genome) for genome in genomes]
 
     found_solution = False
 
+    archive_updates = 0
+    novelty_score = 0
+    points = []
+
     for i, future in enumerate(futures):
 
-        fitness, x, y, hit = future.result()
+        fitness, x, y, hit, net = future.result()
 
-        genomes[i].original_fitness = fitness
-        genomes[i].adjusted_fitness = fitness
-        genomes[i].x = x
-        genomes[i].y = y
-        genomes[i].hit = hit
+        if use_novelty:
+            novelty_score = archive.get_novelty_score((x,y))
+            p = weighting()
+
+            # TODO: normalising?
+            genomes[i].original_fitness = p*novelty_score + (1-p)*fitness
+
+            # Randomly add 6 solutions to archive per generation.
+            if random.random() < 6/200 and archive_updates < 6:
+                archive.add_point((x, y))
+                archive_updates += 1
+
+            # Save coordinates if any points need to be added after loop.
+            points.append((x,y))
+
+        else:
+            genomes[i].original_fitness = fitness
+
+        record = {}
+        record['genome_id'] = genomes[i].id
+        record['generation'] = trialSim.population.generation
+        record['coordinates'] = (x, y)
+        record['solution'] = int(hit)
+        record['fitness'] = fitness
+        record['novelty_score'] = novelty_score
+        record['nodes'] = len(net.nodes)
+        record['links'] = len(net.links)
+
+        # add record to the store
+        trialSim.record_store.add_record(record)
 
         if hit:
             found_solution = True
 
-    elapsed_time = time.time() - start_time
-    print(elapsed_time)
+    # Add remaining points to archive.
+    if use_novelty:
+        for i in range(6-archive_updates):
+            point = random.choice(points)
+            archive.add_point(point)
+
     return found_solution
 
-def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experiment_id):
+def run_experiment(config_file, maze_env, trial_out_dir, n_generations, use_novelty, weighting, experiment_id):
     """
     The function to run the experiment against hyper-parameters
     defined in the provided configuration file.
@@ -104,6 +123,8 @@ def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experime
         maze_env:       The maze environment to use in simulation.
         trial_out_dir:  The directory to store outputs for this trial
         n_generations:  The number of generations to execute.
+        use_novelty:    Whether evaluation should use novelty search.
+        weighting:      How the novelty and fitness score should be combined.
     Returns:
         True if experiment finished with successful solver found.
     """
@@ -120,44 +141,54 @@ def run_experiment(config_file, maze_env, trial_out_dir, n_generations, experime
 
     # Run for N generations.
     start_time = time.time()
-    solution_found = p.run(eval_genomes, store_records, n=n_generations)
+    solution_found = p.run(eval_genomes, use_novelty, weighting, n=n_generations, run=experiment_id)
     elapsed_time = time.time() - start_time
 
-    print(f"Performed {n_generations*config.population_size} evaluations in {elapsed_time} seconds")
+    print(f"Time to complete run {experiment_id} out of 30: {elapsed_time}")
 
     if solution_found:
-        print(f"Solved in generation {trialSim.population.generation}")
+        print(f"Solved maze in generation {trialSim.population.generation}")
 
-    # Save record store data for entire run to file.
+    # Write record store to file.
     result_path = os.path.join(trial_out_dir, f"run_{experiment_id}.json")
     trialSim.record_store.dump(result_path)
 
 if __name__ == '__main__':
 
-    maze_difficulty = "hard"
-    metric = "pure_fitness"
-    generations = 500
-    runs = 30
-
-    # Directory to store outputs.
-    local_dir = os.path.dirname(__file__)
-    out_dir = os.path.join(local_dir, "out", f"{metric}", f"{maze_difficulty}")
-    os.makedirs(out_dir)
-
-    # Configs
     config_path = "configs/maze.json"
-    maze_env_config = os.path.join(local_dir, f"{maze_difficulty}_maze.txt")
 
-    for run in range(runs):
+    runs = 1
+    generations = 1
+    experiments = [("medium", "fit", False, None), ("hard", "fit", False, None),
+                   ("medium", "novelty", True, only_novelty), ("hard", "novelty", True, only_novelty)]
 
-        print(f"Run {run}")
+    for experiment in experiments:
+        maze_difficulty, metric, use_novelty, weighting = experiment
 
-        # Run the experiment
-        maze_env = maze.read_environment(maze_env_config)
+        # Directory to store outputs.
+        local_dir = os.path.dirname(__file__)
+        out_dir = os.path.join(local_dir, "out", f"{metric}", f"{maze_difficulty}")
+        os.makedirs(out_dir)
 
-        run_experiment( config_file=config_path,
-                        maze_env=maze_env,
-                        trial_out_dir=out_dir,
-                        n_generations=generations,
-                        experiment_id = run
-                        )
+        # Config for building maze.
+        maze_env_config = os.path.join(local_dir, f"{maze_difficulty}_maze.txt")
+
+        for run in range(runs):
+
+            print(f"Run {run} of {runs} on {maze_difficulty} maze with {metric} metric.")
+
+            # Run the experiment
+            maze_env = maze.read_environment(maze_env_config)
+
+            # Add initial starting point to novelty search archive.
+            archive.add_point((maze_env.agent.location.x, maze_env.agent.location.y))
+
+            run_experiment( config_file=config_path,
+                            maze_env=maze_env,
+                            trial_out_dir=out_dir,
+                            n_generations=generations,
+                            use_novelty=use_novelty,
+                            weighting=weighting,
+                            experiment_id = run
+                            )
+            archive.reset()

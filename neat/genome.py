@@ -96,7 +96,13 @@ class Genome:
         while tries:
 
             from_node = choice(self.nodes[self.config.num_inputs+1:])
-            to_node = choice(self.nodes[self.config.num_inputs + self.config.num_outputs+1:])
+            to_node_pool = self.nodes[self.config.num_inputs + self.config.num_outputs+1:]
+
+            # Might be impossible to add recurrent link.
+            if to_node_pool == []:
+                break
+
+            to_node = choice(to_node_pool)
 
             if self.valid_recurrent_link(from_node, to_node):
 

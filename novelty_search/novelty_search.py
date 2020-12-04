@@ -34,3 +34,8 @@ class Archive:
         """Return euclidean distance between point a and b. """
         total = (a[0] - b[0])**2 + (a[1] - b[1])**2
         return total ** 0.5
+
+    def reset(self):
+        self.points = []
+        self.archive = index.Index()
+        self.point_index = 0

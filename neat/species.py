@@ -106,7 +106,7 @@ class Species:
     def get_total_fitness(self):
         total_fitness = 0
         for genome in self.genomes:
-            total_fitness += genome.adjusted_fitness
+            total_fitness += genome.original_fitness
         return total_fitness
 
     def adjust_fitness(self):

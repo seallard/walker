@@ -1,6 +1,5 @@
 from neat.genome import Genome
 from neat.species import Species
-from neat.reporting import ReporterSet
 from neat.innovation_tracker import InnovationTracker
 from neat.breeder import Breeder
 from math import floor
@@ -17,7 +16,6 @@ class Population:
         self.genomes = []
         self.tracker = InnovationTracker(config)
         self.breeder = Breeder(config)
-        self.reporters = ReporterSet()
         self.generation = 0
 
         for i in range(config.population_size):
@@ -34,16 +32,12 @@ class Population:
 
                 if compatibility < self.config.compatibility_threshold:
                     species.add_genome(genome)
-                    genome.species_id = species.id
-                    genome.species_age = species.age
                     species_found = True
                     break
 
             if not species_found:
                 new_species = Species(self.species_id, genome, self.config, self.breeder)
                 self.species.append(new_species)
-                genome.species_id = new_species.id
-                genome.species_age = new_species.age
                 self.species_id += 1
 
     def set_spawn_amounts(self):
@@ -52,13 +46,11 @@ class Population:
         # Sort by decreasing fitness.
         self.species.sort(key=lambda x: x.leader.original_fitness, reverse=True)
 
-        # Remove stagnated species.
         non_stagnated_species = [species for species in self.species if not species.stagnated()]
 
-        if len(non_stagnated_species) > 0:
-            self.species = non_stagnated_species
-        else:
-            self.species = self.species[:2] # When all species stagnated.
+        # When all species stagnate, only let the two best reproduce.
+        if len(non_stagnated_species) == 0:
+            self.species = self.species[:2]
 
         # Offspring = (AverageSpeciesFitness / Total_of_AverageSpeciesFitnesss) * PopulationSize
         total_average_species_fitness = 0
@@ -170,30 +162,23 @@ class Population:
         for species in self.species:
             species.adjust_fitness()
 
-    def run(self, fitness_function, store_records, n=None):
+    def run(self, fitness_function, use_novelty, weighting, n=None, run=None):
         """Run NEAT for n generations or until solution is found. """
 
         solution_found = False
 
         while self.generation < n and not solution_found:
 
-            print(f"Generation {self.generation}")
+            print(f"Generation {self.generation} of 500 in run {run} of 30")
 
-            # Assign fitness scores.
-            solution_found = fitness_function(self.genomes)
-
-            self.speciate_genomes()
-
-            # Save data from evaluation.
-            store_records(self.genomes)
+            # Assign fitness scores. TODO: fix parameter forwarding.
+            solution_found = fitness_function(self.genomes, use_novelty, weighting)
 
             # Terminate if solution was found.
             if solution_found:
                 return True
 
+            self.speciate_genomes()
             self.set_spawn_amounts()
             self.reproduce()
             self.reset()
-
-    def add_reporter(self, reporter):
-        self.reporters.add(reporter)

@@ -3,6 +3,5 @@ pytest
 pytest-cov
 networkx
 matplotlib
-gym
 numpy
-scikit-learn
+rtree

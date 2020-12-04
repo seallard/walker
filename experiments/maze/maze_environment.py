@@ -6,6 +6,7 @@
 #
 import math
 import numpy as np
+import os
 
 from . import agent
 from . import geometry
@@ -265,8 +266,18 @@ def read_environment(file_path):
     assert len(walls) == num_lines
 
     print("Maze environment configured successfully from the file: %s" % file_path)
-    # create and return the maze environment
-    return MazeEnvironment(agent=maze_agent, walls=walls, exit_point=maze_exit)
+
+    env = MazeEnvironment(agent=maze_agent, walls=walls, exit_point=maze_exit)
+
+    name = os.path.basename(os.path.normpath(file_path))[:-4]
+
+    # TODO: I'm not fixing these hard coded values :)
+    if name == "medium_maze":
+        env.diagonal = 318
+    if name == "hard_maze":
+        env.diagonal = 276
+
+    return env
 
 def maze_simulation_evaluate(env, net, time_steps):
     """
@@ -284,11 +295,10 @@ def maze_simulation_evaluate(env, net, time_steps):
             return 1.0
 
     # Calculate the fitness score based on distance from exit
-    fitness = env.agent_distance_to_exit()
+    exit_distance = env.agent_distance_to_exit()
+
     # Normalize fitness score to range (0,1]
-    fitness = (env.initial_distance - fitness) / env.initial_distance
-    if fitness <= 0.01:
-        fitness = 0.01
+    fitness = (env.diagonal - exit_distance) / env.diagonal
 
     return fitness
 

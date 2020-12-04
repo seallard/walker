@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-maze_difficulty = "medium"
-metric = "pure_fitness"
 runs = 30
 local_dir = os.path.dirname(__file__)
 
@@ -14,7 +12,7 @@ local_dir = os.path.dirname(__file__)
 def load_experiment_data(metric, maze):
     all_runs = []
     for run in range(runs):
-        data = json.load(open(f"{local_dir}/out/{metric}/{maze_difficulty}/run_{run}.json", "r" ))
+        data = json.load(open(f"{local_dir}/out/{metric}/{maze}/run_{run}.json", "r" ))
         all_runs.append(data)
     return all_runs
 
@@ -77,18 +75,22 @@ def format_data_for_plot(data):
     return filtered_runs
 
 
-def plot_average_fitness(data, export):
-    filtered_data = format_data_for_plot(data)
+def plot_average_fitness(experiments_data, labels, export):
 
-    data = np.array(filtered_data)
-    raw_average = np.average(data, axis=0)
+    for data in experiments_data:
+        filtered_data = format_data_for_plot(data)
 
-    y = np.mean(raw_average.reshape(-1, 200), axis=1) # Average of generation.
-    x = np.arange(start=0, stop=500)
+        data = np.array(filtered_data)
+        raw_average = np.average(data, axis=0)
 
-    plt.plot(x, y)
+        y = np.mean(raw_average.reshape(-1, 200), axis=1) # Average of generation.
+        x = np.arange(start=0, stop=500)
+
+        plt.plot(x, y)
+
     plt.xlabel("Generations")
     plt.ylabel("Average fitness")
+    plt.legend(labels, loc=4)
 
     if export:
         matplotlib.use("pgf")
@@ -104,14 +106,17 @@ def plot_average_fitness(data, export):
         plt.show()
 
 
-experiments = [("pure_novelty", "medium"), ("pure_fitness", "hard")]
+experiments = [("pure_fitness", "hard")]
+experiments_data = []
 
 for experiment in experiments:
     metric, maze = experiment
 
     data = load_experiment_data(metric, maze)
-    #solutions = get_solutions(data)
+    experiments_data.append(data)
 
-    #print_stats(solutions, experiment)
+    solutions = get_solutions(data)
+    print_stats(solutions, experiment)
 
-    plot_average_fitness(data, False)
+labels = ["Fitness"]
+plot_average_fitness(experiments_data, labels, False)
