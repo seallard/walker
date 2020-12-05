@@ -48,7 +48,32 @@ def eval_fitness(genome, time_steps=400):
 def only_novelty():
     return 1
 
-def eval_genomes(genomes, use_novelty, weighting):
+def even():
+    return 0.5
+
+def novelty_injection():
+    if trialSim.population.age_since_improvement >= 15:
+        if trialSim.population.novelty_injection_generations < 15:
+            trialSim.population.novelty_injection_generations += 1
+            return 1
+        else:
+            trialSim.population.age_since_improvement = 0
+            trialSim.population.novelty_injection_generations = 0
+    return 0
+
+def dynamic():
+    n = trialSim.population.age_since_improvement
+    nmax = 15
+    if n <= nmax:
+        return 0.1 + (n/nmax)*0.8
+    return 0.9
+
+def normalise_score(score, max_score, min_score):
+    if min_score == max_score:
+        return score
+    return (score-min_score)/(max_score-min_score)
+
+def eval_genomes(genomes, use_novelty, novelty_weighting):
     """
     Evaluate the fitness of each genome.
     Arguments:
@@ -62,33 +87,25 @@ def eval_genomes(genomes, use_novelty, weighting):
     executor = concurrent.futures.ProcessPoolExecutor(cores_available)
     futures = [executor.submit(eval_fitness, genome) for genome in genomes]
 
+    archive_updates = 0
+    records = []
+
+    # Keep track of min and max for normalisation.
+    max_fitness = 0
+    min_fitness = 10000
+    max_novelty = 0
+    min_novelty = 10000
+
     found_solution = False
 
-    archive_updates = 0
-    novelty_score = 0
-    points = []
-
+    # Iterate over futures and store results in records.
     for i, future in enumerate(futures):
 
         fitness, x, y, hit, net = future.result()
+        novelty_score = archive.get_novelty_score((x,y))
 
-        if use_novelty:
-            novelty_score = archive.get_novelty_score((x,y))
-            p = weighting()
-
-            # TODO: normalising?
-            genomes[i].original_fitness = p*novelty_score + (1-p)*fitness
-
-            # Randomly add 6 solutions to archive per generation.
-            if random.random() < 6/200 and archive_updates < 6:
-                archive.add_point((x, y))
-                archive_updates += 1
-
-            # Save coordinates if any points need to be added after loop.
-            points.append((x,y))
-
-        else:
-            genomes[i].original_fitness = fitness
+        # Save the original distance based fitness.
+        genomes[i].original_fitness = fitness
 
         record = {}
         record['genome_id'] = genomes[i].id
@@ -96,21 +113,57 @@ def eval_genomes(genomes, use_novelty, weighting):
         record['coordinates'] = (x, y)
         record['solution'] = int(hit)
         record['fitness'] = fitness
-        record['novelty_score'] = novelty_score
+        record['novelty'] = novelty_score
         record['nodes'] = len(net.nodes)
         record['links'] = len(net.links)
 
-        # add record to the store
-        trialSim.record_store.add_record(record)
+        records.append(record)
 
         if hit:
             found_solution = True
 
+        # Update min and max for normalisation.
+        if fitness > max_fitness:
+            max_fitness = fitness
+
+        if fitness < min_fitness:
+            min_fitness = fitness
+
+        if novelty_score > max_novelty:
+            max_novelty = novelty_score
+
+        if novelty_score < min_novelty:
+            min_novelty = novelty_score
+
+        # Randomly update novelty search archive.
+        if use_novelty and random.random() < 6/200 and archive_updates < 6:
+            archive.add_point((x, y))
+            archive_updates += 1
+
     # Add remaining points to archive.
-    if use_novelty:
-        for i in range(6-archive_updates):
-            point = random.choice(points)
-            archive.add_point(point)
+    while use_novelty and archive_updates < 6:
+        record = random.choice(records)
+        archive.add_point(record['coordinates'])
+        archive_updates += 1
+
+    # Iterate over records and calculate the normalised fitness scores.
+    for i, record in enumerate(records):
+        normalised_fitness = normalise_score(record['fitness'], max_fitness, min_fitness)
+        normalised_novelty = normalise_score(record['novelty'], max_novelty, min_novelty)
+
+        # Calculate combined fitness and novelty score if used.
+        if use_novelty:
+            p = novelty_weighting()
+            fitness = p*normalised_novelty + (1-p)*normalised_fitness
+        else:
+            fitness = normalised_fitness
+
+        # Set the fitness of the genome.
+        genomes[i].fitness = fitness
+
+        # Save record.
+        record['fitness_used'] = fitness
+        trialSim.record_store.add_record(record)
 
     return found_solution
 
@@ -157,10 +210,14 @@ if __name__ == '__main__':
 
     config_path = "configs/maze.json"
 
-    runs = 30
-    generations = 500
-    experiments = [("hard", "novelty", True, only_novelty)]
-    # ("medium", "novelty", True, only_novelty),("medium", "fit", False, None), ("hard", "fit", False, None)
+    runs = 1
+    generations = 1
+    experiments = [("medium", "pure_fitness", False, None), ("hard", "pure_fitness", False, None),
+                   ("medium", "pure_novelty", True, only_novelty), ("hard", "pure_novelty", True, only_novelty),
+                   ("medium", "fitness_novelty", True, even), ("hard", "fitness_novelty", True, even),
+                   ("medium", "novelty_injection", True, novelty_injection), ("hard", "novelty_injection", True, novelty_injection),
+                   ("medium", "dynamic", True, dynamic), ("hard", "dynamic", True, dynamic)
+                ]
 
     for experiment in experiments:
         maze_difficulty, metric, use_novelty, weighting = experiment

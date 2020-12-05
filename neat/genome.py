@@ -14,7 +14,7 @@ class Genome:
         self.id = id
         self.config = config
         self.original_fitness = 0
-        self.adjusted_fitness = 0
+        self.fitness = 0
         self.tracker = tracker
 
         if link_genes is None or node_genes is None:

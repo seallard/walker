@@ -106,7 +106,7 @@ def plot_average_fitness(experiments_data, labels, export):
         plt.show()
 
 
-experiments = [("pure_fitness", "hard")]
+experiments = [("pure_fitness", "medium"), ("pure_novelty", "medium")]
 experiments_data = []
 
 for experiment in experiments:

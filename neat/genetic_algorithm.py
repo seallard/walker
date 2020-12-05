@@ -16,6 +16,7 @@ class GeneticAlgorithm:
             for genome in self.population.genomes:
                 fitness, done = self.environment.evaluate(genome)
                 genome.original_fitness = fitness
+                genome.fitness = fitness
 
                 if done:
                     return

@@ -17,10 +17,28 @@ class Population:
         self.tracker = InnovationTracker(config)
         self.breeder = Breeder(config)
         self.generation = 0
+        self.age_since_improvement = 0
+        self.champion_fitness = 0
+        self.novelty_injection_generations = 0
 
         for i in range(config.population_size):
             genome = Genome(i, config, tracker=self.tracker)
             self.genomes.append(genome)
+
+    def champion_check(self):
+        """Checker whether any solution with better fitness has been found.
+        Precondition: speciation and evaluation done.
+        """
+        better_champion = False
+
+        for species in self.species:
+            if species.leader.original_fitness > self.champion_fitness:
+                self.age_since_improvement = 0
+                self.champion_fitness = species.leader.original_fitness
+                better_champion = True
+
+        if not better_champion:
+            self.age_since_improvement += 1
 
     def speciate_genomes(self):
         """Place each genome into a species. """
@@ -44,7 +62,7 @@ class Population:
         """Fitness sharing. """
 
         # Sort by decreasing fitness.
-        self.species.sort(key=lambda x: x.leader.original_fitness, reverse=True)
+        self.species.sort(key=lambda x: x.leader.fitness, reverse=True)
 
         non_stagnated_species = [species for species in self.species if not species.stagnated()]
 
@@ -145,16 +163,16 @@ class Population:
         """
 
         # Find the lowest fitness value.
-        min_fitness = self.genomes[0].original_fitness
+        min_fitness = self.genomes[0].fitness
         for genome in self.genomes:
-            if genome.original_fitness < min_fitness:
-                min_fitness = genome.original_fitness
+            if genome.fitness < min_fitness:
+                min_fitness = genome.fitness
 
         if min_fitness > 0:
             return
 
         for genome in self.genomes:
-            genome.original_fitness += abs(min_fitness)
+            genome.fitness += abs(min_fitness)
 
     def adjust_fitness_scores(self):
         """Boost young and penalise old species. """
@@ -179,6 +197,7 @@ class Population:
                 return True
 
             self.speciate_genomes()
+            self.champion_check()
             self.set_spawn_amounts()
             self.reproduce()
             self.reset()
