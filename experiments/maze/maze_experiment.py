@@ -165,6 +165,7 @@ def eval_genomes(genomes, use_novelty, novelty_weighting):
         # Calculate combined fitness and novelty score if used.
         if use_novelty:
             fitness = p*normalised_novelty + (1-p)*normalised_fitness
+            record['p'] = p
         else:
             fitness = normalised_fitness
 
