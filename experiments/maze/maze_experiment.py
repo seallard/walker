@@ -52,13 +52,20 @@ def even():
     return 0.5
 
 def novelty_injection():
-    if trialSim.population.age_since_improvement >= 15:
-        if trialSim.population.novelty_injection_generations < 15:
-            trialSim.population.novelty_injection_generations += 1
-            return 1
-        else:
-            trialSim.population.age_since_improvement = 0
-            trialSim.population.novelty_injection_generations = 0
+    injections = trialSim.population.injections
+    n = trialSim.population.age_since_improvement
+
+    if n > 15 and injections == 0:
+        trialSim.population.injections += 1
+        return 1
+
+    if injections != 0 and injections < 15:
+        trialSim.population.injections += 1
+        return 1
+
+    if injections == 15:
+        trialSim.population.injections = 0
+
     return 0
 
 def dynamic():
@@ -146,6 +153,9 @@ def eval_genomes(genomes, use_novelty, novelty_weighting):
         archive.add_point(record['coordinates'])
         archive_updates += 1
 
+    # Calculate the novelty factor.
+    p = novelty_weighting()
+
     # Iterate over records and calculate the normalised fitness scores.
     for i, record in enumerate(records):
         normalised_fitness = normalise_score(record['fitness'], max_fitness, min_fitness)
@@ -153,7 +163,6 @@ def eval_genomes(genomes, use_novelty, novelty_weighting):
 
         # Calculate combined fitness and novelty score if used.
         if use_novelty:
-            p = novelty_weighting()
             fitness = p*normalised_novelty + (1-p)*normalised_fitness
         else:
             fitness = normalised_fitness

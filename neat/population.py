@@ -19,7 +19,7 @@ class Population:
         self.generation = 0
         self.age_since_improvement = 0
         self.champion_fitness = 0
-        self.novelty_injection_generations = 0
+        self.novelty_injections = 0
 
         for i in range(config.population_size):
             genome = Genome(i, config, tracker=self.tracker)
