@@ -154,7 +154,8 @@ def eval_genomes(genomes, use_novelty, novelty_weighting):
         archive_updates += 1
 
     # Calculate the novelty factor.
-    p = novelty_weighting()
+    if use_novelty:
+        p = novelty_weighting()
 
     # Iterate over records and calculate the normalised fitness scores.
     for i, record in enumerate(records):
@@ -219,8 +220,8 @@ if __name__ == '__main__':
 
     config_path = "configs/maze.json"
 
-    runs = 1
-    generations = 1
+    runs = 30
+    generations = 500
     experiments = [("medium", "pure_fitness", False, None), ("hard", "pure_fitness", False, None),
                    ("medium", "pure_novelty", True, only_novelty), ("hard", "pure_novelty", True, only_novelty),
                    ("medium", "fitness_novelty", True, even), ("hard", "fitness_novelty", True, even),
