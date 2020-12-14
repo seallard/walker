@@ -30,14 +30,10 @@ class MazeEnvironment:
         self.walls = walls
         self.exit_point = exit_point
         self.exit_range = exit_range
-        # The maze navigating agent
-        self.agent = agent
-        # The flag to indicate if exit was found
-        self.exit_found = False
-        # The initial distance of agent from exit
-        self.initial_distance = self.agent_distance_to_exit()
 
-        # Update sensors
+        self.agent = agent
+        self.exit_found = False
+
         self.update_rangefinder_sensors()
         self.update_radars()
 
@@ -211,18 +207,6 @@ class MazeEnvironment:
         self.exit_found = (distance < self.exit_range)
         return self.exit_found
 
-    def __str__(self):
-        """
-        Returns the nicely formatted string representation of this environment.
-        """
-        str = "MAZE\nAgent at: (%.1f, %.1f)" % (self.agent.location.x, self.agent.location.y)
-        str += "\nExit  at: (%.1f, %.1f), exit range: %.1f" % (self.exit_point.x, self.exit_point.y, self.exit_range)
-        str += "\nWalls [%d]" % len(self.walls)
-        for w in self.walls:
-            str += "\n\t%s" % w
-        
-        return str
-
 def read_environment(file_path):
     """
     The function to read maze environment configuration from provided
@@ -276,6 +260,8 @@ def read_environment(file_path):
         env.diagonal = 318
     if name == "hard_maze":
         env.diagonal = 276
+    if name == "open_maze":
+        env.diagonal = 5004
 
     return env
 
@@ -292,7 +278,7 @@ def maze_simulation_evaluate(env, net, time_steps):
     for i in range(time_steps):
         if maze_simulation_step(env, net):
             print("Maze solved in %d steps" % (i + 1))
-            return 1.0
+            break
 
     # Calculate the fitness score based on distance from exit
     exit_distance = env.agent_distance_to_exit()

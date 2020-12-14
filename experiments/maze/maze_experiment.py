@@ -223,15 +223,16 @@ if __name__ == '__main__':
 
     runs = 30
     generations = 500
-    experiments = [("medium", "pure_fitness", False, None), ("hard", "pure_fitness", False, None),
-                   ("medium", "pure_novelty", True, only_novelty), ("hard", "pure_novelty", True, only_novelty),
-                   ("medium", "fitness_novelty", True, even), ("hard", "fitness_novelty", True, even),
-                   ("medium", "novelty_injection", True, novelty_injection), ("hard", "novelty_injection", True, novelty_injection),
-                   ("medium", "dynamic", True, dynamic), ("hard", "dynamic", True, dynamic)
+    maze_difficulty = "open"
+    experiments = [("pure_fitness", False, None),
+                   ("pure_novelty", True, only_novelty),
+                   ("fitness_novelty", True, even),
+                   ("novelty_injection", True, novelty_injection),
+                   ("dynamic", True, dynamic)
                 ]
 
     for experiment in experiments:
-        maze_difficulty, metric, use_novelty, weighting = experiment
+        metric, use_novelty, weighting = experiment
 
         # Directory to store outputs.
         local_dir = os.path.dirname(__file__)

@@ -22,7 +22,6 @@ class GeneticAlgorithm:
                     return
 
             self.population.speciate_genomes()
-            self.population.adjust_fitness_scores()
             self.population.set_spawn_amounts()
             self.population.reproduce()
             self.population.reset()
